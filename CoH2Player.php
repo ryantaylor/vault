@@ -3,6 +3,7 @@
 class CoH2Player {
 
 	private $name;			// player name
+	private $id;			// internal player ID
 	private $faction; 		// player faction
 	private $team;			// player team
 	private $position;		// starting position
@@ -32,6 +33,9 @@ class CoH2Player {
 	
 	public function getName() 							{ return $this->name; }
 	public function setName($name) 						{ $this->name = $name; }
+	
+	public function getId() 							{ return $this->id; }
+	public function setId($id) 							{ $this->id = $id; }
 	
 	public function getFaction() 						{ return $this->faction; }
 	public function setFaction($faction) 				{ $faction == 0 ? $this->faction = "Ostheer" : $this->faction = "Soviets"; }

@@ -6,10 +6,12 @@ class CoH2ReplayParser {
 
 	private $replay;	// CoH2Replay object
 	private $stream;	// CoH2Stream object (from $replay)
+	private $idMap;		// map of starting positions and player IDs
 	
 	public function __construct($file) {
 		$this->replay = new CoH2Replay($file);
 		$this->stream = $this->replay->getStream();
+		$this->idMap = $this->initializePlayerIdMap();
 	}
 
 	public function parse() {
@@ -21,7 +23,7 @@ class CoH2ReplayParser {
 		$time = "";
 		while ($this->stream->readUInt16() != 0) {
 			$this->stream->skip(-2);
-			$time = $time . $this->stream->readText(2);
+			$time = $time . $this->stream->readUnicode(1);
 		}
 		$this->replay->setDateTime($time);
 		
@@ -87,11 +89,11 @@ class CoH2ReplayParser {
 			
 			$this->stream->skip(16);
 			
-			$this->replay->setMapName($this->stream->readText(2 * $this->stream->readUInt32()));
+			$this->replay->setMapName($this->stream->readUnicode($this->stream->readUInt32()));
 			
 			$this->stream->skip(4);
 			
-			$this->replay->setMapDescription($this->stream->readText(2 * $this->stream->readUInt32()));
+			$this->replay->setMapDescription($this->stream->readUnicode($this->stream->readUInt32()));
 			
 			$this->stream->skip(4);
 			
@@ -133,7 +135,7 @@ class CoH2ReplayParser {
 	
 		$this->stream->skip(1);
 		
-		$player = CoH2Player::createWithName($this->stream->readText(2 * $this->stream->readUInt32()));
+		$player = CoH2Player::createWithName($this->stream->readUnicode($this->stream->readUInt32()));
 		
 		$player->setTeam($this->stream->readUInt32());
 		
@@ -142,6 +144,10 @@ class CoH2ReplayParser {
 		$this->stream->skip(41);
 		
 		$player->setPosition($this->stream->readUInt32());
+		
+		$mapName = $this->replay->getMapName();
+		$position = $player->getPosition();
+		$player->setId($this->idMap[$mapName][$position]);
 		
 		$this->stream->skip(8);
 		
@@ -167,11 +173,21 @@ class CoH2ReplayParser {
 		
 		return $player;
 	}
+	
+	private function initializePlayerIdMap() {
+		$map = array(
+		
+			// 2p_kholodnaya_ferma_battlefield
+			'$11045520' => array(33620761 => 0x100, 39533638 => 0x102)
+		);
+		
+		return $map;
+	}
 }
 
 // info display
 
-$parser = new CoH2ReplayParser("ggw.Coon.rec");
+$parser = new CoH2ReplayParser("testing.rec");
 $replay = $parser->parse();
 
 $version = $replay->getVersion();
@@ -216,6 +232,9 @@ for ($i = 0; $i < count($players); $i ++) {
 	
 	$position = $players[$i]->getPosition();
 	echo "Starting Position: $position<br />";
+	
+	$id = $players[$i]->getId();
+	echo "Player ID: $id<br />";
 	
 	$commanders = $players[$i]->getCommanders();
 	

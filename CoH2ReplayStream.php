@@ -36,6 +36,15 @@ class CoH2ReplayStream {
 		return $val;
 	}
 	
+	public function readUnicode($length) {
+		$val = "";
+		for ($i = 0; $i < $length; $i ++) {
+			$val = $val . fread($this->stream, 1);
+			$this->skip(1);
+		}
+		return $val;
+	}
+	
 	public function skip($numBytes = 4) {
 		fseek($this->stream, $numBytes, SEEK_CUR);
 	}
