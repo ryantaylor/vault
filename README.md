@@ -8,6 +8,7 @@ Based off pingtoft's CoH replay parser: http://www.gamereplays.org/community/ind
 Sample output:
 
 Version: 0
+
 Gametype: COH__REC
 Mod: RelicCoH2Dev
 Map File: DATA:scenarios\mp\4p_coh2_okariver_frontline\4p_coh2_okariver_frontline
