@@ -108,7 +108,12 @@ class CoH2Parser {
 		}
 		
 		if ($chunkType === "DATADATA" && $chunkVersion == 0x4) {
-			// TODO
+			$this->stream->skip(29);
+			
+			$numPlayers = $this->stream->readUInt32();
+			
+			for ($i = 0; $i < $numPlayers; $i ++)
+				$this->replay->addPlayer($this->parsePlayer());
 		}
 		
 		if ($chunkType === "DATABASE" && $chunkVersion == 0xff) {
@@ -119,8 +124,29 @@ class CoH2Parser {
 		
 		return true;
 	}
+	
+	private function parsePlayer() {
+	
+		$this->stream->skip(1);
+		
+		$player = CoH2Player::createWithName($this->stream->readText(2 * $this->stream->readUInt32()));
+		
+		$this->stream->skip(93);
+		
+		$numBulletins = $this->stream->readUInt32();
+		
+		for ($i = 0; $i < $numBulletins; $i ++) {
+			$player->addBulletin($this->stream->readText($this->stream->readUInt32()));
+			$this->stream->skip(4);
+		}
+		
+		return $player;
+	}
 }
-$parser = new CoH2Parser("ggvs.Chance.rec");
+
+// info display
+
+$parser = new CoH2Parser("ggw.Coon.rec");
 $replay = $parser->parse();
 
 $version = $replay->getVersion();
@@ -143,5 +169,23 @@ echo "Map Description: $mapDescription<br />";
 echo "Map Width: $mapWidth<br />";
 echo "Map Height: $mapHeight<br />";
 echo "Season: $season<br />";
+
+echo "<br />";
+
+$players = $replay->getPlayers();
+
+for ($i = 0; $i < count($players); $i ++) {
+	echo "Player $i:<br />";
+	
+	$name = $players[$i]->getName();
+	echo "Name: $name<br />";
+	
+	$bulletins = $players[$i]->getBulletins();
+	
+	for ($j = 0; $j < count($bulletins); $j ++) {
+		echo "Bulletin $j: $bulletins[$j]<br />";
+	}
+	echo "<br />";
+}
 
 ?>

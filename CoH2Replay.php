@@ -71,14 +71,5 @@ class CoH2Replay {
 	public function getPlayers() 						{ return $this->player; }
 	public function getPlayer($index)					{ return $this->player[$index]; }
 	public function setPlayers(array $players) 			{ $this->player = $players; }
-	
-	public function addPlayer(Player $player) {
-		for ($i = 0; $i < 8; $i ++) {
-			if (!isset($this->player[$i])) {
-				$this->player[$i] = $player;
-				return true;
-			}
-		}
-		return false;
-	}
+	public function addPlayer(CoH2Player $player)		{ array_push($this->player, $player); }
 }

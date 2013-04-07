@@ -29,7 +29,9 @@ class CoH2Player {
 	public function setFaction($faction) 			{ $this->faction = $faction; }
 	
 	public function getBulletins() 					{ return $this->bulletins; }
+	public function getBulletin($index)				{ return $this->bulletins[$index]; }
 	public function setBulletins(array $bulletins) 	{ $this->bulletins = $bulletins; }
+	public function addBulletin($bulletin)			{ array_push($this->bulletins, $bulletin); }
 	
 	public function getCommands() 					{ return $this->commands; }
 	public function setCommands($commands) 			{ $this->commands = $commands; }
