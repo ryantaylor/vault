@@ -9,6 +9,8 @@ Sample output:
 
 Version: 0<br />
 Gametype: COH__REC<br />
+Win Condition: VPTICKERWIN-ANNIHILATE<br />
+Time: 03/04/2013 9:51 AM<br />
 Mod: RelicCoH2Dev<br />
 Map File: DATA:scenarios\mp\4p_coh2_okariver_frontline\4p_coh2_okariver_frontline<br />
 Map Name: $11046708<br />
