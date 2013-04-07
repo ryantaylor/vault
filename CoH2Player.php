@@ -4,6 +4,7 @@ class CoH2Player {
 
 	private $name;		// player name
 	private $faction; 	// player faction
+	private $team;		// player team
 	private $bulletins;	// equipped intel bulletins
 	private $commands;	// counter for commands issued
 	
@@ -26,7 +27,10 @@ class CoH2Player {
 	public function setName($name) 					{ $this->name = $name; }
 	
 	public function getFaction() 					{ return $this->faction; }
-	public function setFaction($faction) 			{ $this->faction = $faction; }
+	public function setFaction($faction) 			{ $faction == 0 ? $this->faction = "Ostheer" : $this->faction = "Soviets"; }
+	
+	public function getTeam() 						{ return $this->team; }
+	public function setTeam($team) 					{ $this->team = $team; }
 	
 	public function getBulletins() 					{ return $this->bulletins; }
 	public function getBulletin($index)				{ return $this->bulletins[$index]; }

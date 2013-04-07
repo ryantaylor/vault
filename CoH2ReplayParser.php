@@ -2,7 +2,7 @@
 
 include_once 'CoH2Replay.php';
 
-class CoH2Parser {
+class CoH2ReplayParser {
 
 	private $replay;	// CoH2Replay object
 	private $stream;	// CoH2Stream object (from $replay)
@@ -131,7 +131,11 @@ class CoH2Parser {
 		
 		$player = CoH2Player::createWithName($this->stream->readText(2 * $this->stream->readUInt32()));
 		
-		$this->stream->skip(93);
+		$player->setTeam($this->stream->readUInt32());
+		
+		$player->setFaction($this->stream->readUInt32());
+		
+		$this->stream->skip(85);
 		
 		$numBulletins = $this->stream->readUInt32();
 		
@@ -146,7 +150,7 @@ class CoH2Parser {
 
 // info display
 
-$parser = new CoH2Parser("ggw.Coon.rec");
+$parser = new CoH2ReplayParser("ggw.Coon.rec");
 $replay = $parser->parse();
 
 $version = $replay->getVersion();
@@ -179,6 +183,12 @@ for ($i = 0; $i < count($players); $i ++) {
 	
 	$name = $players[$i]->getName();
 	echo "Name: $name<br />";
+	
+	$team = $players[$i]->getTeam();
+	echo "Team: $team<br />";
+	
+	$faction = $players[$i]->getFaction();
+	echo "Faction: $faction<br />";
 	
 	$bulletins = $players[$i]->getBulletins();
 	
