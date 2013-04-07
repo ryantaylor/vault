@@ -135,7 +135,24 @@ class CoH2ReplayParser {
 		
 		$player->setFaction($this->stream->readUInt32());
 		
-		$this->stream->skip(85);
+		$this->stream->skip(41);
+		
+		$player->setPosition($this->stream->readUInt32());
+		
+		$this->stream->skip(8);
+		
+		for ($i = 0; $i < 3; $i ++)
+			$player->addCommander($this->stream->readUInt32());
+			
+		$this->stream->skip(4);
+		
+		for ($i = 0; $i < 3; $i ++) {
+			$bulletinId = $this->stream->readUInt32();
+			if ($bulletinId != 0xffffffff)
+				$player->addBulletinId($bulletinId);
+		}
+		
+		$this->stream->skip(4);
 		
 		$numBulletins = $this->stream->readUInt32();
 		
@@ -190,10 +207,20 @@ for ($i = 0; $i < count($players); $i ++) {
 	$faction = $players[$i]->getFaction();
 	echo "Faction: $faction<br />";
 	
+	$position = $players[$i]->getPosition();
+	echo "Starting Position: $position<br />";
+	
+	$commanders = $players[$i]->getCommanders();
+	
+	for ($j = 0; $j < count($commanders); $j ++) {
+		echo "Commander $j: $commanders[$j]<br />";
+	}
+	
 	$bulletins = $players[$i]->getBulletins();
+	$bulletinIds = $players[$i]->getBulletinIds();
 	
 	for ($j = 0; $j < count($bulletins); $j ++) {
-		echo "Bulletin $j: $bulletins[$j]<br />";
+		echo "Bulletin $j: $bulletins[$j] with ID = $bulletinIds[$j]<br />";
 	}
 	echo "<br />";
 }
