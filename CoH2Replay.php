@@ -8,6 +8,7 @@ class CoH2Replay {
 	private $stream; 			// CoH2ReplayStream - access to file
 	private $version;			// version number
 	private $gametype;			// type of game (default COH__REC)
+	private $winCondition;		// set win condition (automatch gives VPTICKERWIN-ANNIHILATE)
 	private $datetime;			// time of recording
 	private $modname;			// name of game version (default RelicCoH2Dev)
 	private $mapFile;			// path to map file
@@ -22,6 +23,7 @@ class CoH2Replay {
 		$this->stream = new CoH2ReplayStream($file);
 		$this->version = 0;
 		$this->gametype = null;
+		$this->winCondition = null;
 		$this->datetime = null;
 		$this->modname = null;
 		$this->mapFile = null;
@@ -43,6 +45,9 @@ class CoH2Replay {
 	
 	public function getGametype() 						{ return $this->gametype; }
 	public function setGametype($gametype) 				{ $this->gametype = $gametype; }
+	
+	public function getWinCondition() 					{ return $this->winCondition; }
+	public function setWinCondition($winCondition) 		{ $this->winCondition = $winCondition; }
 	
 	public function getDateTime() 						{ return $this->datetime; }
 	public function setDateTime($datetime) 				{ $this->datetime = $datetime; }

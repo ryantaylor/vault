@@ -114,6 +114,10 @@ class CoH2ReplayParser {
 			
 			for ($i = 0; $i < $numPlayers; $i ++)
 				$this->replay->addPlayer($this->parsePlayer());
+				
+			$this->stream->skip(90);
+			
+			$this->replay->setWinCondition($this->stream->readText($this->stream->readUInt32()));
 		}
 		
 		if ($chunkType === "DATABASE" && $chunkVersion == 0xff) {
@@ -172,6 +176,7 @@ $replay = $parser->parse();
 
 $version = $replay->getVersion();
 $gametype = $replay->getGametype();
+$winCondition = $replay->getWinCondition();
 $datetime = $replay->getDateTime();
 $modname = $replay->getModName();
 $mapFile = $replay->getMapFile();
@@ -183,6 +188,8 @@ $season = $replay->getSeason();
 
 echo "Version: $version<br />";
 echo "Gametype: $gametype</br />";
+echo "Win Condition: $winCondition<br />";
+echo "Time: $datetime<br />";
 echo "Mod: $modname<br />";
 echo "Map File: $mapFile<br />";
 echo "Map Name: $mapName<br />";
