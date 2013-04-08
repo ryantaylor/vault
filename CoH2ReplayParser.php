@@ -145,9 +145,10 @@ class CoH2ReplayParser {
 		
 		$player->setPosition($this->stream->readUInt32());
 		
-		$mapName = $this->replay->getMapName();
+		/*$mapName = $this->replay->getMapName();
 		$position = $player->getPosition();
-		$player->setId($this->idMap[$mapName][$position]);
+		if (isset($this->idMap[$mapName][$position]))
+			$player->setId($this->idMap[$mapName][$position]);*/
 		
 		$this->stream->skip(8);
 		
@@ -174,20 +175,23 @@ class CoH2ReplayParser {
 		return $player;
 	}
 	
-	private function initializePlayerIdMap() {
+	/*private function initializePlayerIdMap() {
 		$map = array(
 		
 			// 2p_kholodnaya_ferma_battlefield
-			'$11045520' => array(33620761 => 0x100, 39533638 => 0x102)
+			'$11045520' => array(33620761 => 0x1, 39533638 => 0x201),
+			
+			// 4p_prypiat_battlefield
+			'$11042972' => array(39533638 => 0x101)
 		);
 		
 		return $map;
-	}
+	}*/
 }
 
 // info display
 
-$parser = new CoH2ReplayParser("testing.rec");
+$parser = new CoH2ReplayParser("ggvs.Aim2.rec");
 $replay = $parser->parse();
 
 $version = $replay->getVersion();
@@ -232,9 +236,6 @@ for ($i = 0; $i < count($players); $i ++) {
 	
 	$position = $players[$i]->getPosition();
 	echo "Starting Position: $position<br />";
-	
-	$id = $players[$i]->getId();
-	echo "Player ID: $id<br />";
 	
 	$commanders = $players[$i]->getCommanders();
 	
