@@ -11,7 +11,7 @@ class CoH2ReplayParser {
 	public function __construct($file) {
 		$this->replay = new CoH2Replay($file);
 		$this->stream = $this->replay->getStream();
-		$this->idMap = $this->initializePlayerIdMap();
+		//$this->idMap = $this->initializePlayerIdMap();
 	}
 
 	public function parse() {
@@ -31,6 +31,8 @@ class CoH2ReplayParser {
 		
 		$this->parseChunky();
 		$this->parseChunky();
+		
+		$this->parseData();
 		
 		$this->stream->close();
 		return $this->replay;
@@ -78,7 +80,7 @@ class CoH2ReplayParser {
 				$this->parseChunk();
 		}
 		
-		if ($chunkType === "DATASDSC" && $chunkVersion == 0x7dd) {
+		if ($chunkType === "DATASDSC" && $chunkVersion == 0x7de) {
 			$this->stream->skip(16);
 			
 			$this->stream->skip(12 + 2 * $this->stream->readUInt32());
@@ -109,7 +111,7 @@ class CoH2ReplayParser {
 			}
 		}
 		
-		if ($chunkType === "DATADATA" && $chunkVersion == 0x4) {
+		if ($chunkType === "DATADATA" && $chunkVersion == 0x5) {
 			$this->stream->skip(29);
 			
 			$numPlayers = $this->stream->readUInt32();
@@ -135,7 +137,9 @@ class CoH2ReplayParser {
 	
 		$this->stream->skip(1);
 		
-		$player = CoH2Player::createWithName($this->stream->readUnicode($this->stream->readUInt32()));
+		$playerName = $this->stream->readUnicode($this->stream->readUInt32());
+		
+		$player = CoH2Player::createWithName($playerName);
 		
 		$player->setTeam($this->stream->readUInt32());
 		
@@ -172,7 +176,27 @@ class CoH2ReplayParser {
 			$this->stream->skip(4);
 		}
 		
+		$this->stream->skip(4);
+		
 		return $player;
+	}
+	
+	private function parseData() {
+		
+		while ($this->parseTick());
+	}
+	
+	private function parseTick() {
+		
+		$this->stream->skip(4);
+		$tickSize = $this->stream->readUInt32();
+		
+		if ($tickSize != null) {
+			$this->stream->skip($tickSize);
+			$this->replay->incrementDuration();
+			return true;
+		}
+		return false;
 	}
 	
 	/*private function initializePlayerIdMap() {
@@ -191,7 +215,7 @@ class CoH2ReplayParser {
 
 // info display
 
-$parser = new CoH2ReplayParser("ggvs.Aim2.rec");
+$parser = new CoH2ReplayParser("stresstest.rec");
 $replay = $parser->parse();
 
 $version = $replay->getVersion();
@@ -205,6 +229,7 @@ $mapDescription = $replay->getMapDescription();
 $mapWidth = $replay->getMapWidth();
 $mapHeight = $replay->getMapHeight();
 $season = $replay->getSeason();
+$duration = $replay->getDuration();
 
 echo "Version: $version<br />";
 echo "Gametype: $gametype</br />";
@@ -217,6 +242,7 @@ echo "Map Description: $mapDescription<br />";
 echo "Map Width: $mapWidth<br />";
 echo "Map Height: $mapHeight<br />";
 echo "Season: $season<br />";
+echo "Duration: $duration<br />";
 
 echo "<br />";
 
@@ -251,5 +277,3 @@ for ($i = 0; $i < count($players); $i ++) {
 	}
 	echo "<br />";
 }
-
-?>
