@@ -111,7 +111,7 @@ class CoH2ReplayParser {
 			}
 		}
 		
-		if ($chunkType === "DATADATA" && $chunkVersion == 0x5) {
+		if ($chunkType === "DATADATA" && $chunkVersion == 0x7) {
 			$this->stream->skip(29);
 			
 			$numPlayers = $this->stream->readUInt32();
@@ -176,7 +176,7 @@ class CoH2ReplayParser {
 			$this->stream->skip(4);
 		}
 		
-		$this->stream->skip(4);
+		$this->stream->skip(5);
 		
 		return $player;
 	}
