@@ -147,14 +147,14 @@ class CoH2ReplayParser {
 		
 		$this->stream->skip(41);
 		
-		$player->setPosition($this->stream->readUInt32());
+		$player->setSteamId($this->stream->readUInt64());
 		
 		/*$mapName = $this->replay->getMapName();
 		$position = $player->getPosition();
 		if (isset($this->idMap[$mapName][$position]))
 			$player->setId($this->idMap[$mapName][$position]);*/
 		
-		$this->stream->skip(8);
+		$this->stream->skip(4);
 		
 		for ($i = 0; $i < 3; $i ++)
 			$player->addCommander($this->stream->readUInt32());
@@ -214,7 +214,7 @@ class CoH2ReplayParser {
 }
 
 // info display
-
+/*
 $parser = new CoH2ReplayParser("stresstest.rec");
 $replay = $parser->parse();
 
@@ -276,4 +276,4 @@ for ($i = 0; $i < count($players); $i ++) {
 		echo "Bulletin $j: $bulletins[$j] with ID = $bulletinIds[$j]<br />";
 	}
 	echo "<br />";
-}
+}*/

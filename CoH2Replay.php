@@ -17,6 +17,7 @@ class CoH2Replay {
 	private $mapWidth;			// width of map
 	private $mapHeight;			// height of map
 	private $season;			// empty = sprint, "winter" = winter
+	private $duration;			// duration of replay in ticks (8 ticks in a second)
 	private $player;			// array of CoH2Players
 	
 	public function __construct($file) {
@@ -32,6 +33,7 @@ class CoH2Replay {
 		$this->mapWidth = 0;
 		$this->mapHeight = 0;
 		$this->season = null;
+		$this->duration = 0;
 		$this->player = array();
 	}
 	
@@ -72,6 +74,10 @@ class CoH2Replay {
 	
 	public function getSeason() 						{ return $this->season; }
 	public function setSeason($season) 					{ $this->season = $season; }
+	
+	public function getDuration() 						{ return $this->duration; }
+	public function setDuration($duration) 				{ $this->duration = $duration; }
+	public function incrementDuration()					{ $this->duration = $this->duration + 1; }
 	
 	public function getPlayers() 						{ return $this->player; }
 	public function getPlayer($index)					{ return $this->player[$index]; }

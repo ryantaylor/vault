@@ -3,6 +3,7 @@
 class CoH2Player {
 
 	private $name;			// player name
+	private $steamid;		// player steam ID
 	private $id;			// internal player ID
 	private $faction; 		// player faction
 	private $team;			// player team
@@ -14,6 +15,7 @@ class CoH2Player {
 	
 	public function __construct() {
 		$this->name = null;
+		$this->steamid = 0;
 		$this->faction = null;
 		$this->team = 0;
 		$this->position = 0;
@@ -36,6 +38,9 @@ class CoH2Player {
 	
 	public function getId() 							{ return $this->id; }
 	public function setId($id) 							{ $this->id = $id; }
+
+	public function getSteamId() 						{ return $this->steamid; }
+	public function setSteamId($steamid) 				{ $this->steamid = $steamid; }
 	
 	public function getFaction() 						{ return $this->faction; }
 	public function setFaction($faction) 				{ $faction == 0 ? $this->faction = "Ostheer" : $this->faction = "Soviets"; }

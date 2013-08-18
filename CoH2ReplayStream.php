@@ -15,9 +15,24 @@ class CoH2ReplayStream {
 	public function getPosition() {
 		return ftell($this->stream);
 	}
+
+	public function readUInt64() {
+		$val = fread($this->stream, 8);
+		
+		// checks for end of file
+		if ($val == null) return null;
+		
+		$end = $val{7} . $val{6} . $val{5} . $val{4} . $val{3} . $val{2} . $val{1} . $val{0};
+		//return print_r($this->bchexdec(bin2hex($end)), true);
+		return $this->bchexdec(bin2hex($end));
+	}
 	
 	public function readUInt32() {
 		$val = fread($this->stream, 4);
+		
+		// checks for end of file
+		if ($val == null) return null;
+		
 		$end = $val{3} . $val{2} . $val{1} . $val{0};
 		//return print_r($this->bchexdec(bin2hex($end)), true);
 		return $this->bchexdec(bin2hex($end));
@@ -62,4 +77,8 @@ class CoH2ReplayStream {
 			return bcadd(bcmul(16, $this->bchexdec($remain)), hexdec($last));
 		}
 	}
+	
+	// get
+	
+	public function getStream()	{ return $this->stream; }
 }
