@@ -15,8 +15,10 @@ class CoH2ReplayParser {
 	}
 
 	public function parse() {
+
+		$this->stream->skip(2);
 		
-		$this->replay->setVersion($this->stream->readUInt32());
+		$this->replay->setVersion($this->stream->readUInt16());
 		
 		$this->replay->setGametype($this->stream->readText(8));
 		
@@ -111,7 +113,7 @@ class CoH2ReplayParser {
 			}
 		}
 		
-		if ($chunkType === "DATADATA" && $chunkVersion == 0x7) {
+		if ($chunkType === "DATADATA" && $chunkVersion == 0x8) {
 			$this->stream->skip(29);
 			
 			$numPlayers = $this->stream->readUInt32();
@@ -176,7 +178,7 @@ class CoH2ReplayParser {
 			$this->stream->skip(4);
 		}
 		
-		$this->stream->skip(5);
+		$this->stream->skip(9);
 		
 		return $player;
 	}
