@@ -82,12 +82,13 @@ class CoH2ReplayParser {
 				$this->parseChunk();
 		}
 		
-		if ($chunkType === "DATASDSC" && $chunkVersion == 0x7de) {
+		if ($chunkType === "DATASDSC" && $chunkVersion == 0x7e1) {
 			$this->stream->skip(16);
 			
-			$this->stream->skip(12 + 2 * $this->stream->readUInt32());
+			$this->stream->skip(8 + 2 * $this->stream->readUInt32());
 			
-			$this->replay->setModName($this->stream->readText($this->stream->readUInt32()));
+      // Not visible in this version.
+			//$this->replay->setModName($this->stream->readText($this->stream->readUInt32()));
 			
 			$this->replay->setMapFile($this->stream->readText($this->stream->readUInt32()));
 			
@@ -105,16 +106,17 @@ class CoH2ReplayParser {
 			
 			$this->replay->setMapHeight($this->stream->readUInt32());
 			
-			$this->stream->skip(47);
+			//$this->stream->skip(47);
 			
-			if ($this->stream->readUInt32() > 0) {
+      // Buggy on Rails and Metal
+			/*if ($this->stream->readUInt32() > 0) {
 				$this->stream->skip(-4);
 				$this->replay->setSeason($this->stream->readText($this->stream->readUInt32()));
-			}
+			}*/
 		}
 		
-		if ($chunkType === "DATADATA" && $chunkVersion == 0x8) {
-			$this->stream->skip(29);
+		if ($chunkType === "DATADATA" && $chunkVersion == 0xd) {
+			$this->stream->skip(18);
 			
 			$numPlayers = $this->stream->readUInt32();
 			
@@ -123,7 +125,8 @@ class CoH2ReplayParser {
 				
 			$this->stream->skip(90);
 			
-			$this->replay->setWinCondition($this->stream->readText($this->stream->readUInt32()));
+      // Not visible in this version.
+			//$this->replay->setWinCondition($this->stream->readText($this->stream->readUInt32()));
 		}
 		
 		if ($chunkType === "DATABASE" && $chunkVersion == 0xff) {
@@ -147,7 +150,7 @@ class CoH2ReplayParser {
 		
 		$player->setFaction($this->stream->readUInt32());
 		
-		$this->stream->skip(41);
+		$this->stream->skip(55);
 		
 		$player->setSteamId($this->stream->readUInt64());
 		
