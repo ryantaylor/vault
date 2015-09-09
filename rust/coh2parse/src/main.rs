@@ -17,7 +17,7 @@ fn main() {
     log4rs::init_file("log.toml", Default::default()).unwrap();
 
     // Create a path to the desired file
-    let path = Path::new("/home/ryan/replays/test_base_2v2.rec");
+    let path = Path::new("/home/ryan/replays/test_base_4v4_cpu.rec");
     //let display = path.display();
 
     //let mut buff = [0xff, 0xff];

@@ -229,6 +229,8 @@ impl Replay {
         player.update_name(self.file.read_utf16(size).unwrap());
         player.update_team(self.file.read_u32().unwrap());
 
+        info!("Replay::parse_player - parsing player {}", player.name());
+
         size = self.file.read_u32().unwrap();
         player.update_faction(self.file.read_utf8(size).unwrap());
         assert_eq!(self.file.read_u32().unwrap(), 5); // 5 for army type
@@ -246,26 +248,37 @@ impl Replay {
         assert_eq!(self.file.read_u32().unwrap(), 0);
         assert_eq!(self.file.read_u32().unwrap(), 5);
 
-        let mut val = self.file.read_u16().unwrap();
-        while val == 0x1 {
-            val = self.file.read_u16().unwrap();
-        }
+        let mut done = false;
 
-        // this piece of info is a player data segment
-        if val == 0x109 {
-            self.parse_player_data(&mut player);
-        }
-        // otherwise we have steam id already
-        else {
-            player.update_steam_id(self.parse_steam_id());
-
-            val = self.file.read_u16().unwrap();
+        while !done {
+            let mut val = self.file.read_u16().unwrap();
             while val == 0x1 {
                 val = self.file.read_u16().unwrap();
             }
 
-            if val == 0x109 {
-                self.parse_player_data(&mut player);
+            // 0x0 means we've parsed all data
+            if val == 0x0 {
+                done = true;
+            }
+            // 0x109 means we're at a new data section
+            else if val == 0x109 {
+                self.file.skip_ahead(4).unwrap();
+                assert_eq!(self.file.read_u32().unwrap(), 0x0);
+                self.file.skip_ahead(4).unwrap();
+                assert_eq!(self.file.read_u32().unwrap(), 0x0);
+
+                let size = self.file.read_u16().unwrap() as u32;
+                self.file.skip_ahead(size).unwrap();
+            }
+            // 0x3 means we're at the end of a data section, so just keep going
+            else if val == 0x3 {
+                assert_eq!(self.file.read_u16().unwrap(), 0x0);
+            }
+            // otherwise we found steam id
+            else {
+                self.file.skip_ahead(2).unwrap();
+                assert_eq!(self.file.read_u32().unwrap(), 0x0);
+                player.update_steam_id(self.file.read_u64().unwrap());
             }
         }
 
@@ -273,59 +286,6 @@ impl Replay {
         self.file.skip_ahead(8).unwrap();
 
         player
-    }
-
-    fn parse_player_data(&mut self, player: &mut Player) {
-        trace!("Replay::parse_player_data");
-        info!("parsing data for player {}", player.name());
-        self.file.skip_ahead(4).unwrap();
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        self.file.skip_ahead(4).unwrap();
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-
-        let size = self.file.read_u16().unwrap() as u32;
-        self.file.skip_ahead(size).unwrap();
-
-        let mut val = self.file.read_u16().unwrap();
-
-        // 0x1 means keep reading u16s
-        while val == 0x1 {
-            val = self.file.read_u16().unwrap();
-        }
-
-        // 0x0 means we've parsed all data
-        if val == 0x0 {
-            return;
-        }
-        // 0x109 means we're at a new data section
-        else if val == 0x109 {
-            self.parse_player_data(player);
-        }
-        // 0x3 means we're at the end of a data section
-        else if val == 0x3 {
-            assert_eq!(self.file.read_u16().unwrap(), 0x0);
-            assert_eq!(self.file.read_u16().unwrap(), 0x109);
-            self.parse_player_data(player);
-        }
-        // otherwise we found steam id
-        else {
-            player.update_steam_id(self.parse_steam_id());
-
-            val = self.file.read_u16().unwrap();
-            while val == 0x1 {
-                val = self.file.read_u16().unwrap();
-            }
-
-            if val == 0x109 {
-                self.parse_player_data(player);
-            }
-        }
-    }
-
-    fn parse_steam_id(&mut self) -> u64 {
-        self.file.skip_ahead(2).unwrap();
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        self.file.read_u64().unwrap()
     }
 
     fn parse_data(&mut self) {
