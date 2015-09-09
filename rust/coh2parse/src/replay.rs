@@ -42,7 +42,7 @@ impl Replay {
     }
 
     pub fn parse(&mut self) {
-        assert_eq!(self.file.read_u16().unwrap(), 0);
+        assert_eq!(self.file.read_u16().unwrap(), 0x0);
         self.parse_version();
         self.parse_game_type();
         self.parse_date_time();
@@ -98,13 +98,13 @@ impl Replay {
 
     fn parse_map_info(&mut self) {
         trace!("Replay::parse_map_info");
-        assert_eq!(self.file.read_u32().unwrap(), 0);
-        assert_eq!(self.file.read_u32().unwrap(), 0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
         self.file.skip_ahead(4).unwrap(); // can be 1 or 2?
-        assert_eq!(self.file.read_u32().unwrap(), 3);
-        assert_eq!(self.file.read_u32().unwrap(), 0);
-        assert_eq!(self.file.read_u32().unwrap(), 0);
-        assert_eq!(self.file.read_u32().unwrap(), 0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x3);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
 
         let mut size = self.file.read_u32().unwrap();
         self.map_file = self.file.read_utf8(size).unwrap();
@@ -114,7 +114,7 @@ impl Replay {
         size = self.file.read_u32().unwrap();
         self.map_name = self.file.read_utf16(size).unwrap();
 
-        assert_eq!(self.file.read_u32().unwrap(), 0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
 
         size = self.file.read_u32().unwrap();
         self.map_description = self.file.read_utf16(size).unwrap();
@@ -138,12 +138,12 @@ impl Replay {
     fn parse_chunky(&mut self) {
         trace!("Replay::parse_chunky");
         assert_eq!(self.file.read_utf8(12).unwrap(), "Relic Chunky"); // chunk name
-        assert_eq!(self.file.read_u32().unwrap(), 1706509); // chunky type
-        assert_eq!(self.file.read_u32().unwrap(), 3); // chunky version
-        assert_eq!(self.file.read_u32().unwrap(), 1);
-        assert_eq!(self.file.read_u32().unwrap(), 36);
-        assert_eq!(self.file.read_u32().unwrap(), 28);
-        assert_eq!(self.file.read_u32().unwrap(), 1);
+        assert_eq!(self.file.read_u32().unwrap(), 0x1A0A0D); // chunky type
+        assert_eq!(self.file.read_u32().unwrap(), 0x3); // chunky version
+        assert_eq!(self.file.read_u32().unwrap(), 0x1);
+        assert_eq!(self.file.read_u32().unwrap(), 0x24);
+        assert_eq!(self.file.read_u32().unwrap(), 0x1C);
+        assert_eq!(self.file.read_u32().unwrap(), 0x1);
 
         while self.parse_chunk() {}
     }
@@ -162,7 +162,7 @@ impl Replay {
         let chunk_name_length = self.file.read_u32().unwrap();
 
         self.file.skip_ahead(4).unwrap(); // 0, 2000 (dec), or FF..
-        assert_eq!(self.file.read_u32().unwrap(), 0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
 
         info!("Replay::parse_chunk - in {} chunk, version {}", chunk_type, chunk_version);
         debug!("Replay::parse_chunk - chunk_version = {}", chunk_version);
@@ -184,16 +184,16 @@ impl Replay {
             }
         }
 
-        if chunk_type == "DATASDSC" && chunk_version == 0x7e4 {
+        if chunk_type == "DATASDSC" && chunk_version == 0x7E4 {
             self.parse_map_info();
         }
 
-        if chunk_type == "DATADATA" && chunk_version == 0x1b {
+        if chunk_type == "DATADATA" && chunk_version == 0x1B {
             self.parse_opponent_info();
 
             self.file.skip_ahead(4).unwrap(); // 0 or 1
-            assert_eq!(self.file.read_u32().unwrap(), 0);
-            assert_eq!(self.file.read_u16().unwrap(), 0);
+            assert_eq!(self.file.read_u32().unwrap(), 0x0);
+            assert_eq!(self.file.read_u16().unwrap(), 0x0);
 
             self.parse_rng_seed();
 
@@ -233,7 +233,7 @@ impl Replay {
 
         size = self.file.read_u32().unwrap();
         player.update_faction(self.file.read_utf8(size).unwrap());
-        assert_eq!(self.file.read_u32().unwrap(), 5); // 5 for army type
+        assert_eq!(self.file.read_u32().unwrap(), 0x5); // 5 for army type
 
         self.file.skip_ahead(4).unwrap(); // Seb: p00
 
@@ -245,8 +245,8 @@ impl Replay {
 
         self.file.skip_ahead(4).unwrap(); // something (not position)
 
-        assert_eq!(self.file.read_u32().unwrap(), 0);
-        assert_eq!(self.file.read_u32().unwrap(), 5);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x5);
 
         let mut done = false;
 
@@ -319,7 +319,7 @@ impl Replay {
 
         if tick_size > 0 {
             // action
-            if tick_type == 0 {
+            if tick_type == 0x0 {
                 self.file.skip_ahead(1).unwrap(); // usually 0x20 but can be 0x0
                 let tick_id = self.file.read_u32().unwrap();
                 let some_id = self.file.read_u32().unwrap();
@@ -339,10 +339,10 @@ impl Replay {
                 self.duration += 1;
             }
             // special
-            else if tick_type == 1 {
+            else if tick_type == 0x1 {
                 let chat = self.file.read_u32().unwrap(); // Seb: is chat? most 1 few 0
 
-                if chat == 1 {
+                if chat == 0x1 {
                     self.file.skip_ahead(4).unwrap(); // length
                     self.file.skip_ahead(4).unwrap(); // Seb: chat nbr 2 6 or few 4
 
@@ -358,9 +358,9 @@ impl Replay {
                     self.file.skip_ahead(tag_length * 2).unwrap(); // some numeric ids? all u16s
                 }
                 else {
-                    assert_eq!(self.file.read_u32().unwrap(), 8);
+                    assert_eq!(self.file.read_u32().unwrap(), 0x8);
                     self.file.skip_ahead(4).unwrap(); // Seb: special E9 03 00 00 1000 to 1006
-                    assert_eq!(self.file.read_u32().unwrap(), 0);
+                    assert_eq!(self.file.read_u32().unwrap(), 0x0);
                 }
             }
 
