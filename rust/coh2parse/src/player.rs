@@ -66,7 +66,7 @@ impl Player {
     }
 
     pub fn name(&self) -> &str {
-        return &self.name;
+        &self.name
     }
 
     pub fn display(&self) {

@@ -14,6 +14,7 @@ pub struct Replay {
     map_description: String,
     map_width: u32,
     map_height: u32,
+    map_players: u32,
     players: Vec<Player>,
     duration: u32,              // seconds
     rng_seed: u32,
@@ -32,6 +33,7 @@ impl Replay {
             map_description: String::new(),
             map_width: 0,
             map_height: 0,
+            map_players: 0,
             players: Vec::new(),
             duration: 0,
             rng_seed: 0,
@@ -58,6 +60,9 @@ impl Replay {
     fn parse_version(&mut self) {
         trace!("Replay::parse_version");
         self.version = self.file.read_u16().unwrap();
+        if self.version < 19545 {
+            panic!("version {} unsupported, minimum version 19545 required");
+        }
     }
 
     fn parse_game_type(&mut self) {
@@ -114,7 +119,7 @@ impl Replay {
         size = self.file.read_u32().unwrap();
         self.map_description = self.file.read_utf16(size).unwrap();
 
-        assert_eq!(self.file.read_u32().unwrap(), 2);
+        self.map_players = self.file.read_u32().unwrap();
 
         self.map_width = self.file.read_u32().unwrap();
         self.map_height = self.file.read_u32().unwrap();
@@ -240,62 +245,32 @@ impl Replay {
 
         assert_eq!(self.file.read_u32().unwrap(), 0);
         assert_eq!(self.file.read_u32().unwrap(), 5);
-        assert_eq!(self.file.read_u16().unwrap(), 1);
 
-        if self.file.read_u16().unwrap() == 0x109 {
+        let mut val = self.file.read_u16().unwrap();
+        while val == 0x1 {
+            val = self.file.read_u16().unwrap();
+        }
+
+        // this piece of info is a player data segment
+        if val == 0x109 {
             self.parse_player_data(&mut player);
+        }
+        // otherwise we have steam id already
+        else {
+            player.update_steam_id(self.parse_steam_id());
+
+            val = self.file.read_u16().unwrap();
+            while val == 0x1 {
+                val = self.file.read_u16().unwrap();
+            }
+
+            if val == 0x109 {
+                self.parse_player_data(&mut player);
+            }
         }
 
         assert_eq!(self.file.read_u16().unwrap(), 0x0);
         self.file.skip_ahead(8).unwrap();
-
-        //self.file.skip_ahead(45).unwrap();
-
-        //player.update_steam_id(self.file.read_u64().unwrap());
-
-        //self.file.skip_ahead(254).unwrap();
-
-        /*self.file.skip_ahead(4).unwrap(); // Seb: thought FFF but can be 1835264
-        self.file.skip_ahead(4).unwrap(); // Seb: some low value int or FFF
-        self.file.skip_ahead(4).unwrap(); // Seb: 26 00 00 00 FFFF or in 20, 30, or 40
-        self.file.skip_ahead(4).unwrap(); // Seb: 2A 00 00 00 FFFF or in 20, 30, or 40
-        self.file.skip_ahead(4).unwrap(); // Seb: thought FFF but can be 1701081711
-        self.file.skip_ahead(4).unwrap(); // Seb: low or mid val int or might be 2 unit16 to test
-        self.file.skip_ahead(4).unwrap(); // Seb: often 0, or FFFF..
-
-        player.update_steam_id(self.file.read_u64().unwrap());
-        player.update_victory_strike(self.file.read_u32().unwrap());
-
-        for _ in 0..3 {
-            player.add_commander(self.file.read_u32().unwrap());
-        }
-
-        let mut num_bulletins = self.file.read_u32().unwrap();
-
-        for _ in 0..num_bulletins {
-            player.add_bulletin(self.file.read_u32().unwrap());
-        }
-
-        self.file.skip_ahead(4).unwrap(); // Seb: no idea nbr FFFF or some rather low value int
-
-        num_bulletins = self.file.read_u32().unwrap();
-
-        for _ in 0..num_bulletins {
-            size = self.file.read_u32().unwrap();
-            player.add_bulletin_name(self.file.read_utf8(size).unwrap());
-            assert_eq!(self.file.read_u32().unwrap(), 6);
-            /*if idx < num_bulletins {
-                size = self.file.read_u32() as i32;
-                player.bulletin_names.push(self.file.read_text(size));
-            }
-            else {
-                player.bulletin_names.push(String::new());
-            }*/
-        }
-
-        self.file.skip_ahead(4).unwrap(); // Seb: lots of 0 or a different nbr
-        self.file.skip_ahead(4).unwrap(); // Seb: new value wfa
-        self.file.skip_ahead(1).unwrap(); // Seb: no idea nbr end 2 : 0 or 1 ?*/
 
         player
     }
@@ -334,9 +309,7 @@ impl Replay {
         }
         // otherwise we found steam id
         else {
-            self.file.skip_ahead(2).unwrap();
-            assert_eq!(self.file.read_u32().unwrap(), 0x0);
-            player.update_steam_id(self.file.read_u64().unwrap());
+            player.update_steam_id(self.parse_steam_id());
 
             val = self.file.read_u16().unwrap();
             while val == 0x1 {
@@ -349,6 +322,12 @@ impl Replay {
         }
     }
 
+    fn parse_steam_id(&mut self) -> u64 {
+        self.file.skip_ahead(2).unwrap();
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        self.file.read_u64().unwrap()
+    }
+
     fn parse_data(&mut self) {
         trace!("Replay::parse_data");
         while self.parse_tick() {}
@@ -356,11 +335,16 @@ impl Replay {
 
     fn parse_tick(&mut self) -> bool {
         trace!("Replay::parse_tick");
-        //if self.file.cursor as usize >= self.file.data.len() {
-        //    return false;
-        //}
+        let tick_type = match self.file.read_u32() {
+            Err(e) => {
+                match e {
+                    StreamError::CursorOutOfBounds => return false,
+                    _ => panic!("unrecoverable error {:?}", e)
+                }
+            },
+            Ok(val) => val
+        };
 
-        self.file.skip_ahead(4).unwrap();
         let tick_size = match self.file.read_u32() {
             Err(e) => {
                 match e {
@@ -371,9 +355,55 @@ impl Replay {
             Ok(val) => val
         };
 
+        let start_position = self.file.get_cursor_position();
+
         if tick_size > 0 {
-            self.file.skip_ahead(tick_size).unwrap();
-            self.duration += 1;
+            // action
+            if tick_type == 0 {
+                self.file.skip_ahead(1).unwrap(); // usually 0x20 but can be 0x0
+                let tick_id = self.file.read_u32().unwrap();
+                let some_id = self.file.read_u32().unwrap();
+
+                let bundle_count = self.file.read_u32().unwrap();
+                for _ in 0..bundle_count {
+                    let bundle_part_count = self.file.read_u32().unwrap();
+
+                    self.file.skip_ahead(4).unwrap(); // Seb: thought 0 but can be 33554432
+
+                    let bundle_length = self.file.read_u32().unwrap();
+                    assert_eq!(self.file.read_u8().unwrap() as u32, bundle_length % 256);
+
+                    self.file.skip_ahead(bundle_length).unwrap(); // until I add handling
+                }
+
+                self.duration += 1;
+            }
+            // special
+            else if tick_type == 1 {
+                let chat = self.file.read_u32().unwrap(); // Seb: is chat? most 1 few 0
+
+                if chat == 1 {
+                    self.file.skip_ahead(4).unwrap(); // length
+                    self.file.skip_ahead(4).unwrap(); // Seb: chat nbr 2 6 or few 4
+
+                    let mut size = self.file.read_u32().unwrap();
+                    let name = self.file.read_utf16(size).unwrap();
+
+                    size = self.file.read_u32().unwrap();
+                    let content = self.file.read_utf16(size).unwrap();
+
+                    info!("{}: {}", name, content);
+
+                    let tag_length = self.file.read_u32().unwrap(); // not sure what this is
+                    self.file.skip_ahead(tag_length * 2).unwrap(); // some numeric ids? all u16s
+                }
+                else {
+                    assert_eq!(self.file.read_u32().unwrap(), 8);
+                    self.file.skip_ahead(4).unwrap(); // Seb: special E9 03 00 00 1000 to 1006
+                    assert_eq!(self.file.read_u32().unwrap(), 0);
+                }
+            }
+
             return true;
         }
         false
@@ -388,6 +418,7 @@ impl Replay {
         println!("map_description: {}", self.map_description);
         println!("map_width: {}", self.map_width);
         println!("map_height: {}", self.map_height);
+        println!("map_players: {}", self.map_players);
         println!("duration: {}", self.duration);
         println!("num players: {}", self.players.len());
 
