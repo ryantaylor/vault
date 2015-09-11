@@ -3,6 +3,7 @@ use std::string::String;
 
 use stream::{Stream, StreamError};
 use player::Player;
+use equippable::{Equippable, Commander, Bulletin, Skin, VictoryStrike, Decal, FacePlate, ItemType};
 
 pub struct Replay {
     file: Stream,
@@ -12,6 +13,7 @@ pub struct Replay {
     map_file: String,
     map_name: String,
     map_description: String,
+    map_description_long: String,
     map_width: u32,
     map_height: u32,
     map_players: u32,
@@ -31,6 +33,7 @@ impl Replay {
             map_file: String::new(),
             map_name: String::new(),
             map_description: String::new(),
+            map_description_long: String::new(),
             map_width: 0,
             map_height: 0,
             map_players: 0,
@@ -114,7 +117,8 @@ impl Replay {
         size = self.file.read_u32().unwrap();
         self.map_name = self.file.read_utf16(size).unwrap();
 
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        size = self.file.read_u32().unwrap();
+        self.map_description_long = self.file.read_utf16(size).unwrap();
 
         size = self.file.read_u32().unwrap();
         self.map_description = self.file.read_utf16(size).unwrap();
@@ -248,9 +252,53 @@ impl Replay {
         assert_eq!(self.file.read_u32().unwrap(), 0x0);
         assert_eq!(self.file.read_u32().unwrap(), 0x5);
 
-        let mut done = false;
+        assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
 
-        while !done {
+        if self.file.read_u16().unwrap() == 0x109 {
+            player.add_item(self.parse_item(ItemType::Skin));
+        }
+        if self.file.read_u16().unwrap() == 0x109 {
+            player.add_item(self.parse_item(ItemType::Skin));
+        }
+        if self.file.read_u16().unwrap() == 0x109 {
+            player.add_item(self.parse_item(ItemType::Skin));
+        }
+
+        assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
+
+        player.update_steam_id(self.parse_steam_id());
+
+        //assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
+        if self.file.read_u16().unwrap() == 0x109 {
+            player.add_item(self.parse_item(ItemType::Decal)); // i think???
+        }
+
+        if self.file.read_u16().unwrap() == 0x109 {
+            player.add_item(self.parse_item(ItemType::VictoryStrike));
+        }
+
+        //assert_eq!(self.file.read_u16().unwrap(), 0x1);
+        if self.file.read_u16().unwrap() == 0x109 {
+            player.add_item(self.parse_item(ItemType::FacePlate)); // i think???
+        }
+
+        size = self.file.read_u32().unwrap();
+        for _ in 0..size {
+            if self.file.read_u16().unwrap() == 0x109 {
+                player.add_item(self.parse_item(ItemType::Commander));
+            }
+        }
+
+        size = self.file.read_u32().unwrap();
+        for _ in 0..size {
+            if self.file.read_u16().unwrap() == 0x109 {
+                player.add_item(self.parse_item(ItemType::Bulletin));
+            }
+        }
+
+        //let mut done = false;
+
+        /*while !done {
             let mut val = self.file.read_u16().unwrap();
             while val == 0x1 {
                 val = self.file.read_u16().unwrap();
@@ -280,12 +328,62 @@ impl Replay {
                 assert_eq!(self.file.read_u32().unwrap(), 0x0);
                 player.update_steam_id(self.file.read_u64().unwrap());
             }
-        }
+        }*/
 
-        assert_eq!(self.file.read_u16().unwrap(), 0x0);
-        self.file.skip_ahead(8).unwrap();
+        //assert_eq!(self.file.read_u16().unwrap(), 0x0);
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        self.file.skip_ahead(8).unwrap(); // don't know what this is yet, 2 u32s
 
         player
+    }
+
+    fn parse_item(&mut self, item_type: ItemType) -> Box<Equippable> {
+        let primary = self.file.read_u32().unwrap();
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        let secondary = self.file.read_u32().unwrap();
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+
+        let size = self.file.read_u16().unwrap();
+        self.file.skip_ahead(size as u32).unwrap();
+
+        match item_type {
+            ItemType::Commander => {
+                let mut commander = Commander::new();
+                commander.update_id(primary, secondary);
+                Box::new(commander) as Box<Equippable>
+            },
+            ItemType::Bulletin => {
+                let mut bulletin = Bulletin::new();
+                bulletin.update_id(primary, secondary);
+                Box::new(bulletin) as Box<Equippable>
+            },
+            ItemType::Skin => {
+                let mut skin = Skin::new();
+                skin.update_id(primary, secondary);
+                Box::new(skin) as Box<Equippable>
+            },
+            ItemType::VictoryStrike => {
+                let mut victory_strike = VictoryStrike::new();
+                victory_strike.update_id(primary, secondary);
+                Box::new(victory_strike) as Box<Equippable>
+            },
+            ItemType::Decal => {
+                let mut decal = Decal::new();
+                decal.update_id(primary, secondary);
+                Box::new(decal) as Box<Equippable>
+            },
+            ItemType::FacePlate => {
+                let mut face_plate = FacePlate::new();
+                face_plate.update_id(primary, secondary);
+                Box::new(face_plate) as Box<Equippable>
+            }
+        }
+        
+    }
+
+    fn parse_steam_id(&mut self) -> u64 {
+        self.file.skip_ahead(8).unwrap(); // not sure what these are yet, 2 u32s
+        self.file.read_u64().unwrap()
     }
 
     fn parse_data(&mut self) {
@@ -376,6 +474,7 @@ impl Replay {
         println!("map_file: {}", self.map_file);
         println!("map_name: {}", self.map_name);
         println!("map_description: {}", self.map_description);
+        println!("map_description_long: {}", self.map_description_long);
         println!("map_width: {}", self.map_width);
         println!("map_height: {}", self.map_height);
         println!("map_players: {}", self.map_players);

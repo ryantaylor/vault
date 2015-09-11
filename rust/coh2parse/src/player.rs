@@ -1,14 +1,12 @@
 use std::string::String;
+use equippable::Equippable;
 
 pub struct Player {
     name: String,
     steam_id: u64,
     team: u32,
     faction: String,
-    commanders: Vec<u32>,
-    bulletin_ids: Vec<u32>,
-    bulletin_names: Vec<String>,
-    victory_strike: u32,
+    items: Vec<Box<Equippable>>
 }
 
 impl Player {
@@ -18,10 +16,7 @@ impl Player {
             steam_id: 0,
             team: 0,
             faction: String::new(),
-            commanders: Vec::with_capacity(3),
-            bulletin_ids: Vec::with_capacity(3),
-            bulletin_names: Vec::with_capacity(3),
-            victory_strike: 0,
+            items: Vec::with_capacity(12) // cmdr x3, intel x3, skin x3, decal, strike, faceplate
         }
     }
 
@@ -45,24 +40,9 @@ impl Player {
         self.faction = faction.into();
     }
 
-    pub fn add_commander(&mut self, id: u32) {
-        trace!("Player::add_commander");
-        self.commanders.push(id);
-    }
-
-    pub fn add_bulletin(&mut self, id: u32) {
-        trace!("Player::add_bulletin");
-        self.bulletin_ids.push(id);
-    }
-
-    pub fn add_bulletin_name<S>(&mut self, name: S) where S: Into<String> {
-        trace!("Player::add_bulletin_name");
-        self.bulletin_names.push(name.into());
-    }
-
-    pub fn update_victory_strike(&mut self, id: u32) {
-        trace!("Player::update_victory_strike");
-        self.victory_strike = id;
+    pub fn add_item(&mut self, item: Box<Equippable>) {
+        trace!("Player::add_item");
+        self.items.push(item);
     }
 
     pub fn name(&self) -> &str {
@@ -74,5 +54,9 @@ impl Player {
         println!("steam_id: {}", self.steam_id);
         println!("team: {}", self.team);
         println!("faction: {}", self.faction);
+
+        for item in self.items.iter() {
+            println!("{:?}: {}", item.item_type(), item.id());
+        }
     }
 }
