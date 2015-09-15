@@ -1,12 +1,12 @@
 use std::string::String;
-use equippable::Equippable;
+use item::Item;
 
 pub struct Player {
     name: String,
     steam_id: u64,
     team: u32,
     faction: String,
-    items: Vec<Box<Equippable>>
+    items: Vec<Item>
 }
 
 impl Player {
@@ -40,7 +40,7 @@ impl Player {
         self.faction = faction.into();
     }
 
-    pub fn add_item(&mut self, item: Box<Equippable>) {
+    pub fn add_item(&mut self, item: Item) {
         trace!("Player::add_item");
         self.items.push(item);
     }

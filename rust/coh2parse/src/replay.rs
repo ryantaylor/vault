@@ -3,20 +3,16 @@ use std::string::String;
 
 use stream::{Stream, StreamError};
 use player::Player;
-use equippable::{Equippable, Commander, Bulletin, Skin, VictoryStrike, Decal, FacePlate, ItemType};
+use item::{Item, ItemType};
+use command::Command;
+use map::Map;
 
 pub struct Replay {
     file: Stream,
     version: u16,
     game_type: String,
     date_time: String,
-    map_file: String,
-    map_name: String,
-    map_description: String,
-    map_description_long: String,
-    map_width: u32,
-    map_height: u32,
-    map_players: u32,
+    map: Map,
     players: Vec<Player>,
     duration: u32,              // seconds
     rng_seed: u32,
@@ -30,14 +26,8 @@ impl Replay {
             version: 0,
             game_type: String::new(),
             date_time: String::new(),
-            map_file: String::new(),
-            map_name: String::new(),
-            map_description: String::new(),
-            map_description_long: String::new(),
-            map_width: 0,
-            map_height: 0,
-            map_players: 0,
-            players: Vec::new(),
+            map: Map::new(),
+            players: Vec::with_capacity(8),
             duration: 0,
             rng_seed: 0,
             opponent_type: 0,
@@ -64,7 +54,7 @@ impl Replay {
         trace!("Replay::parse_version");
         self.version = self.file.read_u16().unwrap();
         if self.version < 19545 {
-            panic!("version {} unsupported, minimum version 19545 required");
+            panic!("version {} unsupported, minimum version 19545 (UKF release) required");
         }
     }
 
@@ -110,23 +100,31 @@ impl Replay {
         assert_eq!(self.file.read_u32().unwrap(), 0x0);
 
         let mut size = self.file.read_u32().unwrap();
-        self.map_file = self.file.read_utf8(size).unwrap();
+        let map_file = self.file.read_utf8(size).unwrap();
 
         self.file.skip_ahead(16).unwrap(); // something to do with map start positions?
 
         size = self.file.read_u32().unwrap();
-        self.map_name = self.file.read_utf16(size).unwrap();
+        let map_name = self.file.read_utf16(size).unwrap();
 
         size = self.file.read_u32().unwrap();
-        self.map_description_long = self.file.read_utf16(size).unwrap();
+        let map_description_long = self.file.read_utf16(size).unwrap();
 
         size = self.file.read_u32().unwrap();
-        self.map_description = self.file.read_utf16(size).unwrap();
+        let map_description = self.file.read_utf16(size).unwrap();
 
-        self.map_players = self.file.read_u32().unwrap();
+        let map_players = self.file.read_u32().unwrap();
 
-        self.map_width = self.file.read_u32().unwrap();
-        self.map_height = self.file.read_u32().unwrap();
+        let map_width = self.file.read_u32().unwrap();
+        let map_height = self.file.read_u32().unwrap();
+
+        self.map = Map::with_data(map_file,
+                                  map_name,
+                                  map_description,
+                                  map_description_long,
+                                  map_width,
+                                  map_height,
+                                  map_players);
     }
 
     fn parse_opponent_info(&mut self) {
@@ -242,7 +240,7 @@ impl Replay {
         self.file.skip_ahead(4).unwrap(); // Seb: p00
 
         size = self.file.read_u32().unwrap();
-        self.file.read_utf8(size).unwrap(); // Seb: default or cpu default_skirmish
+        assert_eq!(self.file.read_utf8(size).unwrap(), "default"); // Seb: default or cpu default_skirmish
 
         self.file.skip_ahead(4).unwrap(); // Seb: this is not count, it's t1p1 t2p1 t1p2 t2p2 etc (fixed pos)
                                           // or I dont even know anymore (for random) its still count
@@ -270,7 +268,7 @@ impl Replay {
 
         //assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
         if self.file.read_u16().unwrap() == 0x109 {
-            player.add_item(self.parse_item(ItemType::Decal)); // i think???
+            player.add_item(self.parse_item(ItemType::FacePlate));
         }
 
         if self.file.read_u16().unwrap() == 0x109 {
@@ -279,7 +277,7 @@ impl Replay {
 
         //assert_eq!(self.file.read_u16().unwrap(), 0x1);
         if self.file.read_u16().unwrap() == 0x109 {
-            player.add_item(self.parse_item(ItemType::FacePlate)); // i think???
+            player.add_item(self.parse_item(ItemType::Decal)); // i think???
         }
 
         size = self.file.read_u32().unwrap();
@@ -296,40 +294,6 @@ impl Replay {
             }
         }
 
-        //let mut done = false;
-
-        /*while !done {
-            let mut val = self.file.read_u16().unwrap();
-            while val == 0x1 {
-                val = self.file.read_u16().unwrap();
-            }
-
-            // 0x0 means we've parsed all data
-            if val == 0x0 {
-                done = true;
-            }
-            // 0x109 means we're at a new data section
-            else if val == 0x109 {
-                self.file.skip_ahead(4).unwrap();
-                assert_eq!(self.file.read_u32().unwrap(), 0x0);
-                self.file.skip_ahead(4).unwrap();
-                assert_eq!(self.file.read_u32().unwrap(), 0x0);
-
-                let size = self.file.read_u16().unwrap() as u32;
-                self.file.skip_ahead(size).unwrap();
-            }
-            // 0x3 means we're at the end of a data section, so just keep going
-            else if val == 0x3 {
-                assert_eq!(self.file.read_u16().unwrap(), 0x0);
-            }
-            // otherwise we found steam id
-            else {
-                self.file.skip_ahead(2).unwrap();
-                assert_eq!(self.file.read_u32().unwrap(), 0x0);
-                player.update_steam_id(self.file.read_u64().unwrap());
-            }
-        }*/
-
         //assert_eq!(self.file.read_u16().unwrap(), 0x0);
         assert_eq!(self.file.read_u32().unwrap(), 0x0);
         self.file.skip_ahead(8).unwrap(); // don't know what this is yet, 2 u32s
@@ -337,7 +301,7 @@ impl Replay {
         player
     }
 
-    fn parse_item(&mut self, item_type: ItemType) -> Box<Equippable> {
+    fn parse_item(&mut self, item_type: ItemType) -> Item {
         let primary = self.file.read_u32().unwrap();
         assert_eq!(self.file.read_u32().unwrap(), 0x0);
         let secondary = self.file.read_u32().unwrap();
@@ -346,39 +310,7 @@ impl Replay {
         let size = self.file.read_u16().unwrap();
         self.file.skip_ahead(size as u32).unwrap();
 
-        match item_type {
-            ItemType::Commander => {
-                let mut commander = Commander::new();
-                commander.update_id(primary, secondary);
-                Box::new(commander) as Box<Equippable>
-            },
-            ItemType::Bulletin => {
-                let mut bulletin = Bulletin::new();
-                bulletin.update_id(primary, secondary);
-                Box::new(bulletin) as Box<Equippable>
-            },
-            ItemType::Skin => {
-                let mut skin = Skin::new();
-                skin.update_id(primary, secondary);
-                Box::new(skin) as Box<Equippable>
-            },
-            ItemType::VictoryStrike => {
-                let mut victory_strike = VictoryStrike::new();
-                victory_strike.update_id(primary, secondary);
-                Box::new(victory_strike) as Box<Equippable>
-            },
-            ItemType::Decal => {
-                let mut decal = Decal::new();
-                decal.update_id(primary, secondary);
-                Box::new(decal) as Box<Equippable>
-            },
-            ItemType::FacePlate => {
-                let mut face_plate = FacePlate::new();
-                face_plate.update_id(primary, secondary);
-                Box::new(face_plate) as Box<Equippable>
-            }
-        }
-        
+        Item::new(primary, secondary, item_type)
     }
 
     fn parse_steam_id(&mut self) -> u64 {
@@ -431,7 +363,29 @@ impl Replay {
                     let bundle_length = self.file.read_u32().unwrap();
                     assert_eq!(self.file.read_u8().unwrap() as u32, bundle_length % 256);
 
-                    self.file.skip_ahead(bundle_length).unwrap(); // until I add handling
+                    let mut idx = 0;
+                    let mut done = false;
+
+                    while !done {
+                        let inter_position = self.file.get_cursor_position();
+                        let bundle_part_length = self.file.read_u16().unwrap() as u32;
+
+                        self.parse_action(bundle_part_length);
+
+                        let current_position = self.file.get_cursor_position();
+                        let diff = inter_position + bundle_part_length - current_position;
+
+                        if diff > 0 {
+                            self.file.skip_ahead(diff).unwrap(); // inter raw
+                        }
+
+                        idx += bundle_part_length;
+                        if idx == bundle_length {
+                            done = true;
+                        }
+                    }
+
+                    //self.file.skip_ahead(bundle_length).unwrap(); // until I add handling
                 }
 
                 self.duration += 1;
@@ -467,17 +421,38 @@ impl Replay {
         false
     }
 
+    fn parse_action(&mut self, len: u32) {
+        trace!("Replay::parse_action");
+
+        let action_type = self.file.read_u8().unwrap();
+        let base_location = self.file.read_u8().unwrap();
+
+        self.file.skip_ahead(1).unwrap(); // part of player ID?
+        let player_id = self.file.read_u8().unwrap();
+
+        self.file.skip_ahead(2).unwrap(); // probably counts current num of tick_size
+        self.file.skip_ahead(2).unwrap(); // lots of 0, 16 then 20546 2054720802 21085
+        self.file.skip_ahead(2).unwrap(); // pretty sure it's a player id of some sort
+        let unit_id = self.file.read_u8().unwrap(); // unit id
+
+        let command = match Command::from_u8(action_type) {
+            Some(val) => val,
+            None => {
+                //error!("unknown command {}", action_type);
+                return;
+            }
+        };
+
+        match command {
+            _ => info!("{}:{}:{:?} u {}", player_id, base_location, command, unit_id)
+        }
+    }
+
     fn display(&self) {
         println!("version: {}", self.version);
         println!("game_type: {}", self.game_type);
         println!("date_time: {}", self.date_time);
-        println!("map_file: {}", self.map_file);
-        println!("map_name: {}", self.map_name);
-        println!("map_description: {}", self.map_description);
-        println!("map_description_long: {}", self.map_description_long);
-        println!("map_width: {}", self.map_width);
-        println!("map_height: {}", self.map_height);
-        println!("map_players: {}", self.map_players);
+        self.map.display();
         println!("duration: {}", self.duration);
         println!("num players: {}", self.players.len());
 

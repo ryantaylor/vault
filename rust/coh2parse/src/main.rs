@@ -6,7 +6,9 @@ extern crate log4rs;
 mod stream;
 mod player;
 mod replay;
-mod equippable;
+mod item;
+mod command;
+mod map;
 
 use std::default::Default;
 use std::path::Path;
