@@ -3,9 +3,9 @@
 extern crate log;
 extern crate rustc_serialize;
 
-pub mod player;
+pub mod replay;
+mod player;
 mod stream;
-mod replay;
 mod item;
 mod command;
 mod map;

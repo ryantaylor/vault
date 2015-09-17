@@ -3,6 +3,13 @@ name = "vault"
 version = "0.1.0"
 authors = ["Ryan Taylor <ryan@ryantaylordev.ca>"]
 
+description = "A parser for Company of Heroes 2 replay files."
+homepage = "http://ryantaylordev.ca"
+repository = "https://github.com/ryantaylor/vault"
+readme = "README.md"
+keywords = ["coh", "coh2", "company", "heroes", "replay"]
+license = "MIT"
+
 
 [dependencies]
 log = "0.3"
