@@ -111,12 +111,18 @@ pub enum Command {
     PCMD_SetCommander = 99,
     PCMD_Surrender = 100,
     PCMD_WaitObjectDone = 101,
-    PCMD_COUNT = 102
+    PCMD_BroadcastMessage = 102,
+    PCMD_COUNT = 103,
+
+    //[DataCommandtype]
+    DCMD_DataCommand1 = 104, // 13 data bytes
+    DCMD_DataCommand2 = 105, // 10 data bytes
+    DCMD_COUNT = 106,
 }
 
 impl Command {
     pub fn from_u8(n: u8) -> Option<Command> {
-        if n <= 102 {
+        if n <= 106 {
             Some(unsafe { mem::transmute(n) })
         } else {
             None

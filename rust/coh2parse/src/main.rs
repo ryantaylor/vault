@@ -20,7 +20,7 @@ fn main() {
     log4rs::init_file("log.toml", Default::default()).unwrap();
 
     // Create a path to the desired file
-    let path = Path::new("/home/ryan/replays/angoville_1v1.rec");
+    let path = Path::new("/home/ryan/replays/sittard_1v1.rec");
 
     let mut replay = Replay::new(&path);
     replay.parse();

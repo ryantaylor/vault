@@ -14,7 +14,14 @@ pub struct Item {
 }
 
 impl Item {
-    pub fn new(primary: u32, secondary: u32, item_type: ItemType) -> Item {
+    pub fn new(item_type: ItemType) -> Item {
+        Item {
+            id: 0,
+            item_type: item_type,
+        }
+    }
+
+    pub fn with_split_id(primary: u32, secondary: u32, item_type: ItemType) -> Item {
         let mut item = Item {
             id: 0,
             item_type: item_type
@@ -22,6 +29,13 @@ impl Item {
 
         item.update_id(primary, secondary);
         item
+    }
+
+    pub fn with_whole_id(id: u64, item_type: ItemType) -> Item {
+        Item {
+            id: id,
+            item_type: item_type,
+        }
     }
 
     pub fn update_id(&mut self, primary: u32, secondary: u32) {

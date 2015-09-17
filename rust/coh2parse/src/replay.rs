@@ -89,42 +89,47 @@ impl Replay {
         }
     }
 
-    fn parse_map_info(&mut self) {
+    fn parse_map_info(&mut self, version: u32) {
         trace!("Replay::parse_map_info");
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        self.file.skip_ahead(4).unwrap(); // can be 1 or 2?
-        assert_eq!(self.file.read_u32().unwrap(), 0x3);
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        if version == 0x7E4 {
+            assert_eq!(self.file.read_u32().unwrap(), 0x0);
+            assert_eq!(self.file.read_u32().unwrap(), 0x0);
+            self.file.skip_ahead(4).unwrap(); // can be 1 or 2?
+            assert_eq!(self.file.read_u32().unwrap(), 0x3);
+            assert_eq!(self.file.read_u32().unwrap(), 0x0);
+            assert_eq!(self.file.read_u32().unwrap(), 0x0);
+            assert_eq!(self.file.read_u32().unwrap(), 0x0);
 
-        let mut size = self.file.read_u32().unwrap();
-        let map_file = self.file.read_utf8(size).unwrap();
+            let mut size = self.file.read_u32().unwrap();
+            let map_file = self.file.read_utf8(size).unwrap();
 
-        self.file.skip_ahead(16).unwrap(); // something to do with map start positions?
+            self.file.skip_ahead(16).unwrap(); // something to do with map start positions?
 
-        size = self.file.read_u32().unwrap();
-        let map_name = self.file.read_utf16(size).unwrap();
+            size = self.file.read_u32().unwrap();
+            let map_name = self.file.read_utf16(size).unwrap();
 
-        size = self.file.read_u32().unwrap();
-        let map_description_long = self.file.read_utf16(size).unwrap();
+            size = self.file.read_u32().unwrap();
+            let map_description_long = self.file.read_utf16(size).unwrap();
 
-        size = self.file.read_u32().unwrap();
-        let map_description = self.file.read_utf16(size).unwrap();
+            size = self.file.read_u32().unwrap();
+            let map_description = self.file.read_utf16(size).unwrap();
 
-        let map_players = self.file.read_u32().unwrap();
+            let map_players = self.file.read_u32().unwrap();
 
-        let map_width = self.file.read_u32().unwrap();
-        let map_height = self.file.read_u32().unwrap();
+            let map_width = self.file.read_u32().unwrap();
+            let map_height = self.file.read_u32().unwrap();
 
-        self.map = Map::with_data(map_file,
-                                  map_name,
-                                  map_description,
-                                  map_description_long,
-                                  map_width,
-                                  map_height,
-                                  map_players);
+            self.map = Map::with_data(map_file,
+                                      map_name,
+                                      map_description,
+                                      map_description_long,
+                                      map_width,
+                                      map_height,
+                                      map_players);
+        }
+        else {
+            error!("Replay::parse_game_data - cannot parse DATASDSC version {}", version);
+        }
     }
 
     fn parse_opponent_info(&mut self) {
@@ -154,7 +159,9 @@ impl Replay {
         trace!("Replay::parse_chunk");
         let chunk_type = self.file.read_utf8(8).unwrap();
         if !chunk_type.starts_with("FOLD") && !chunk_type.starts_with("DATA") {
-            error!("Replay::parse_chunk - invalid chunk type {} at cursor {}", chunk_type, self.file.get_cursor_position());
+            error!("Replay::parse_chunk - invalid chunk type {} at cursor {}", 
+                   chunk_type, 
+                   self.file.get_cursor_position());
             self.file.skip_back(8).unwrap();
             return false;
         }
@@ -186,11 +193,22 @@ impl Replay {
             }
         }
 
-        if chunk_type == "DATASDSC" && chunk_version == 0x7E4 {
-            self.parse_map_info();
+        if chunk_type == "DATASDSC" {
+            self.parse_map_info(chunk_version);
         }
 
-        if chunk_type == "DATADATA" && chunk_version == 0x1B {
+        if chunk_type == "DATADATA" {
+            self.parse_game_data(chunk_version);
+        }
+
+        self.file.seek(start_position + chunk_length);
+
+        true
+    }
+
+    fn parse_game_data(&mut self, version: u32) {
+        trace!("Replay::parse_game_data");
+        if version == 0x1B {
             self.parse_opponent_info();
 
             self.file.skip_ahead(4).unwrap(); // 0 or 1
@@ -200,13 +218,10 @@ impl Replay {
             self.parse_rng_seed();
 
             self.parse_players();
-
-            //self.file.skip(90);
         }
-
-        self.file.seek(start_position + chunk_length);
-
-        true
+        else {
+            error!("Replay::parse_game_data - cannot parse DATADATA version {}", version);
+        }
     }
 
     fn parse_players(&mut self) {
@@ -240,10 +255,12 @@ impl Replay {
         self.file.skip_ahead(4).unwrap(); // Seb: p00
 
         size = self.file.read_u32().unwrap();
-        assert_eq!(self.file.read_utf8(size).unwrap(), "default"); // Seb: default or cpu default_skirmish
+        //assert_eq!(self.file.read_utf8(size).unwrap(), "default"); // Seb: default or skirmish
+        self.file.read_utf8(size).unwrap(); // Seb: default or skirmish
 
-        self.file.skip_ahead(4).unwrap(); // Seb: this is not count, it's t1p1 t2p1 t1p2 t2p2 etc (fixed pos)
-                                          // or I dont even know anymore (for random) its still count
+        self.file.skip_ahead(4).unwrap(); // Seb: this is not count, it's t1p1 t2p1 t1p2 t2p2 etc 
+                                          // (fixed pos) or I dont even know anymore (for random) 
+                                          // its still count
 
         self.file.skip_ahead(4).unwrap(); // something (not position)
 
@@ -252,7 +269,7 @@ impl Replay {
 
         assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
 
-        if self.file.read_u16().unwrap() == 0x109 {
+        /*if self.file.read_u16().unwrap() == 0x109 {
             player.add_item(self.parse_item(ItemType::Skin));
         }
         if self.file.read_u16().unwrap() == 0x109 {
@@ -260,14 +277,18 @@ impl Replay {
         }
         if self.file.read_u16().unwrap() == 0x109 {
             player.add_item(self.parse_item(ItemType::Skin));
-        }
+        }*/
+
+        player.add_item(self.parse_item(ItemType::Skin));
+        player.add_item(self.parse_item(ItemType::Skin));
+        player.add_item(self.parse_item(ItemType::Skin));
 
         assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
 
         player.update_steam_id(self.parse_steam_id());
 
         //assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
-        if self.file.read_u16().unwrap() == 0x109 {
+        /*if self.file.read_u16().unwrap() == 0x109 {
             player.add_item(self.parse_item(ItemType::FacePlate));
         }
 
@@ -278,20 +299,28 @@ impl Replay {
         //assert_eq!(self.file.read_u16().unwrap(), 0x1);
         if self.file.read_u16().unwrap() == 0x109 {
             player.add_item(self.parse_item(ItemType::Decal)); // i think???
-        }
+        }*/
+
+        player.add_item(self.parse_item(ItemType::FacePlate));
+        player.add_item(self.parse_item(ItemType::VictoryStrike));
+        player.add_item(self.parse_item(ItemType::Decal));
 
         size = self.file.read_u32().unwrap();
         for _ in 0..size {
-            if self.file.read_u16().unwrap() == 0x109 {
+            /*if self.file.read_u16().unwrap() == 0x109 {
                 player.add_item(self.parse_item(ItemType::Commander));
-            }
+            }*/
+
+            player.add_item(self.parse_item(ItemType::Commander));
         }
 
         size = self.file.read_u32().unwrap();
         for _ in 0..size {
-            if self.file.read_u16().unwrap() == 0x109 {
+            /*if self.file.read_u16().unwrap() == 0x109 {
                 player.add_item(self.parse_item(ItemType::Bulletin));
-            }
+            }*/
+
+            player.add_item(self.parse_item(ItemType::Bulletin));
         }
 
         //assert_eq!(self.file.read_u16().unwrap(), 0x0);
@@ -302,6 +331,17 @@ impl Replay {
     }
 
     fn parse_item(&mut self, item_type: ItemType) -> Item {
+        let type_label = self.file.read_u16().unwrap();
+        match type_label {
+            0x1 => Item::new(item_type),
+            0x109 => self.parse_player_item(item_type),
+            0x206 => self.parse_cpu_item(item_type),
+            0x216 => self.parse_player_item_special(item_type),
+            _ => panic!("unexpected item type {} at {}", type_label, self.file.get_cursor_position()),
+        }
+    }
+
+    fn parse_player_item(&mut self, item_type: ItemType) -> Item {
         let primary = self.file.read_u32().unwrap();
         assert_eq!(self.file.read_u32().unwrap(), 0x0);
         let secondary = self.file.read_u32().unwrap();
@@ -310,11 +350,27 @@ impl Replay {
         let size = self.file.read_u16().unwrap();
         self.file.skip_ahead(size as u32).unwrap();
 
-        Item::new(primary, secondary, item_type)
+        Item::with_split_id(primary, secondary, item_type)
+    }
+
+    fn parse_player_item_special(&mut self, item_type: ItemType) -> Item {
+        self.file.skip_ahead(16).unwrap(); // lots of data, no idea what it is
+        let id = self.file.read_u32().unwrap() as u64; // might not be id
+        self.file.skip_ahead(1).unwrap(); // not sure, was 0x40 in test replay
+
+        Item::with_whole_id(id, item_type)
+    }
+
+    fn parse_cpu_item(&mut self, item_type: ItemType) -> Item {
+        assert_eq!(self.file.read_u8().unwrap(), 0x1);
+        let id = self.file.read_u32().unwrap() as u64;
+
+        Item::with_whole_id(id, item_type)
     }
 
     fn parse_steam_id(&mut self) -> u64 {
-        self.file.skip_ahead(8).unwrap(); // not sure what these are yet, 2 u32s
+        self.file.skip_ahead(8).unwrap(); // u64::MAX if cpu and no steam id, but it will return
+                                          // 0 in this case so just read anyways
         self.file.read_u64().unwrap()
     }
 
