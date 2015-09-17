@@ -1,6 +1,7 @@
 use std::string::String;
 use item::Item;
 
+#[derive(Debug, RustcEncodable)]
 pub struct Player {
     name: String,
     steam_id: u64,

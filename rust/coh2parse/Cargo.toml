@@ -1,8 +1,0 @@
-[package]
-name = "coh2parse"
-version = "0.1.0"
-authors = ["ryantaylor <ryan.taylor9@gmail.com>"]
-
-[dependencies]
-log = "0.3"
-log4rs = "0.3"

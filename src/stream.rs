@@ -6,7 +6,9 @@ use std::path::Path;
 use std::string::String;
 use std::u32;
 
-#[derive(Debug)]
+use rustc_serialize::json::{self, ToJson, Json};
+
+#[derive(Debug, RustcEncodable)]
 pub enum StreamError {
     CursorWrap,
     CursorOutOfBounds,
@@ -14,9 +16,16 @@ pub enum StreamError {
     EmptyChar
 }
 
+#[derive(Debug, RustcEncodable)]
 pub struct Stream {
     data: Vec<u8>,
     cursor: u32,
+}
+
+impl ToJson for Stream {
+    fn to_json(&self) -> Json {
+        Json::String(format!("{}", self.cursor))
+    }
 }
 
 impl Stream {
@@ -268,5 +277,10 @@ impl Stream {
 
     pub fn get_cursor_position(&self) -> u32 {
         return self.cursor;
+    }
+
+    pub fn cleanup(&mut self) {
+        self.cursor = self.data.len() as u32;
+        self.data = Vec::new();
     }
 }

@@ -1,30 +1,19 @@
 // main.rs
 #[macro_use]
 extern crate log;
-extern crate log4rs;
+extern crate rustc_serialize;
 
+pub mod player;
 mod stream;
-mod player;
 mod replay;
 mod item;
 mod command;
 mod map;
+mod chat_line;
 
-use std::default::Default;
 use std::path::Path;
 
 use replay::Replay;
-
-fn main() {
-    // Initialize logging
-    log4rs::init_file("log.toml", Default::default()).unwrap();
-
-    // Create a path to the desired file
-    let path = Path::new("/home/ryan/replays/sittard_1v1.rec");
-
-    let mut replay = Replay::new(&path);
-    replay.parse();
-}
 
 #[test]
 fn angoville_1v1() {

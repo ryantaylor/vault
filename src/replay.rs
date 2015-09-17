@@ -6,7 +6,9 @@ use player::Player;
 use item::{Item, ItemType};
 use command::Command;
 use map::Map;
+use chat_line::ChatLine;
 
+#[derive(Debug, RustcEncodable)]
 pub struct Replay {
     file: Stream,
     version: u16,
@@ -17,6 +19,7 @@ pub struct Replay {
     duration: u32,              // seconds
     rng_seed: u32,
     opponent_type: u32,         // 1 = human, 2 = cpu
+    chat: Vec<ChatLine>,
 }
 
 impl Replay {
@@ -31,6 +34,7 @@ impl Replay {
             duration: 0,
             rng_seed: 0,
             opponent_type: 0,
+            chat: Vec::new(),
         }
     }
 
@@ -47,7 +51,8 @@ impl Replay {
 
         self.parse_data();
 
-        self.display();
+        //self.display();
+        self.cleanup();
     }
 
     fn parse_version(&mut self) {
@@ -427,6 +432,7 @@ impl Replay {
                     let content = self.file.read_utf16(size).unwrap();
 
                     info!("{}: {}", name, content);
+                    self.chat.push(ChatLine::with_data(self.duration, name, content));
 
                     let tag_length = self.file.read_u32().unwrap(); // not sure what this is
                     self.file.skip_ahead(tag_length * 2).unwrap(); // some numeric ids? all u16s
@@ -470,6 +476,10 @@ impl Replay {
         }
     }
 
+    fn cleanup(&mut self) {
+        self.file.cleanup();
+    }
+
     fn display(&self) {
         println!("version: {}", self.version);
         println!("game_type: {}", self.game_type);
@@ -480,6 +490,10 @@ impl Replay {
 
         for player in self.players.iter() {
             player.display();
+        }
+
+        for line in self.chat.iter() {
+            line.display();
         }
     }
 }

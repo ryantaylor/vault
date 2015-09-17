@@ -1,5 +1,6 @@
 use std::string::String;
 
+#[derive(Debug, RustcEncodable)]
 pub struct Map {
     file: String,
     name: String,

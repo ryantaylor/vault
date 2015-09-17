@@ -1,6 +1,6 @@
 use std::mem;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, RustcEncodable)]
 #[repr(u8)]
 pub enum Command {
     //[EntityCommandType]

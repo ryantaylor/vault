@@ -1,3 +1,2 @@
-*.rec
 target
-coh2org
+Cargo.lock

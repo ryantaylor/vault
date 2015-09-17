@@ -1,9 +1,0 @@
-refresh_rate = 99999
-
-[appender.stdout]
-kind = "console"
-pattern = "%d{%H:%M:%S} [%l] %f: %m"
-
-[root]
-level = "info"
-appenders = ["stdout"]

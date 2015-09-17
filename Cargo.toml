@@ -1,0 +1,9 @@
+[package]
+name = "vault"
+version = "0.1.0"
+authors = ["Ryan Taylor <ryan@ryantaylordev.ca>"]
+
+
+[dependencies]
+log = "0.3"
+rustc-serialize = "0.3"

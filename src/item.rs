@@ -1,4 +1,4 @@
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, RustcEncodable)]
 pub enum ItemType {
     Commander,
     Bulletin,
@@ -8,6 +8,7 @@ pub enum ItemType {
     FacePlate
 }
 
+#[derive(Debug, RustcEncodable)]
 pub struct Item {
     id: u64,
     item_type: ItemType
