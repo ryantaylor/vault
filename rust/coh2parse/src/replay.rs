@@ -255,7 +255,6 @@ impl Replay {
         self.file.skip_ahead(4).unwrap(); // Seb: p00
 
         size = self.file.read_u32().unwrap();
-        //assert_eq!(self.file.read_utf8(size).unwrap(), "default"); // Seb: default or skirmish
         self.file.read_utf8(size).unwrap(); // Seb: default or skirmish
 
         self.file.skip_ahead(4).unwrap(); // Seb: this is not count, it's t1p1 t2p1 t1p2 t2p2 etc 
@@ -269,16 +268,6 @@ impl Replay {
 
         assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
 
-        /*if self.file.read_u16().unwrap() == 0x109 {
-            player.add_item(self.parse_item(ItemType::Skin));
-        }
-        if self.file.read_u16().unwrap() == 0x109 {
-            player.add_item(self.parse_item(ItemType::Skin));
-        }
-        if self.file.read_u16().unwrap() == 0x109 {
-            player.add_item(self.parse_item(ItemType::Skin));
-        }*/
-
         player.add_item(self.parse_item(ItemType::Skin));
         player.add_item(self.parse_item(ItemType::Skin));
         player.add_item(self.parse_item(ItemType::Skin));
@@ -287,43 +276,20 @@ impl Replay {
 
         player.update_steam_id(self.parse_steam_id());
 
-        //assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
-        /*if self.file.read_u16().unwrap() == 0x109 {
-            player.add_item(self.parse_item(ItemType::FacePlate));
-        }
-
-        if self.file.read_u16().unwrap() == 0x109 {
-            player.add_item(self.parse_item(ItemType::VictoryStrike));
-        }
-
-        //assert_eq!(self.file.read_u16().unwrap(), 0x1);
-        if self.file.read_u16().unwrap() == 0x109 {
-            player.add_item(self.parse_item(ItemType::Decal)); // i think???
-        }*/
-
         player.add_item(self.parse_item(ItemType::FacePlate));
         player.add_item(self.parse_item(ItemType::VictoryStrike));
         player.add_item(self.parse_item(ItemType::Decal));
 
         size = self.file.read_u32().unwrap();
         for _ in 0..size {
-            /*if self.file.read_u16().unwrap() == 0x109 {
-                player.add_item(self.parse_item(ItemType::Commander));
-            }*/
-
             player.add_item(self.parse_item(ItemType::Commander));
         }
 
         size = self.file.read_u32().unwrap();
         for _ in 0..size {
-            /*if self.file.read_u16().unwrap() == 0x109 {
-                player.add_item(self.parse_item(ItemType::Bulletin));
-            }*/
-
             player.add_item(self.parse_item(ItemType::Bulletin));
         }
 
-        //assert_eq!(self.file.read_u16().unwrap(), 0x0);
         assert_eq!(self.file.read_u32().unwrap(), 0x0);
         self.file.skip_ahead(8).unwrap(); // don't know what this is yet, 2 u32s
 
