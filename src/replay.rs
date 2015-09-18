@@ -1,3 +1,5 @@
+//! A module containing a representative state of a Company of Heroes 2 replay file.
+
 use std::path::Path;
 use std::string::String;
 
@@ -7,6 +9,9 @@ use item::{Item, ItemType};
 use command::Command;
 use map::Map;
 use chat_line::ChatLine;
+
+/// The main Replay type, contains all currently parsed replay data. Can be serialized to JSON for
+/// output using rustc_serialize.
 
 #[derive(Debug, RustcEncodable)]
 pub struct Replay {
@@ -23,6 +28,25 @@ pub struct Replay {
 }
 
 impl Replay {
+
+    /// Constructs a new Replay and loads the file specified by path into memory.
+    ///
+    /// # Panics
+    ///
+    /// When the Stream fails to open the file specified by path for reading.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// extern crate vault;
+    ///
+    /// use vault::replay::Replay;
+    /// use std::path::Path;
+    ///
+    /// let path = Path::new("/path/to/replay.rec");
+    /// let replay = Replay::new(&path);
+    /// ```
+
     pub fn new(path: &Path) -> Replay {
         Replay {
             file: Stream::new(&path),
@@ -37,6 +61,42 @@ impl Replay {
             chat: Vec::new(),
         }
     }
+
+    /// Parses the loaded replay populates the Replay type with the return data.
+    ///
+    /// When the replay has finished being parsed, the vector of byte data loaded into memory from
+    /// file is dropped. This is done to clean up the resulting type in order to make working with
+    /// the output easier. The file cursor property remains, however, and is an accurate
+    /// representation of the size of the replay file in bytes.
+    ///
+    /// # Panics
+    ///
+    /// When parsing encountered a section of information that it cannot properly navigate. This
+    /// will be changed in the future to return a Result instead.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// extern crate vault;
+    /// // For JSON serialization (optional)
+    /// extern crate rustc_serialize;
+    ///
+    /// use vault::replay::Replay;
+    /// use std::path::Path;
+    /// // For JSON serialization (optional)
+    /// use rustc_serialize::json;
+    ///
+    /// let path = Path::new("/path/to/replay.rec");
+    /// let replay = Replay::new(&path);
+    ///
+    /// replay.parse();
+    /// 
+    /// // You can serialize the Replay type to JSON after parsing if you would like to print
+    /// // replay data to stdout or write it to a file.
+    /// //
+    /// let encoded = json::encode(&replay).unwrap();
+    /// println!("{}", encoded);
+    /// ```
 
     pub fn parse(&mut self) {
         assert_eq!(self.file.read_u16().unwrap(), 0x0);
@@ -480,6 +540,7 @@ impl Replay {
         self.file.cleanup();
     }
 
+    #[allow(dead_code)]
     fn display(&self) {
         println!("version: {}", self.version);
         println!("game_type: {}", self.game_type);

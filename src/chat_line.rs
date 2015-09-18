@@ -1,3 +1,5 @@
+//! A module containing a representation of chat lines in CoH2 replays.
+
 use std::string::String;
 
 #[derive(Debug, RustcEncodable)]
@@ -24,6 +26,7 @@ impl ChatLine {
         }
     }
 
+    #[allow(dead_code)]
     pub fn display(&self) {
         println!("{} - {}: {}", self.tick, self.name, self.message);
     }

@@ -1,3 +1,5 @@
+//! A module containing a representation of a map in CoH2 replays.
+
 use std::string::String;
 
 #[derive(Debug, RustcEncodable)]

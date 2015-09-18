@@ -1,3 +1,6 @@
+//! A module that encloses the contents of the replay file in memory and performs various functions
+//! on the resultant bytestream.
+
 use std::error::Error;
 use std::fs;
 use std::fs::File;
@@ -6,7 +9,7 @@ use std::path::Path;
 use std::string::String;
 use std::u32;
 
-use rustc_serialize::json::{self, ToJson, Json};
+use rustc_serialize::json::{ToJson, Json};
 
 #[derive(Debug, RustcEncodable)]
 pub enum StreamError {

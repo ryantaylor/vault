@@ -1,3 +1,5 @@
+//! A module containing a representation of a player entity in CoH2 replays.
+
 use std::string::String;
 use item::Item;
 
@@ -50,6 +52,7 @@ impl Player {
         &self.name
     }
 
+    #[allow(dead_code)]
     pub fn display(&self) {
         println!("name: {}", self.name);
         println!("steam_id: {}", self.steam_id);

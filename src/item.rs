@@ -1,3 +1,6 @@
+//! A module containing a representation of items in CoH2 that can be equipped, as represented in
+//! CoH2 replay files.
+
 #[derive(Debug, Copy, Clone, RustcEncodable)]
 pub enum ItemType {
     Commander,

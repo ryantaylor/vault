@@ -1,7 +1,14 @@
+//! A module containing a representation of all possible commands and actions in CoH2 replays.
+//!
+//! This module is used in conjunction with replay to parse actions within ticks based on the
+//! command they encode.
+
 use std::mem;
 
 #[derive(Debug, Copy, Clone, RustcEncodable)]
 #[repr(u8)]
+#[allow(dead_code)]
+#[allow(non_camel_case_types)]
 pub enum Command {
     //[EntityCommandType]
     CMD_DefaultAction = 0,
