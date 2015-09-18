@@ -2,6 +2,8 @@
 
 use std::string::String;
 
+/// This type represents a single Company of Heroes 2 chat message.
+
 #[derive(Debug, RustcEncodable)]
 pub struct ChatLine {
     tick: u32,
@@ -10,6 +12,9 @@ pub struct ChatLine {
 }
 
 impl ChatLine {
+
+    /// Constructs a new ChatLine with empty initial data.
+
     pub fn new() -> ChatLine {
         ChatLine {
             tick: 0,
@@ -18,6 +23,8 @@ impl ChatLine {
         }
     }
 
+    /// Constructs a new ChatLine initialized with the data given.
+
     pub fn with_data<S>(tick: u32, name: S, message: S) -> ChatLine where S: Into<String> {
         ChatLine {
             tick: tick,
@@ -25,6 +32,8 @@ impl ChatLine {
             message: message.into(),
         }
     }
+
+    /// Writes the contents of the ChatLine to stdout.
 
     #[allow(dead_code)]
     pub fn display(&self) {

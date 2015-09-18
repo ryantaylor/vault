@@ -5,6 +5,9 @@
 
 use std::mem;
 
+/// This type contains a numerical u8 representation of every command/action possible in a CoH2 command
+/// sequence. Contents of this enum provided by Relic Entertainment.
+
 #[derive(Debug, Copy, Clone, RustcEncodable)]
 #[repr(u8)]
 #[allow(dead_code)]
@@ -128,6 +131,10 @@ pub enum Command {
 }
 
 impl Command {
+
+    /// Converts a numerical representation of a Command enum into the correct enum value by
+    /// unsafely transmuting the numerical representation into the Command type.
+
     pub fn from_u8(n: u8) -> Option<Command> {
         if n <= 106 {
             Some(unsafe { mem::transmute(n) })

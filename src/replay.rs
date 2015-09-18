@@ -62,7 +62,7 @@ impl Replay {
         }
     }
 
-    /// Parses the loaded replay populates the Replay type with the return data.
+    /// Parses the loaded replay and populates the Replay type with the return data.
     ///
     /// When the replay has finished being parsed, the vector of byte data loaded into memory from
     /// file is dropped. This is done to clean up the resulting type in order to make working with
@@ -115,6 +115,12 @@ impl Replay {
         self.cleanup();
     }
 
+    /// Parses the Replay version at the current Stream cursor.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or the parsed version is unsupported (< 19545)
+
     fn parse_version(&mut self) {
         trace!("Replay::parse_version");
         self.version = self.file.read_u16().unwrap();
@@ -123,10 +129,23 @@ impl Replay {
         }
     }
 
+    /// Parses the Replay game type at the current Stream cursor.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails.
+
     fn parse_game_type(&mut self) {
         trace!("Replay::parse_game_type");
         self.game_type = self.file.read_utf8(8).unwrap();
     }
+
+    /// Parses the Replay timestamp at the current Stream cursor.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unrecoverable error is returned when attempting to read a
+    /// Unicode character.
 
     fn parse_date_time(&mut self) {
         trace!("Replay::parse_date_time");
@@ -153,6 +172,13 @@ impl Replay {
             };
         }
     }
+
+    /// Parses the Replay map information at the current Stream cursor and stores the parsed
+    /// information in a Map type associated with the Replay.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
 
     fn parse_map_info(&mut self, version: u32) {
         trace!("Replay::parse_map_info");
@@ -197,15 +223,35 @@ impl Replay {
         }
     }
 
+    /// Parses the Replay opponent information at the current Stream cursor.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails.
+
     fn parse_opponent_info(&mut self) {
         trace!("Replay::parse_opponent_info");
         self.opponent_type = self.file.read_u32().unwrap();
     }
 
+    /// Parses the Replay RNG seed at the current Stream cursor.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails.
+
     fn parse_rng_seed(&mut self) {
         trace!("Replay::parse_rng_seed");
         self.rng_seed = self.file.read_u32().unwrap();
     }
+
+    /// Parses a Chunky file segment at the current Stream cursor.
+    ///
+    /// A Chunky segment is a container of replay data that houses one or more Chunks.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
 
     fn parse_chunky(&mut self) {
         trace!("Replay::parse_chunky");
@@ -219,6 +265,17 @@ impl Replay {
 
         while self.parse_chunk() {}
     }
+
+    /// Parses a Chunk file segment at the current Stream cursor.
+    ///
+    /// A Chunk segment is a block of replay data inside a Chunky segment that contains one or more
+    /// pieces of information that we want to parse out. Depending on the Chunk type and Chunk
+    /// version, different parsing rules apply and different information is pulled from the file
+    /// into the Replay.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
 
     fn parse_chunk(&mut self) -> bool {
         trace!("Replay::parse_chunk");
@@ -271,6 +328,13 @@ impl Replay {
         true
     }
 
+    /// Parses a section of game data found in a DATADATA Chunk which includes opponent,
+    /// information, RNG seed, and player information.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
+
     fn parse_game_data(&mut self, version: u32) {
         trace!("Replay::parse_game_data");
         if version >= 0x1B && version <= 0x1C {
@@ -289,6 +353,12 @@ impl Replay {
         }
     }
 
+    /// Parses all Player entities in the given Replay, starting at the current Stream cursor. 
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails.
+
     fn parse_players(&mut self) {
         trace!("Replay::parse_players");
         let num_players = self.file.read_u32().unwrap();
@@ -300,6 +370,13 @@ impl Replay {
             self.players.push(player);
         }
     }
+
+    /// Parses a Player entity at the current Stream cursor, including all Items equipped by that
+    /// player.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
 
     fn parse_player(&mut self) -> Player {
         trace!("Replay::parse_player");
@@ -361,6 +438,13 @@ impl Replay {
         player
     }
 
+    /// Parses an Item belonging to a Player at the current Stream cursor, depending on the type
+    /// of Item being parsed, and returns that Item to the caller.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected item type is found in the Replay.
+
     fn parse_item(&mut self, item_type: ItemType) -> Item {
         let type_label = self.file.read_u16().unwrap();
         match type_label {
@@ -371,6 +455,12 @@ impl Replay {
             _ => panic!("unexpected item type {} at {}", type_label, self.file.get_cursor_position()),
         }
     }
+
+    /// Parses an encoded Item whose pattern matches that of most human Player Items.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
 
     fn parse_player_item(&mut self, item_type: ItemType) -> Item {
         let primary = self.file.read_u32().unwrap();
@@ -384,6 +474,13 @@ impl Replay {
         Item::with_split_id(primary, secondary, item_type)
     }
 
+    /// Parses an encoded Item whose pattern matches that of a special case of human Player Item,
+    /// usually a special type of Decal.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails.
+
     fn parse_player_item_special(&mut self, item_type: ItemType) -> Item {
         self.file.skip_ahead(16).unwrap(); // lots of data, no idea what it is
         let id = self.file.read_u32().unwrap() as u64; // might not be id
@@ -392,6 +489,12 @@ impl Replay {
         Item::with_whole_id(id, item_type)
     }
 
+    /// Parses an encoded Item whose pattern matches that of most CPU Player Items.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
+
     fn parse_cpu_item(&mut self, item_type: ItemType) -> Item {
         assert_eq!(self.file.read_u8().unwrap(), 0x1);
         let id = self.file.read_u32().unwrap() as u64;
@@ -399,16 +502,36 @@ impl Replay {
         Item::with_whole_id(id, item_type)
     }
 
+    /// Parses a Player Steam ID at the current Stream cursor.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails.
+
     fn parse_steam_id(&mut self) -> u64 {
         self.file.skip_ahead(8).unwrap(); // u64::MAX if cpu and no steam id, but it will return
                                           // 0 in this case so just read anyways
         self.file.read_u64().unwrap()
     }
 
+    /// Parses the Data section of a Replay. This section comes after all Chunky and Chunk
+    /// segments, and encodes all actions and chat messages.
+
     fn parse_data(&mut self) {
         trace!("Replay::parse_data");
         while self.parse_tick() {}
     }
+
+    /// Parses a Tick at the current Stream cursor.
+    ///
+    /// A Tick is a block of data in the Data section of a Replay that stores information about
+    /// player actions and chat messages that occurred at that moment in time in the Replay. One
+    /// Tick represents 1/8 seconds of real-world time, and can contain Action information (player
+    /// commands) or Special information (chat messages).
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
 
     fn parse_tick(&mut self) -> bool {
         trace!("Replay::parse_tick");
@@ -509,6 +632,13 @@ impl Replay {
         false
     }
 
+    /// Parses a segment of an Action type Tick and extracts the details of the contained action,
+    /// depending on the type of Command encoded in the action.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
+
     fn parse_action(&mut self, len: u32) {
         trace!("Replay::parse_action");
 
@@ -536,9 +666,14 @@ impl Replay {
         }
     }
 
+    /// Performs maintenance on the data structures of the Replay type to clean up unneeded
+    /// elements once parsing is complete, in order to simplify the resulting information.
+
     fn cleanup(&mut self) {
         self.file.cleanup();
     }
+
+    /// Writes the contents of the Replay to stdout.
 
     #[allow(dead_code)]
     fn display(&self) {

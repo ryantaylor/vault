@@ -2,6 +2,8 @@
 
 use std::string::String;
 
+/// This type represents a Company of Heroes 2 map as presented in a CoH2 replay file.
+
 #[derive(Debug, RustcEncodable)]
 pub struct Map {
     file: String,
@@ -14,6 +16,9 @@ pub struct Map {
 }
 
 impl Map {
+
+    /// Constructs a new Map with empty initial data.
+
     pub fn new() -> Map {
         Map {
             file: String::new(),
@@ -25,6 +30,8 @@ impl Map {
             players: 0
         }
     }
+
+    /// Constructs a new Map initialized with the data given.
 
     pub fn with_data(file: String,
                      name: String,
@@ -43,6 +50,8 @@ impl Map {
             players: players
         }
     }
+
+    /// Writes the contents of the Map to stdout.
 
     pub fn display(&self) {
         println!("map_file: {}", self.file);
