@@ -59,7 +59,7 @@ impl Replay {
         trace!("Replay::parse_version");
         self.version = self.file.read_u16().unwrap();
         if self.version < 19545 {
-            panic!("version {} unsupported, minimum version 19545 (UKF release) required");
+            panic!("version {} unsupported, minimum version 19545 (UKF release) required", self.version);
         }
     }
 
@@ -213,7 +213,7 @@ impl Replay {
 
     fn parse_game_data(&mut self, version: u32) {
         trace!("Replay::parse_game_data");
-        if version == 0x1B {
+        if version >= 0x1B && version <= 0x1C {
             self.parse_opponent_info();
 
             self.file.skip_ahead(4).unwrap(); // 0 or 1
