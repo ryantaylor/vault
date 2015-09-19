@@ -9,6 +9,8 @@ use std::path::Path;
 use std::string::String;
 use std::u32;
 
+use zip::read::ZipFile;
+
 /// This type contains the range of potential error Results for Stream function calls.
 
 #[derive(Debug, RustcEncodable)]
@@ -61,6 +63,35 @@ impl Stream {
             Err(why) => panic!("couldn't read {}: {}", path.display(),
                                                        Error::description(&why)),
             Ok(_) => info!("{} opened and read into memory", path.display()),
+        };
+
+        info!("{} bytes read into memory", buff.len());
+
+        Stream {
+            data: buff,
+            cursor: 0,
+        }
+    }
+
+    /// Constructs a new Stream using the given ZipFile.
+    ///
+    /// # Panics
+    ///
+    /// If the file specified in path could not be opened or could not be read into memory.
+
+    pub fn from_zipfile(file: &mut ZipFile) -> Stream {
+        info!("{} contains {} bytes", file.name(), file.size());
+
+        if file.size() >= u32::MAX as u64 {
+            panic!("replay file size {} bytes surpasses max size {} bytes", file.size(),
+                                                                            u32::MAX - 1);
+        }
+
+        let mut buff: Vec<u8> = Vec::with_capacity(file.size() as usize);
+        match file.read_to_end(&mut buff) {
+            Err(why) => panic!("couldn't read {}: {}", file.name(),
+                                                       Error::description(&why)),
+            Ok(_) => info!("{} opened and read into memory", file.name()),
         };
 
         info!("{} bytes read into memory", buff.len());

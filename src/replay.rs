@@ -3,6 +3,9 @@
 use std::path::Path;
 use std::string::String;
 
+use rustc_serialize::json;
+use zip::read::ZipFile;
+
 use stream::{Stream, StreamError};
 use player::Player;
 use item::{Item, ItemType};
@@ -62,6 +65,48 @@ impl Replay {
         }
     }
 
+    /// Constructs a new Replay and loads the ZipFile specified by file into memory.
+    ///
+    /// # Panics
+    ///
+    /// When the Stream fails to open the file specified by path for reading.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// extern crate vault;
+    /// extern crate zip;
+    ///
+    /// use vault::replay::Replay;
+    /// use std::path::Path;
+    /// use zip::read::{ZipArchive. ZipFile};
+    ///
+    /// let path = Path::new("/path/to/archive.zip");
+    /// let file = File::open(&path).unwrap();
+    /// let archive = ZipArchive::new(file).unwrap();
+    ///
+    /// for idx in 0..archive.len() {
+    ///     let mut replay_file = archive.by_index(idx).unwrap();
+    ///     let mut replay = Replay::from_zipfile(&mut replay_file);
+    ///     replay.parse();
+    /// }
+    /// ```
+
+    pub fn from_zipfile(file: &mut ZipFile) -> Replay {
+        Replay {
+            file: Stream::from_zipfile(file),
+            version: 0,
+            game_type: String::new(),
+            date_time: String::new(),
+            map: Map::new(),
+            players: Vec::with_capacity(8),
+            duration: 0,
+            rng_seed: 0,
+            opponent_type: 0,
+            chat: Vec::new(),
+        }
+    }
+
     /// Parses the loaded replay and populates the Replay type with the return data.
     ///
     /// When the replay has finished being parsed, the vector of byte data loaded into memory from
@@ -78,13 +123,9 @@ impl Replay {
     ///
     /// ```
     /// extern crate vault;
-    /// // For JSON serialization (optional)
-    /// extern crate rustc_serialize;
     ///
     /// use vault::replay::Replay;
     /// use std::path::Path;
-    /// // For JSON serialization (optional)
-    /// use rustc_serialize::json;
     ///
     /// let path = Path::new("/path/to/replay.rec");
     /// let replay = Replay::new(&path);
@@ -94,7 +135,7 @@ impl Replay {
     /// // You can serialize the Replay type to JSON after parsing if you would like to print
     /// // replay data to stdout or write it to a file.
     /// //
-    /// let encoded = json::encode(&replay).unwrap();
+    /// let encoded = replay.to_json();
     /// println!("{}", encoded);
     /// ```
 
@@ -111,8 +152,242 @@ impl Replay {
 
         self.parse_data();
 
-        //self.display();
         self.cleanup();
+    }
+
+    /// Parses a Chunky file segment at the current Stream cursor.
+    ///
+    /// A Chunky segment is a container of replay data that houses one or more Chunks.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
+
+    fn parse_chunky(&mut self) {
+        trace!("Replay::parse_chunky");
+        assert_eq!(self.file.read_utf8(12).unwrap(), "Relic Chunky"); // chunk name
+        assert_eq!(self.file.read_u32().unwrap(), 0x1A0A0D); // chunky type
+        assert_eq!(self.file.read_u32().unwrap(), 0x3); // chunky version
+        assert_eq!(self.file.read_u32().unwrap(), 0x1);
+        assert_eq!(self.file.read_u32().unwrap(), 0x24);
+        assert_eq!(self.file.read_u32().unwrap(), 0x1C);
+        assert_eq!(self.file.read_u32().unwrap(), 0x1);
+
+        while self.parse_chunk() {}
+    }
+
+    /// Parses a Chunk file segment at the current Stream cursor.
+    ///
+    /// A Chunk segment is a block of replay data inside a Chunky segment that contains one or more
+    /// pieces of information that we want to parse out. Depending on the Chunk type and Chunk
+    /// version, different parsing rules apply and different information is pulled from the file
+    /// into the Replay.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
+
+    fn parse_chunk(&mut self) -> bool {
+        trace!("Replay::parse_chunk");
+        let chunk_type = self.file.read_utf8(8).unwrap();
+        if !chunk_type.starts_with("FOLD") && !chunk_type.starts_with("DATA") {
+            error!("Replay::parse_chunk - invalid chunk type {} at cursor {}", 
+                   chunk_type, 
+                   self.file.get_cursor_position());
+            self.file.skip_back(8).unwrap();
+            return false;
+        }
+
+        let chunk_version = self.file.read_u32().unwrap();
+        let chunk_length = self.file.read_u32().unwrap();
+        let chunk_name_length = self.file.read_u32().unwrap();
+
+        self.file.skip_ahead(4).unwrap(); // 0, 2000 (dec), or FF..
+        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+
+        info!("Replay::parse_chunk - in {} chunk, version {}", chunk_type, chunk_version);
+        debug!("Replay::parse_chunk - chunk_version = {}", chunk_version);
+        debug!("Replay::parse_chunk - chunk_length = {}", chunk_length);
+        debug!("Replay::parse_chunk - chunk_name_length = {}", chunk_name_length);
+
+        let chunk_name: String;
+        if chunk_name_length > 0 {
+            chunk_name = self.file.read_utf8(chunk_name_length).unwrap();
+            debug!("Replay::parse_chunk - chunk_name = {}", chunk_name);
+        }
+
+        let start_position = self.file.get_cursor_position();
+        debug!("Replay::parse_chunk - start_position = {}", start_position);
+
+        if chunk_type.starts_with("FOLD") {
+            while self.file.get_cursor_position() < start_position + chunk_length {
+                self.parse_chunk();
+            }
+        }
+
+        if chunk_type == "DATASDSC" {
+            self.parse_map_info(chunk_version);
+        }
+
+        if chunk_type == "DATADATA" {
+            self.parse_game_data(chunk_version);
+        }
+
+        self.file.seek(start_position + chunk_length);
+
+        true
+    }
+
+    /// Parses the Data section of a Replay. This section comes after all Chunky and Chunk
+    /// segments, and encodes all actions and chat messages.
+
+    fn parse_data(&mut self) {
+        trace!("Replay::parse_data");
+        while self.parse_tick() {}
+    }
+
+    /// Parses a Tick at the current Stream cursor.
+    ///
+    /// A Tick is a block of data in the Data section of a Replay that stores information about
+    /// player actions and chat messages that occurred at that moment in time in the Replay. One
+    /// Tick represents 1/8 seconds of real-world time, and can contain Action information (player
+    /// commands) or Special information (chat messages).
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
+
+    fn parse_tick(&mut self) -> bool {
+        trace!("Replay::parse_tick");
+        let tick_type = match self.file.read_u32() {
+            Err(e) => {
+                match e {
+                    StreamError::CursorOutOfBounds => return false,
+                    _ => panic!("unrecoverable error {:?}", e)
+                }
+            },
+            Ok(val) => val
+        };
+
+        let tick_size = match self.file.read_u32() {
+            Err(e) => {
+                match e {
+                    StreamError::CursorOutOfBounds => return false,
+                    _ => panic!("unrecoverable error {:?}", e)
+                }
+            },
+            Ok(val) => val
+        };
+
+        let start_position = self.file.get_cursor_position();
+
+        if tick_size > 0 {
+            // action
+            if tick_type == 0x0 {
+                self.file.skip_ahead(1).unwrap(); // usually 0x20 but can be 0x0
+                let tick_id = self.file.read_u32().unwrap();
+                let some_id = self.file.read_u32().unwrap();
+
+                let bundle_count = self.file.read_u32().unwrap();
+                for _ in 0..bundle_count {
+                    let bundle_part_count = self.file.read_u32().unwrap();
+
+                    self.file.skip_ahead(4).unwrap(); // Seb: thought 0 but can be 33554432
+
+                    let bundle_length = self.file.read_u32().unwrap();
+                    assert_eq!(self.file.read_u8().unwrap() as u32, bundle_length % 256);
+
+                    let mut idx = 0;
+                    let mut done = false;
+
+                    while !done {
+                        let inter_position = self.file.get_cursor_position();
+                        let bundle_part_length = self.file.read_u16().unwrap() as u32;
+
+                        self.parse_action(bundle_part_length);
+
+                        let current_position = self.file.get_cursor_position();
+                        let diff = inter_position + bundle_part_length - current_position;
+
+                        if diff > 0 {
+                            self.file.skip_ahead(diff).unwrap(); // inter raw
+                        }
+
+                        idx += bundle_part_length;
+                        if idx == bundle_length {
+                            done = true;
+                        }
+                    }
+
+                    //self.file.skip_ahead(bundle_length).unwrap(); // until I add handling
+                }
+
+                self.duration += 1;
+            }
+            // special
+            else if tick_type == 0x1 {
+                let chat = self.file.read_u32().unwrap(); // Seb: is chat? most 1 few 0
+
+                if chat == 0x1 {
+                    self.file.skip_ahead(4).unwrap(); // length
+                    self.file.skip_ahead(4).unwrap(); // Seb: chat nbr 2 6 or few 4
+
+                    let mut size = self.file.read_u32().unwrap();
+                    let name = self.file.read_utf16(size).unwrap();
+
+                    size = self.file.read_u32().unwrap();
+                    let content = self.file.read_utf16(size).unwrap();
+
+                    info!("{}: {}", name, content);
+                    self.chat.push(ChatLine::with_data(self.duration, name, content));
+
+                    let tag_length = self.file.read_u32().unwrap(); // not sure what this is
+                    self.file.skip_ahead(tag_length * 2).unwrap(); // some numeric ids? all u16s
+                }
+                else {
+                    assert_eq!(self.file.read_u32().unwrap(), 0x8);
+                    self.file.skip_ahead(4).unwrap(); // Seb: special E9 03 00 00 1000 to 1006
+                    assert_eq!(self.file.read_u32().unwrap(), 0x0);
+                }
+            }
+
+            return true;
+        }
+        false
+    }
+
+    /// Parses a segment of an Action type Tick and extracts the details of the contained action,
+    /// depending on the type of Command encoded in the action.
+    ///
+    /// # Panics
+    ///
+    /// If Stream read fails or an unexpected value is encountered.
+
+    fn parse_action(&mut self, len: u32) {
+        trace!("Replay::parse_action");
+
+        let action_type = self.file.read_u8().unwrap();
+        let base_location = self.file.read_u8().unwrap();
+
+        self.file.skip_ahead(1).unwrap(); // part of player ID?
+        let player_id = self.file.read_u8().unwrap();
+
+        self.file.skip_ahead(2).unwrap(); // probably counts current num of tick_size
+        self.file.skip_ahead(2).unwrap(); // lots of 0, 16 then 20546 2054720802 21085
+        self.file.skip_ahead(2).unwrap(); // pretty sure it's a player id of some sort
+        let unit_id = self.file.read_u8().unwrap(); // unit id
+
+        let command = match Command::from_u8(action_type) {
+            Some(val) => val,
+            None => {
+                //error!("unknown command {}", action_type);
+                return;
+            }
+        };
+
+        match command {
+            _ => info!("{}:{}:{:?} u {}", player_id, base_location, command, unit_id)
+        }
     }
 
     /// Parses the Replay version at the current Stream cursor.
@@ -243,89 +518,6 @@ impl Replay {
     fn parse_rng_seed(&mut self) {
         trace!("Replay::parse_rng_seed");
         self.rng_seed = self.file.read_u32().unwrap();
-    }
-
-    /// Parses a Chunky file segment at the current Stream cursor.
-    ///
-    /// A Chunky segment is a container of replay data that houses one or more Chunks.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
-
-    fn parse_chunky(&mut self) {
-        trace!("Replay::parse_chunky");
-        assert_eq!(self.file.read_utf8(12).unwrap(), "Relic Chunky"); // chunk name
-        assert_eq!(self.file.read_u32().unwrap(), 0x1A0A0D); // chunky type
-        assert_eq!(self.file.read_u32().unwrap(), 0x3); // chunky version
-        assert_eq!(self.file.read_u32().unwrap(), 0x1);
-        assert_eq!(self.file.read_u32().unwrap(), 0x24);
-        assert_eq!(self.file.read_u32().unwrap(), 0x1C);
-        assert_eq!(self.file.read_u32().unwrap(), 0x1);
-
-        while self.parse_chunk() {}
-    }
-
-    /// Parses a Chunk file segment at the current Stream cursor.
-    ///
-    /// A Chunk segment is a block of replay data inside a Chunky segment that contains one or more
-    /// pieces of information that we want to parse out. Depending on the Chunk type and Chunk
-    /// version, different parsing rules apply and different information is pulled from the file
-    /// into the Replay.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
-
-    fn parse_chunk(&mut self) -> bool {
-        trace!("Replay::parse_chunk");
-        let chunk_type = self.file.read_utf8(8).unwrap();
-        if !chunk_type.starts_with("FOLD") && !chunk_type.starts_with("DATA") {
-            error!("Replay::parse_chunk - invalid chunk type {} at cursor {}", 
-                   chunk_type, 
-                   self.file.get_cursor_position());
-            self.file.skip_back(8).unwrap();
-            return false;
-        }
-
-        let chunk_version = self.file.read_u32().unwrap();
-        let chunk_length = self.file.read_u32().unwrap();
-        let chunk_name_length = self.file.read_u32().unwrap();
-
-        self.file.skip_ahead(4).unwrap(); // 0, 2000 (dec), or FF..
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-
-        info!("Replay::parse_chunk - in {} chunk, version {}", chunk_type, chunk_version);
-        debug!("Replay::parse_chunk - chunk_version = {}", chunk_version);
-        debug!("Replay::parse_chunk - chunk_length = {}", chunk_length);
-        debug!("Replay::parse_chunk - chunk_name_length = {}", chunk_name_length);
-
-        let chunk_name: String;
-        if chunk_name_length > 0 {
-            chunk_name = self.file.read_utf8(chunk_name_length).unwrap();
-            debug!("Replay::parse_chunk - chunk_name = {}", chunk_name);
-        }
-
-        let start_position = self.file.get_cursor_position();
-        debug!("Replay::parse_chunk - start_position = {}", start_position);
-
-        if chunk_type.starts_with("FOLD") {
-            while self.file.get_cursor_position() < start_position + chunk_length {
-                self.parse_chunk();
-            }
-        }
-
-        if chunk_type == "DATASDSC" {
-            self.parse_map_info(chunk_version);
-        }
-
-        if chunk_type == "DATADATA" {
-            self.parse_game_data(chunk_version);
-        }
-
-        self.file.seek(start_position + chunk_length);
-
-        true
     }
 
     /// Parses a section of game data found in a DATADATA Chunk which includes opponent,
@@ -514,158 +706,6 @@ impl Replay {
         self.file.read_u64().unwrap()
     }
 
-    /// Parses the Data section of a Replay. This section comes after all Chunky and Chunk
-    /// segments, and encodes all actions and chat messages.
-
-    fn parse_data(&mut self) {
-        trace!("Replay::parse_data");
-        while self.parse_tick() {}
-    }
-
-    /// Parses a Tick at the current Stream cursor.
-    ///
-    /// A Tick is a block of data in the Data section of a Replay that stores information about
-    /// player actions and chat messages that occurred at that moment in time in the Replay. One
-    /// Tick represents 1/8 seconds of real-world time, and can contain Action information (player
-    /// commands) or Special information (chat messages).
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
-
-    fn parse_tick(&mut self) -> bool {
-        trace!("Replay::parse_tick");
-        let tick_type = match self.file.read_u32() {
-            Err(e) => {
-                match e {
-                    StreamError::CursorOutOfBounds => return false,
-                    _ => panic!("unrecoverable error {:?}", e)
-                }
-            },
-            Ok(val) => val
-        };
-
-        let tick_size = match self.file.read_u32() {
-            Err(e) => {
-                match e {
-                    StreamError::CursorOutOfBounds => return false,
-                    _ => panic!("unrecoverable error {:?}", e)
-                }
-            },
-            Ok(val) => val
-        };
-
-        let start_position = self.file.get_cursor_position();
-
-        if tick_size > 0 {
-            // action
-            if tick_type == 0x0 {
-                self.file.skip_ahead(1).unwrap(); // usually 0x20 but can be 0x0
-                let tick_id = self.file.read_u32().unwrap();
-                let some_id = self.file.read_u32().unwrap();
-
-                let bundle_count = self.file.read_u32().unwrap();
-                for _ in 0..bundle_count {
-                    let bundle_part_count = self.file.read_u32().unwrap();
-
-                    self.file.skip_ahead(4).unwrap(); // Seb: thought 0 but can be 33554432
-
-                    let bundle_length = self.file.read_u32().unwrap();
-                    assert_eq!(self.file.read_u8().unwrap() as u32, bundle_length % 256);
-
-                    let mut idx = 0;
-                    let mut done = false;
-
-                    while !done {
-                        let inter_position = self.file.get_cursor_position();
-                        let bundle_part_length = self.file.read_u16().unwrap() as u32;
-
-                        self.parse_action(bundle_part_length);
-
-                        let current_position = self.file.get_cursor_position();
-                        let diff = inter_position + bundle_part_length - current_position;
-
-                        if diff > 0 {
-                            self.file.skip_ahead(diff).unwrap(); // inter raw
-                        }
-
-                        idx += bundle_part_length;
-                        if idx == bundle_length {
-                            done = true;
-                        }
-                    }
-
-                    //self.file.skip_ahead(bundle_length).unwrap(); // until I add handling
-                }
-
-                self.duration += 1;
-            }
-            // special
-            else if tick_type == 0x1 {
-                let chat = self.file.read_u32().unwrap(); // Seb: is chat? most 1 few 0
-
-                if chat == 0x1 {
-                    self.file.skip_ahead(4).unwrap(); // length
-                    self.file.skip_ahead(4).unwrap(); // Seb: chat nbr 2 6 or few 4
-
-                    let mut size = self.file.read_u32().unwrap();
-                    let name = self.file.read_utf16(size).unwrap();
-
-                    size = self.file.read_u32().unwrap();
-                    let content = self.file.read_utf16(size).unwrap();
-
-                    info!("{}: {}", name, content);
-                    self.chat.push(ChatLine::with_data(self.duration, name, content));
-
-                    let tag_length = self.file.read_u32().unwrap(); // not sure what this is
-                    self.file.skip_ahead(tag_length * 2).unwrap(); // some numeric ids? all u16s
-                }
-                else {
-                    assert_eq!(self.file.read_u32().unwrap(), 0x8);
-                    self.file.skip_ahead(4).unwrap(); // Seb: special E9 03 00 00 1000 to 1006
-                    assert_eq!(self.file.read_u32().unwrap(), 0x0);
-                }
-            }
-
-            return true;
-        }
-        false
-    }
-
-    /// Parses a segment of an Action type Tick and extracts the details of the contained action,
-    /// depending on the type of Command encoded in the action.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
-
-    fn parse_action(&mut self, len: u32) {
-        trace!("Replay::parse_action");
-
-        let action_type = self.file.read_u8().unwrap();
-        let base_location = self.file.read_u8().unwrap();
-
-        self.file.skip_ahead(1).unwrap(); // part of player ID?
-        let player_id = self.file.read_u8().unwrap();
-
-        self.file.skip_ahead(2).unwrap(); // probably counts current num of tick_size
-        self.file.skip_ahead(2).unwrap(); // lots of 0, 16 then 20546 2054720802 21085
-        self.file.skip_ahead(2).unwrap(); // pretty sure it's a player id of some sort
-        let unit_id = self.file.read_u8().unwrap(); // unit id
-
-        let command = match Command::from_u8(action_type) {
-            Some(val) => val,
-            None => {
-                //error!("unknown command {}", action_type);
-                return;
-            }
-        };
-
-        match command {
-            _ => info!("{}:{}:{:?} u {}", player_id, base_location, command, unit_id)
-        }
-    }
-
     /// Performs maintenance on the data structures of the Replay type to clean up unneeded
     /// elements once parsing is complete, in order to simplify the resulting information.
 
@@ -673,10 +713,19 @@ impl Replay {
         self.file.cleanup();
     }
 
+    /// Serializes Replay as JSON String.
+    ///
+    /// # Panics
+    ///
+    /// If rustc_serialize::json::encode fails to encode the Replay.
+
+    pub fn to_json(&self) -> String {
+        json::encode(&self).unwrap()
+    }
+
     /// Writes the contents of the Replay to stdout.
 
-    #[allow(dead_code)]
-    fn display(&self) {
+    pub fn display(&self) {
         println!("version: {}", self.version);
         println!("game_type: {}", self.game_type);
         println!("date_time: {}", self.date_time);
