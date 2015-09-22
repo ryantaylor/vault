@@ -1,6 +1,7 @@
 //! A module containing a representation of a player entity in CoH2 replays.
 
 use std::string::String;
+
 use item::Item;
 
 /// This type represents a Company of Heroes 2 player entity as it appears in a CoH2 replay file.

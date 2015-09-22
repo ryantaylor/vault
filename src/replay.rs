@@ -6,12 +6,26 @@ use std::string::String;
 use rustc_serialize::json;
 use zip::read::ZipFile;
 
-use stream::{Stream, StreamError};
-use player::Player;
-use item::{Item, ItemType};
-use command::Command;
-use map::Map;
 use chat_line::ChatLine;
+use command::Command;
+use Error;
+use item::{Item, ItemType};
+use map::Map;
+use player::Player;
+use Result;
+use stream::Stream;
+
+macro_rules! test_eq {
+    ($a:expr, $b:expr) => ({
+        use std::result::Result;
+        let exp = try!($a);
+        let (a, b) = (&exp, &$b);
+        match *a == *b {
+            true => true,
+            false => return Result::Err(Error::UnexpectedValue)
+        }
+    })
+}
 
 /// The main Replay type, contains all currently parsed replay data. Can be serialized to JSON for
 /// output using rustc_serialize.
@@ -50,9 +64,9 @@ impl Replay {
     /// let replay = Replay::new(&path);
     /// ```
 
-    pub fn new(path: &Path) -> Replay {
-        Replay {
-            file: Stream::new(&path),
+    pub fn new(path: &Path) -> Result<Replay> {
+        Ok(Replay {
+            file: try!(Stream::new(&path)),
             version: 0,
             game_type: String::new(),
             date_time: String::new(),
@@ -62,7 +76,7 @@ impl Replay {
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
-        }
+        })
     }
 
     /// Constructs a new Replay and loads the ZipFile specified by file into memory.
@@ -92,9 +106,9 @@ impl Replay {
     /// }
     /// ```
 
-    pub fn from_zipfile(file: &mut ZipFile) -> Replay {
-        Replay {
-            file: Stream::from_zipfile(file),
+    pub fn from_zipfile(file: &mut ZipFile) -> Result<Replay> {
+        Ok(Replay {
+            file: try!(Stream::from_zipfile(file)),
             version: 0,
             game_type: String::new(),
             date_time: String::new(),
@@ -104,7 +118,22 @@ impl Replay {
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
-        }
+        })
+    }
+
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Replay> {
+        Ok(Replay {
+            file: try!(Stream::from_bytes(bytes)),
+            version: 0,
+            game_type: String::new(),
+            date_time: String::new(),
+            map: Map::new(),
+            players: Vec::with_capacity(8),
+            duration: 0,
+            rng_seed: 0,
+            opponent_type: 0,
+            chat: Vec::new(),
+        })
     }
 
     /// Parses the loaded replay and populates the Replay type with the return data.
@@ -139,8 +168,9 @@ impl Replay {
     /// println!("{}", encoded);
     /// ```
 
-    pub fn parse(&mut self) {
-        assert_eq!(self.file.read_u16().unwrap(), 0x0);
+    pub fn parse(&mut self) -> Result<()> {
+        //assert_eq!(self.file.read_u16().unwrap(), 0x0);
+        test_eq!(self.file.read_u16(), 0x1);
         self.parse_version();
         self.parse_game_type();
         self.parse_date_time();
@@ -153,6 +183,8 @@ impl Replay {
         self.parse_data();
 
         self.cleanup();
+
+        Ok(())
     }
 
     /// Parses a Chunky file segment at the current Stream cursor.
@@ -262,7 +294,7 @@ impl Replay {
         let tick_type = match self.file.read_u32() {
             Err(e) => {
                 match e {
-                    StreamError::CursorOutOfBounds => return false,
+                    Error::CursorOutOfBounds => return false,
                     _ => panic!("unrecoverable error {:?}", e)
                 }
             },
@@ -272,7 +304,7 @@ impl Replay {
         let tick_size = match self.file.read_u32() {
             Err(e) => {
                 match e {
-                    StreamError::CursorOutOfBounds => return false,
+                    Error::CursorOutOfBounds => return false,
                     _ => panic!("unrecoverable error {:?}", e)
                 }
             },
@@ -427,7 +459,7 @@ impl Replay {
         let mut ch = match self.file.read_utf16_single() {
             Err(e) => {
                 match e {
-                    StreamError::EmptyChar => String::new(),
+                    Error::EmptyChar => String::new(),
                     _ => panic!("unrecoverable error {:?}", e)
                 }
             },
@@ -439,7 +471,7 @@ impl Replay {
             ch = match self.file.read_utf16_single() {
                 Err(e) => {
                     match e {
-                        StreamError::EmptyChar => String::new(),
+                        Error::EmptyChar => String::new(),
                         _ => panic!("unrecoverable error {:?}", e)
                     }
                 },

@@ -1,7 +1,6 @@
 //! A module that encloses the contents of the replay file in memory and performs various functions
 //! on the resultant bytestream.
 
-use std::error::Error;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
@@ -11,15 +10,8 @@ use std::u32;
 
 use zip::read::ZipFile;
 
-/// This type contains the range of potential error Results for Stream function calls.
-
-#[derive(Debug, RustcEncodable)]
-pub enum StreamError {
-    CursorWrap,
-    CursorOutOfBounds,
-    StringParseFailure,
-    EmptyChar
-}
+use Error;
+use Result;
 
 /// This type represents a Company of Heroes 2 replay file as a raw stream of bytes with an
 /// associated file cursor.
@@ -38,39 +30,27 @@ impl Stream {
     ///
     /// If the file specified in path could not be opened or could not be read into memory.
 
-    pub fn new(path: &Path) -> Stream {
-        let meta = match fs::metadata(path) {
-            Err(why) => panic!("couldn't read metadata for {}: {}", path.display(),
-                                                                    Error::description(&why)),
-            Ok(metadata) => metadata,
-        };
+    pub fn new(path: &Path) -> Result<Stream> {
+        let meta = try!(fs::metadata(path));
 
         info!("{} contains {} bytes", path.display(), meta.len());
 
         if meta.len() >= u32::MAX as u64 {
-            panic!("replay file size {} bytes surpasses max size {} bytes", meta.len(),
-                                                                            u32::MAX - 1);
+            return Err(Error::FileTooLarge);
         }
 
-        let mut replay = match File::open(path) {
-            Err(why) => panic!("couldn't open {}: {}", path.display(),
-                                                       Error::description(&why)),
-            Ok(file) => file,
-        };
+        let mut replay = try!(File::open(path));
 
         let mut buff: Vec<u8> = Vec::with_capacity(meta.len() as usize);
-        match replay.read_to_end(&mut buff) {
-            Err(why) => panic!("couldn't read {}: {}", path.display(),
-                                                       Error::description(&why)),
-            Ok(_) => info!("{} opened and read into memory", path.display()),
-        };
+        try!(replay.read_to_end(&mut buff));
 
+        info!("{} opened and read into memory", path.display());
         info!("{} bytes read into memory", buff.len());
 
-        Stream {
+        Ok(Stream {
             data: buff,
             cursor: 0,
-        }
+        })
     }
 
     /// Constructs a new Stream using the given ZipFile.
@@ -79,35 +59,42 @@ impl Stream {
     ///
     /// If the file specified in path could not be opened or could not be read into memory.
 
-    pub fn from_zipfile(file: &mut ZipFile) -> Stream {
+    pub fn from_zipfile(file: &mut ZipFile) -> Result<Stream> {
         info!("{} contains {} bytes", file.name(), file.size());
 
         if file.size() >= u32::MAX as u64 {
-            panic!("replay file size {} bytes surpasses max size {} bytes", file.size(),
-                                                                            u32::MAX - 1);
+            return Err(Error::FileTooLarge);
         }
 
         let mut buff: Vec<u8> = Vec::with_capacity(file.size() as usize);
-        match file.read_to_end(&mut buff) {
-            Err(why) => panic!("couldn't read {}: {}", file.name(),
-                                                       Error::description(&why)),
-            Ok(_) => info!("{} opened and read into memory", file.name()),
-        };
+        try!(file.read_to_end(&mut buff));
 
+        info!("{} opened and read into memory", file.name());
         info!("{} bytes read into memory", buff.len());
 
-        Stream {
+        Ok(Stream {
             data: buff,
             cursor: 0,
+        })
+    }
+
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Stream> {
+        if bytes.len() >= u32::MAX as usize {
+            return Err(Error::FileTooLarge);
         }
+
+        Ok(Stream {
+            data: bytes,
+            cursor: 0,
+        })
     }
 
     /// Moves the file cursor pos positions forward.
 
-    pub fn skip_ahead(&mut self, pos: u32) -> Result<(), StreamError> {
+    pub fn skip_ahead(&mut self, pos: u32) -> Result<()> {
         trace!("Stream::skip_ahead - skipping {} bytes", pos);
         if u32::MAX - self.cursor < pos {
-            return Err(StreamError::CursorWrap);
+            return Err(Error::CursorWrap);
         }
 
         if self.cursor + pos >= self.data.len() as u32 {
@@ -123,10 +110,10 @@ impl Stream {
 
     /// Moves the file cursor pos positions backward.
 
-    pub fn skip_back(&mut self, pos: u32) -> Result<(), StreamError> {
+    pub fn skip_back(&mut self, pos: u32) -> Result<()> {
         trace!("Stream::skip_back - skipping {} bytes", pos);
         if pos > self.cursor {
-            return Err(StreamError::CursorWrap);
+            return Err(Error::CursorWrap);
         }
 
         if self.cursor - pos >= self.data.len() as u32 {
@@ -156,10 +143,10 @@ impl Stream {
     /// Reads an 8-bit (1-byte) unsigned integer at the current cursor position, then moves the
     /// cursor ahead 1 position.
 
-    pub fn read_u8(&mut self) -> Result<u8, StreamError> {
+    pub fn read_u8(&mut self) -> Result<u8> {
         trace!("Stream::read_u8 - at cursor {}", self.cursor);
         if self.cursor >= self.data.len() as u32 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         let result: u8 = self.data[self.cursor as usize];
@@ -174,14 +161,14 @@ impl Stream {
     /// This method reads a little endian integer. When called on the byte stream 01 00 the return
     /// value will be 1.
 
-    pub fn read_u16(&mut self) -> Result<u16, StreamError> {
+    pub fn read_u16(&mut self) -> Result<u16> {
         trace!("Stream::read_u16 - at cursor {}", self.cursor);
         if self.cursor >= self.data.len() as u32 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         if self.data.len() as u32 - self.cursor < 2 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         let stream = &self.data[self.cursor as usize..(self.cursor + 2) as usize];
@@ -197,14 +184,14 @@ impl Stream {
     /// This method reads a little endian integer. When called on the byte stream 01 00 00 00 the
     /// return value will be 1.
 
-    pub fn read_u32(&mut self) -> Result<u32, StreamError> {
+    pub fn read_u32(&mut self) -> Result<u32> {
         trace!("Stream::read_u32 - at cursor {}", self.cursor);
         if self.cursor >= self.data.len() as u32 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         if self.data.len() as u32 - self.cursor < 4 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         let stream = &self.data[self.cursor as usize..(self.cursor + 4) as usize];
@@ -223,14 +210,14 @@ impl Stream {
     /// This method reads a little endian integer. When called on the byte stream
     /// 01 00 00 00 00 00 00 00 the return value will be 1.
 
-    pub fn read_u64(&mut self) -> Result<u64, StreamError> {
+    pub fn read_u64(&mut self) -> Result<u64> {
         trace!("Stream::read_u64 - at cursor {}", self.cursor);
         if self.cursor >= self.data.len() as u32 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         if self.data.len() as u32 - self.cursor < 8 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         let stream = &self.data[self.cursor as usize..(self.cursor + 8) as usize];
@@ -250,14 +237,14 @@ impl Stream {
     /// Reads a sequence of 16-bit unsigned integers that represent 16-bit Unicode characters, then
     /// moves the cursor ahead len * 2 positions.
 
-    pub fn read_utf16(&mut self, len: u32) -> Result<String, StreamError> {
+    pub fn read_utf16(&mut self, len: u32) -> Result<String> {
         trace!("Stream::read_utf16 - at cursor {} with len {}", self.cursor, len);
         if self.cursor >= self.data.len() as u32 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         if self.data.len() as u32 - self.cursor < len * 2 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         let mut buff: Vec<u16> = Vec::with_capacity(len as usize);
@@ -277,10 +264,7 @@ impl Stream {
             }
         }
 
-        let result = match String::from_utf16(&buff) {
-            Err(_) => return Err(StreamError::StringParseFailure),
-            Ok(val) => val
-        };
+        let result = try!(String::from_utf16(&buff));
 
         self.cursor += len * 2;
 
@@ -291,14 +275,14 @@ impl Stream {
     /// Reads a single 16-bit Unicode character and returns an error if the character read is
     /// empty. The cursor is then moved ahead 2 positions.
 
-    pub fn read_utf16_single(&mut self) -> Result<String, StreamError> {
+    pub fn read_utf16_single(&mut self) -> Result<String> {
         trace!("Stream::read_utf16_single - at cursor {}", self.cursor);
         if self.cursor >= self.data.len() as u32 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         if self.data.len() as u32 - self.cursor < 2 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         let stream = &self.data[self.cursor as usize..(self.cursor + 2) as usize];
@@ -307,13 +291,10 @@ impl Stream {
         if raw == 0 {
             error!("Stream::read_utf16_single - result: <empty>");
             self.cursor += 2;
-            return Err(StreamError::EmptyChar);
+            return Err(Error::EmptyChar);
         }
 
-        let result = match String::from_utf16(&[raw]) {
-            Err(_) => return Err(StreamError::StringParseFailure),
-            Ok(val) => val
-        };
+        let result = try!(String::from_utf16(&[raw]));
 
         self.cursor += 2;
 
@@ -324,24 +305,21 @@ impl Stream {
     /// Reads a sequence of 8-bit unsigned integers that represent 8-bit Unicode characters, then
     /// moves the cursor ahead len positions.
 
-    pub fn read_utf8(&mut self, len: u32) -> Result<String, StreamError> {
+    pub fn read_utf8(&mut self, len: u32) -> Result<String> {
         trace!("Stream::read_utf8 - at cursor {} with len {}", self.cursor, len);
         if self.cursor >= self.data.len() as u32 {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         if self.data.len() as u32 - self.cursor < len {
-            return Err(StreamError::CursorOutOfBounds);
+            return Err(Error::CursorOutOfBounds);
         }
 
         let stream = &self.data[self.cursor as usize..(self.cursor + len) as usize];
         let mut stream_vec = Vec::with_capacity(len as usize);
         stream_vec.extend(stream.iter().cloned());
 
-        let result = match String::from_utf8(stream_vec) {
-            Err(_) => return Err(StreamError::StringParseFailure),
-            Ok(val) => val,
-        };
+        let result = try!(String::from_utf8(stream_vec));
 
         self.cursor += len;
 

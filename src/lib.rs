@@ -9,34 +9,38 @@ extern crate log;
 extern crate rustc_serialize;
 extern crate zip;
 
+use std::fs;
+use std::fs::File;
+use std::io::Read;
+use std::ops::Deref;
+use std::path::Path;
+use std::result;
+use std::sync::{Arc, Mutex};
+use std::thread;
+
+use rustc_serialize::json;
+use zip::ZipArchive;
+
+pub use self::error::Error;
+pub use self::replay::Replay;
+
+pub mod error;
 pub mod replay;
-pub mod utils;
+mod chat_line;
+mod command;
+mod item;
+mod map;
 mod player;
 mod stream;
-mod item;
-mod command;
-mod map;
-mod chat_line;
 
-use replay::Replay;
+/// Custom Result wrapper for vault, used to return vault::Error from every result.
 
-use std::fs::File;
-use std::path::Path;
-use std::ops::Deref;
-
-use zip::read::ZipArchive;
-
-/// This type contains the range of potential error Results for Vault function calls.
-
-#[derive(Debug)]
-pub enum VaultError {
-    InvalidFileExtension,
-    FileReadFailure,
-}
+pub type Result<T> = result::Result<T, Error>;
 
 /// This type is the main entry point for the vault replay parser and provides the cleanest
 /// interface for use by external code.
 
+#[derive(Debug, RustcEncodable)]
 pub struct Vault {
     replays: Vec<Replay>
 }
@@ -71,15 +75,29 @@ impl Vault {
     /// }
     /// ```
 
-    pub fn parse(path: &Path) -> Result<Vault, VaultError> {
-        match path.extension() {
-            Some(ext) => match ext.to_string_lossy().deref() {
-                "rec" => Vault::parse_rec(path),
-                "zip" => Vault::parse_zip(path),
-                _ => Err(VaultError::InvalidFileExtension),
-            },
-            None => Err(VaultError::InvalidFileExtension)
+    pub fn parse(path: &Path) -> Result<Vault> {
+        let meta = try!(fs::metadata(path));
+
+        let replays = if meta.is_dir() {
+            try!(Vault::parse_dir(path))
         }
+        else if meta.is_file() {
+            match path.extension() {
+                Some(ext) => match ext.to_string_lossy().deref() {
+                    "rec" => try!(Vault::parse_rec(path)),
+                    "zip" => try!(Vault::parse_zip(path)),
+                    _ => return Err(Error::InvalidFileExtension),
+                },
+                None => return Err(Error::InvalidFileExtension)
+            }
+        }
+        else {
+            return Err(Error::InvalidFileExtension);
+        };
+
+        Ok(Vault {
+            replays: replays
+        })
     }
 
     /// Parses a .rec file.
@@ -88,18 +106,14 @@ impl Vault {
     ///
     /// If the call to parse panics. This will be handled with a Result in the future.
 
-    fn parse_rec(path: &Path) -> Result<Vault, VaultError> {
-        let mut replay = Replay::new(path);
-        let mut replays = Vec::with_capacity(1);
+    fn parse_rec(path: &Path) -> Result<Vec<Replay>> {
+        let mut replay = try!(Replay::new(&path));
+        replay.parse().unwrap();
 
-        replay.parse();
+        let mut replays: Vec<Replay> = Vec::with_capacity(1);
         replays.push(replay);
 
-        let result = Vault {
-            replays: replays
-        };
-
-        Ok(result)
+        Ok(replays)
     }
 
     /// Parses .rec files in a .zip archive.
@@ -108,29 +122,102 @@ impl Vault {
     ///
     /// If a call to parse panics. This will be handled with a Result in the future.
 
-    fn parse_zip(path: &Path) -> Result<Vault, VaultError> {
-        let archive_file = match File::open(path) {
-            Ok(val) => val,
-            Err(_) => return Err(VaultError::FileReadFailure),
-        };
+    fn parse_zip(path: &Path) -> Result<Vec<Replay>> {
+        let archive_file = try!(File::open(path));
+        let mut archive = try!(ZipArchive::new(archive_file));
+        let mut replays: Vec<Replay> = Vec::new();
+        let mut handles: Vec<_> = Vec::new();
 
-        let mut archive = ZipArchive::new(archive_file).unwrap();
         let size = archive.len();
-
-        let mut replays = Vec::with_capacity(size);
-
         for idx in 0..size {
-            let mut replay_file = archive.by_index(idx).unwrap();
-            let mut replay = Replay::from_zipfile(&mut replay_file);
-            replay.parse();
-            replays.push(replay);
+            //let replay_file = Arc::new(Mutex::new(try!(archive.by_index(idx))));
+            let mut replay_file = try!(archive.by_index(idx));
+            let name = replay_file.name().to_string();
+            let path = Path::new(&name);
+            //let path = Path::new("test");
+            //let replay_file = Arc::new(Mutex::new(replay_file));
+            match path.extension() {
+                Some(ext) => match ext.to_string_lossy().deref() {
+                    "rec" => {
+                        let mut buff: Vec<u8> = Vec::with_capacity(replay_file.size() as usize);
+                        try!(replay_file.read_to_end(&mut buff));
+                        //let buff = buff.to_owned();
+                        //let replay_file = replay_file.clone();
+                        let handle = thread::spawn(move || {
+                            //let mut buff: Vec<u8> = Vec::with_capacity(replay_file.size() as usize);
+                            //try!(replay_file.read_to_end(&mut buff));
+                            let mut replay = Replay::from_bytes(buff).unwrap();
+                            replay.parse().unwrap();
+                            replay
+                        });
+                        handles.push(handle);
+                        /*let mut replay = try!(Replay::from_zipfile(&mut replay_file));
+                        replay.parse();
+                        let replay = replay;
+                        replays.push(replay);*/
+                    },
+                    _ => info!("skipping {}, not a replay", path.display()),
+                },
+                None => info!("skipping {}, not a replay", path.display())
+            }
         }
 
-        let result = Vault {
-            replays: replays
-        };
+        for handle in handles {
+            match handle.join() {
+                Ok(replay) => replays.push(replay),
+                Err(err) => error!("parse failed"),
+            }
+        }
 
-        Ok(result)
+        Ok(replays)
+    }
+
+    /// Parses all .rec and .zip files in the given directory.
+    ///
+    /// # Panics
+    ///
+    /// If a call to parse panics. This will be handled with a Result in the future.
+
+    fn parse_dir(path: &Path) -> Result<Vec<Replay>> {
+        let dir = try!(fs::read_dir(path));
+        let mut replays: Vec<Replay> = Vec::new();
+        let mut handles: Vec<_> = Vec::new();
+
+        for item in dir {
+            let path = try!(item).path();
+            let meta = try!(fs::metadata(&path));
+            if meta.is_file() {
+                match path.extension() {
+                    Some(ext) => match ext.to_string_lossy().deref() {
+                        "rec" => {
+                            let path = path.to_owned();
+                            let handle = thread::spawn(move || {
+                                Vault::parse_rec(&path).unwrap()
+                            });
+                            handles.push(handle);
+                        },
+                        "zip" => {
+                            let path = path.to_owned();
+                            let handle = thread::spawn(move || {
+                                Vault::parse_zip(&path).unwrap()
+                            });
+                            handles.push(handle);
+                        },
+                        _ => info!("skipping {}, not a replay or archive", path.display()),
+                    },
+                    None => info!("skipping {}, not a replay or archive", path.display())
+                }
+            }
+        }
+
+        for handle in handles {
+            match handle.join() {
+                Ok(result) => replays.extend(result.into_iter()),
+                Err(err) => println!("parse failed"),
+            }
+        }
+
+        Ok(replays)
     }
 
     /// Returns a reference to the vector of Replays.
@@ -138,4 +225,21 @@ impl Vault {
     pub fn replays(&self) -> &Vec<Replay> {
         &self.replays
     }
+
+    /// Serializes Vault as JSON String.
+    ///
+    /// # Panics
+    ///
+    /// If rustc_serialize::json::encode fails to encode the Vault.
+
+    pub fn to_json(&self) -> String {
+        json::encode(&self).unwrap()
+    }
+}
+
+/// Prints out the current vault version and compatible CoH2 game versions.
+
+pub fn print_version() {
+    println!("vault v0.1.4");
+    println!(" coh2 19545 - 19654");
 }
