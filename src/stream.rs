@@ -4,11 +4,10 @@
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
+use std::ops::Deref;
 use std::path::Path;
 use std::string::String;
 use std::u32;
-
-use zip::read::ZipFile;
 
 use Error;
 use Result;
@@ -18,19 +17,26 @@ use Result;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Stream {
+    name: String,
     data: Vec<u8>,
     cursor: u32,
 }
 
 impl Stream {
 
-    /// Constructs a new Stream using the file specified in path.
-    ///
-    /// # Panics
-    ///
-    /// If the file specified in path could not be opened or could not be read into memory.
+    /// Constructs an empty Stream.
 
-    pub fn new(path: &Path) -> Result<Stream> {
+    pub fn new(name: &str) -> Stream {
+        Stream {
+            name: String::from(name),
+            data: Vec::new(),
+            cursor: 0,
+        }
+    }
+
+    /// Constructs a new Stream using the file specified in path.
+
+    pub fn from_file(path: &Path) -> Result<Stream> {
         let meta = try!(fs::metadata(path));
 
         info!("{} contains {} bytes", path.display(), meta.len());
@@ -47,43 +53,25 @@ impl Stream {
         info!("{} opened and read into memory", path.display());
         info!("{} bytes read into memory", buff.len());
 
+        let name = path.to_string_lossy();
+        let name = name.deref();
+
         Ok(Stream {
+            name: String::from(name),
             data: buff,
             cursor: 0,
         })
     }
 
-    /// Constructs a new Stream using the given ZipFile.
-    ///
-    /// # Panics
-    ///
-    /// If the file specified in path could not be opened or could not be read into memory.
+    /// Constructs a new Stream from the given byte vector.
 
-    pub fn from_zipfile(file: &mut ZipFile) -> Result<Stream> {
-        info!("{} contains {} bytes", file.name(), file.size());
-
-        if file.size() >= u32::MAX as u64 {
-            return Err(Error::FileTooLarge);
-        }
-
-        let mut buff: Vec<u8> = Vec::with_capacity(file.size() as usize);
-        try!(file.read_to_end(&mut buff));
-
-        info!("{} opened and read into memory", file.name());
-        info!("{} bytes read into memory", buff.len());
-
-        Ok(Stream {
-            data: buff,
-            cursor: 0,
-        })
-    }
-
-    pub fn from_bytes(bytes: Vec<u8>) -> Result<Stream> {
+    pub fn from_bytes(name: &str, bytes: Vec<u8>) -> Result<Stream> {
         if bytes.len() >= u32::MAX as usize {
             return Err(Error::FileTooLarge);
         }
 
         Ok(Stream {
+            name: String::from(name),
             data: bytes,
             cursor: 0,
         })

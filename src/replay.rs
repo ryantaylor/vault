@@ -1,10 +1,10 @@
 //! A module containing a representative state of a Company of Heroes 2 replay file.
 
+use std::error::Error as StdError;
 use std::path::Path;
 use std::string::String;
 
 use rustc_serialize::json;
-use zip::read::ZipFile;
 
 use chat_line::ChatLine;
 use command::Command;
@@ -15,6 +15,11 @@ use player::Player;
 use Result;
 use stream::Stream;
 
+/// Takes a Result<T>, unwraps it, then checks for equality against another T. If Result<T>
+/// unwraps to an Err, that Err is returned. If the equality check fails, an Err is returned
+/// instead of panicking.
+
+#[cfg(not(debug_assertions))]
 macro_rules! test_eq {
     ($a:expr, $b:expr) => ({
         use std::result::Result;
@@ -27,11 +32,24 @@ macro_rules! test_eq {
     })
 }
 
+/// Debug version of the above macro, panics if Result<T> unwraps to Err or the equality check
+/// fails.
+
+#[cfg(debug_assertions)]
+macro_rules! test_eq {
+    ($a:expr, $b:expr) => ({
+        let exp = $a.unwrap();
+        let (a, b) = (&exp, &$b);
+        assert_eq!(*a, *b);
+    })
+}
+
 /// The main Replay type, contains all currently parsed replay data. Can be serialized to JSON for
 /// output using rustc_serialize.
 
 #[derive(Debug, RustcEncodable)]
 pub struct Replay {
+    error: Option<String>,
     file: Stream,
     version: u16,
     game_type: String,
@@ -48,25 +66,22 @@ impl Replay {
 
     /// Constructs a new Replay and loads the file specified by path into memory.
     ///
-    /// # Panics
-    ///
-    /// When the Stream fails to open the file specified by path for reading.
-    ///
     /// # Examples
     ///
     /// ```
     /// extern crate vault;
     ///
-    /// use vault::replay::Replay;
+    /// use vault::Replay;
     /// use std::path::Path;
     ///
     /// let path = Path::new("/path/to/replay.rec");
-    /// let replay = Replay::new(&path);
+    /// let replay = Replay::new(&path).unwrap();
     /// ```
 
     pub fn new(path: &Path) -> Result<Replay> {
         Ok(Replay {
-            file: try!(Stream::new(&path)),
+            error: None,
+            file: try!(Stream::from_file(&path)),
             version: 0,
             game_type: String::new(),
             date_time: String::new(),
@@ -79,11 +94,40 @@ impl Replay {
         })
     }
 
-    /// Constructs a new Replay and loads the ZipFile specified by file into memory.
+    /// Constructs a junk Replay type with empty data and an error value set. Used to return a
+    /// Replay and its error information out of a thread without panicking if an error was
+    /// encountered during creation.
     ///
-    /// # Panics
+    /// # Examples
     ///
-    /// When the Stream fails to open the file specified by path for reading.
+    ///```
+    /// extern crate vault;
+    ///
+    /// use vault::Replay;
+    ///
+    /// match Replay::new("/path/to/replay.rec") {
+    ///     Ok(replay) => replay,
+    ///     Err(err) => Replay::with_new_error(err),
+    /// }
+    /// ```
+
+    pub fn new_with_error(name: &str, err: Error) -> Replay {
+        Replay {
+            error: Some(err.description().to_string()),
+            file: Stream::new(name),
+            version: 0,
+            game_type: String::new(),
+            date_time: String::new(),
+            map: Map::new(),
+            players: Vec::with_capacity(8),
+            duration: 0,
+            rng_seed: 0,
+            opponent_type: 0,
+            chat: Vec::new(),
+        }
+    }
+
+    /// Constructs a new Replay and loads the byte vector given as the file data.
     ///
     /// # Examples
     ///
@@ -91,39 +135,25 @@ impl Replay {
     /// extern crate vault;
     /// extern crate zip;
     ///
-    /// use vault::replay::Replay;
+    /// use vault::Replay;
     /// use std::path::Path;
     /// use zip::read::{ZipArchive. ZipFile};
     ///
     /// let path = Path::new("/path/to/archive.zip");
     /// let file = File::open(&path).unwrap();
     /// let archive = ZipArchive::new(file).unwrap();
+    /// let mut buff: Vec<u8> = Vec::with_capacity(replay_file.size() as usize);
+    /// let mut replay_file = archive.by_index(idx).unwrap();
     ///
-    /// for idx in 0..archive.len() {
-    ///     let mut replay_file = archive.by_index(idx).unwrap();
-    ///     let mut replay = Replay::from_zipfile(&mut replay_file);
-    ///     replay.parse();
-    /// }
+    /// replay_file.read_to_end(&mut buff).unwrap();
+    /// let mut replay = Replay::from_bytes(buff).unwrap();
+    /// replay.parse();
     /// ```
 
-    pub fn from_zipfile(file: &mut ZipFile) -> Result<Replay> {
+    pub fn from_bytes(name: &str, bytes: Vec<u8>) -> Result<Replay> {
         Ok(Replay {
-            file: try!(Stream::from_zipfile(file)),
-            version: 0,
-            game_type: String::new(),
-            date_time: String::new(),
-            map: Map::new(),
-            players: Vec::with_capacity(8),
-            duration: 0,
-            rng_seed: 0,
-            opponent_type: 0,
-            chat: Vec::new(),
-        })
-    }
-
-    pub fn from_bytes(bytes: Vec<u8>) -> Result<Replay> {
-        Ok(Replay {
-            file: try!(Stream::from_bytes(bytes)),
+            error: None,
+            file: try!(Stream::from_bytes(name, bytes)),
             version: 0,
             game_type: String::new(),
             date_time: String::new(),
@@ -143,11 +173,6 @@ impl Replay {
     /// the output easier. The file cursor property remains, however, and is an accurate
     /// representation of the size of the replay file in bytes.
     ///
-    /// # Panics
-    ///
-    /// When parsing encountered a section of information that it cannot properly navigate. This
-    /// will be changed in the future to return a Result instead.
-    ///
     /// # Examples
     ///
     /// ```
@@ -157,55 +182,93 @@ impl Replay {
     /// use std::path::Path;
     ///
     /// let path = Path::new("/path/to/replay.rec");
-    /// let replay = Replay::new(&path);
+    /// let replay = Replay::new(&path).unwrap();
     ///
     /// replay.parse();
     /// 
     /// // You can serialize the Replay type to JSON after parsing if you would like to print
     /// // replay data to stdout or write it to a file.
     /// //
-    /// let encoded = replay.to_json();
+    /// let encoded = replay.to_json().unwrap();
     /// println!("{}", encoded);
     /// ```
 
-    pub fn parse(&mut self) -> Result<()> {
-        //assert_eq!(self.file.read_u16().unwrap(), 0x0);
-        test_eq!(self.file.read_u16(), 0x1);
-        self.parse_version();
-        self.parse_game_type();
-        self.parse_date_time();
+    pub fn parse(&mut self) {
+        match self.parse_version() {
+            Ok(_) => (),
+            Err(err) => {
+                self.update_error(err);
+                self.cleanup();
+                return;
+            }
+        }
+
+        match self.parse_game_type() {
+            Ok(_) => (),
+            Err(err) => {
+                self.update_error(err);
+                self.cleanup();
+                return;
+            }
+        }
+
+        match self.parse_date_time() {
+            Ok(_) => (),
+            Err(err) => {
+                self.update_error(err);
+                self.cleanup();
+                return;
+            }
+        }
 
         self.file.seek(76);
 
-        self.parse_chunky();
-        self.parse_chunky();
+        match self.parse_chunky() {
+            Ok(_) => (),
+            Err(err) => {
+                self.update_error(err);
+                self.cleanup();
+                return;
+            }
+        }
 
-        self.parse_data();
+        match self.parse_chunky() {
+            Ok(_) => (),
+            Err(err) => {
+                self.update_error(err);
+                self.cleanup();
+                return;
+            }
+        }
+
+        match self.parse_data() {
+            Ok(_) => (),
+            Err(err) => {
+                self.update_error(err);
+                self.cleanup();
+                return;
+            }
+        }
 
         self.cleanup();
-
-        Ok(())
     }
 
     /// Parses a Chunky file segment at the current Stream cursor.
     ///
     /// A Chunky segment is a container of replay data that houses one or more Chunks.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_chunky(&mut self) {
+    fn parse_chunky(&mut self) -> Result<()> {
         trace!("Replay::parse_chunky");
-        assert_eq!(self.file.read_utf8(12).unwrap(), "Relic Chunky"); // chunk name
-        assert_eq!(self.file.read_u32().unwrap(), 0x1A0A0D); // chunky type
-        assert_eq!(self.file.read_u32().unwrap(), 0x3); // chunky version
-        assert_eq!(self.file.read_u32().unwrap(), 0x1);
-        assert_eq!(self.file.read_u32().unwrap(), 0x24);
-        assert_eq!(self.file.read_u32().unwrap(), 0x1C);
-        assert_eq!(self.file.read_u32().unwrap(), 0x1);
+        test_eq!(self.file.read_utf8(12), "Relic Chunky"); // chunk name
+        test_eq!(self.file.read_u32(), 0x1A0A0D); // chunky type
+        test_eq!(self.file.read_u32(), 0x3); // chunky version
+        test_eq!(self.file.read_u32(), 0x1);
+        test_eq!(self.file.read_u32(), 0x24);
+        test_eq!(self.file.read_u32(), 0x1C);
+        test_eq!(self.file.read_u32(), 0x1);
 
-        while self.parse_chunk() {}
+        while try!(self.parse_chunk()) {}
+        Ok(())
     }
 
     /// Parses a Chunk file segment at the current Stream cursor.
@@ -214,28 +277,24 @@ impl Replay {
     /// pieces of information that we want to parse out. Depending on the Chunk type and Chunk
     /// version, different parsing rules apply and different information is pulled from the file
     /// into the Replay.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_chunk(&mut self) -> bool {
+    fn parse_chunk(&mut self) -> Result<bool> {
         trace!("Replay::parse_chunk");
-        let chunk_type = self.file.read_utf8(8).unwrap();
+        let chunk_type = try!(self.file.read_utf8(8));
         if !chunk_type.starts_with("FOLD") && !chunk_type.starts_with("DATA") {
             error!("Replay::parse_chunk - invalid chunk type {} at cursor {}", 
                    chunk_type, 
                    self.file.get_cursor_position());
-            self.file.skip_back(8).unwrap();
-            return false;
+            try!(self.file.skip_back(8));
+            return Ok(false);
         }
 
-        let chunk_version = self.file.read_u32().unwrap();
-        let chunk_length = self.file.read_u32().unwrap();
-        let chunk_name_length = self.file.read_u32().unwrap();
+        let chunk_version = try!(self.file.read_u32());
+        let chunk_length = try!(self.file.read_u32());
+        let chunk_name_length = try!(self.file.read_u32());
 
-        self.file.skip_ahead(4).unwrap(); // 0, 2000 (dec), or FF..
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+        try!(self.file.skip_ahead(4)); // 0, 2000 (dec), or FF..
+        test_eq!(self.file.read_u32(), 0x0);
 
         info!("Replay::parse_chunk - in {} chunk, version {}", chunk_type, chunk_version);
         debug!("Replay::parse_chunk - chunk_version = {}", chunk_version);
@@ -244,7 +303,7 @@ impl Replay {
 
         let chunk_name: String;
         if chunk_name_length > 0 {
-            chunk_name = self.file.read_utf8(chunk_name_length).unwrap();
+            chunk_name = try!(self.file.read_utf8(chunk_name_length));
             debug!("Replay::parse_chunk - chunk_name = {}", chunk_name);
         }
 
@@ -253,29 +312,30 @@ impl Replay {
 
         if chunk_type.starts_with("FOLD") {
             while self.file.get_cursor_position() < start_position + chunk_length {
-                self.parse_chunk();
+                try!(self.parse_chunk());
             }
         }
 
         if chunk_type == "DATASDSC" {
-            self.parse_map_info(chunk_version);
+            try!(self.parse_map_info(chunk_version));
         }
 
         if chunk_type == "DATADATA" {
-            self.parse_game_data(chunk_version);
+            try!(self.parse_game_data(chunk_version));
         }
 
         self.file.seek(start_position + chunk_length);
 
-        true
+        Ok(true)
     }
 
     /// Parses the Data section of a Replay. This section comes after all Chunky and Chunk
     /// segments, and encodes all actions and chat messages.
 
-    fn parse_data(&mut self) {
+    fn parse_data(&mut self) -> Result<()> {
         trace!("Replay::parse_data");
-        while self.parse_tick() {}
+        while try!(self.parse_tick()) {}
+        Ok(())
     }
 
     /// Parses a Tick at the current Stream cursor.
@@ -284,31 +344,27 @@ impl Replay {
     /// player actions and chat messages that occurred at that moment in time in the Replay. One
     /// Tick represents 1/8 seconds of real-world time, and can contain Action information (player
     /// commands) or Special information (chat messages).
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_tick(&mut self) -> bool {
+    fn parse_tick(&mut self) -> Result<bool> {
         trace!("Replay::parse_tick");
         let tick_type = match self.file.read_u32() {
             Err(e) => {
                 match e {
-                    Error::CursorOutOfBounds => return false,
-                    _ => panic!("unrecoverable error {:?}", e)
+                    Error::CursorOutOfBounds => return Ok(false),
+                    _ => return Err(e),
                 }
             },
-            Ok(val) => val
+            Ok(val) => val,
         };
 
         let tick_size = match self.file.read_u32() {
             Err(e) => {
                 match e {
-                    Error::CursorOutOfBounds => return false,
-                    _ => panic!("unrecoverable error {:?}", e)
+                    Error::CursorOutOfBounds => return Ok(false),
+                    _ => return Err(e),
                 }
             },
-            Ok(val) => val
+            Ok(val) => val,
         };
 
         let start_position = self.file.get_cursor_position();
@@ -316,33 +372,39 @@ impl Replay {
         if tick_size > 0 {
             // action
             if tick_type == 0x0 {
-                self.file.skip_ahead(1).unwrap(); // usually 0x20 but can be 0x0
-                let tick_id = self.file.read_u32().unwrap();
-                let some_id = self.file.read_u32().unwrap();
+                try!(self.file.skip_ahead(1)); // usually 0x20 but can be 0x0
+                let tick_id = try!(self.file.read_u32());
+                let some_id = try!(self.file.read_u32());
 
-                let bundle_count = self.file.read_u32().unwrap();
+                let bundle_count = try!(self.file.read_u32());
                 for _ in 0..bundle_count {
-                    let bundle_part_count = self.file.read_u32().unwrap();
+                    let bundle_part_count = try!(self.file.read_u32());
 
-                    self.file.skip_ahead(4).unwrap(); // Seb: thought 0 but can be 33554432
+                    try!(self.file.skip_ahead(4)); // Seb: thought 0 but can be 33554432
 
-                    let bundle_length = self.file.read_u32().unwrap();
-                    assert_eq!(self.file.read_u8().unwrap() as u32, bundle_length % 256);
+                    let bundle_length = try!(self.file.read_u32());
+                    let check = try!(self.file.read_u8()) as u32;
+
+                    if check != bundle_length % 256 {
+                        return Err(Error::UnexpectedValue);
+                    }
+                    //test_eq!(self.file.read_u8() as u32, bundle_length % 256);
+                    //test_eq!(try!(self.file.read_u8()) as u32, bundle_length % 256);
 
                     let mut idx = 0;
                     let mut done = false;
 
                     while !done {
                         let inter_position = self.file.get_cursor_position();
-                        let bundle_part_length = self.file.read_u16().unwrap() as u32;
+                        let bundle_part_length = try!(self.file.read_u16()) as u32;
 
-                        self.parse_action(bundle_part_length);
+                        try!(self.parse_action(bundle_part_length));
 
                         let current_position = self.file.get_cursor_position();
                         let diff = inter_position + bundle_part_length - current_position;
 
                         if diff > 0 {
-                            self.file.skip_ahead(diff).unwrap(); // inter raw
+                            try!(self.file.skip_ahead(diff)); // inter raw
                         }
 
                         idx += bundle_part_length;
@@ -358,112 +420,98 @@ impl Replay {
             }
             // special
             else if tick_type == 0x1 {
-                let chat = self.file.read_u32().unwrap(); // Seb: is chat? most 1 few 0
+                let chat = try!(self.file.read_u32()); // Seb: is chat? most 1 few 0
 
                 if chat == 0x1 {
-                    self.file.skip_ahead(4).unwrap(); // length
-                    self.file.skip_ahead(4).unwrap(); // Seb: chat nbr 2 6 or few 4
+                    try!(self.file.skip_ahead(4)); // length
+                    try!(self.file.skip_ahead(4)); // Seb: chat nbr 2 6 or few 4
 
-                    let mut size = self.file.read_u32().unwrap();
-                    let name = self.file.read_utf16(size).unwrap();
+                    let mut size = try!(self.file.read_u32());
+                    let name = try!(self.file.read_utf16(size));
 
-                    size = self.file.read_u32().unwrap();
-                    let content = self.file.read_utf16(size).unwrap();
+                    size = try!(self.file.read_u32());
+                    let content = try!(self.file.read_utf16(size));
 
                     info!("{}: {}", name, content);
                     self.chat.push(ChatLine::with_data(self.duration, name, content));
 
-                    let tag_length = self.file.read_u32().unwrap(); // not sure what this is
-                    self.file.skip_ahead(tag_length * 2).unwrap(); // some numeric ids? all u16s
+                    let tag_length = try!(self.file.read_u32()); // not sure what this is
+                    try!(self.file.skip_ahead(tag_length * 2)); // some numeric ids? all u16s
                 }
                 else {
-                    assert_eq!(self.file.read_u32().unwrap(), 0x8);
-                    self.file.skip_ahead(4).unwrap(); // Seb: special E9 03 00 00 1000 to 1006
-                    assert_eq!(self.file.read_u32().unwrap(), 0x0);
+                    test_eq!(self.file.read_u32(), 0x8);
+                    try!(self.file.skip_ahead(4)); // Seb: special E9 03 00 00 1000 to 1006
+                    test_eq!(self.file.read_u32(), 0x0);
                 }
             }
 
-            return true;
+            return Ok(true);
         }
-        false
+        Ok(false)
     }
 
     /// Parses a segment of an Action type Tick and extracts the details of the contained action,
     /// depending on the type of Command encoded in the action.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_action(&mut self, len: u32) {
+    fn parse_action(&mut self, len: u32) -> Result<()> {
         trace!("Replay::parse_action");
 
-        let action_type = self.file.read_u8().unwrap();
-        let base_location = self.file.read_u8().unwrap();
+        let action_type = try!(self.file.read_u8());
+        let base_location = try!(self.file.read_u8());
 
-        self.file.skip_ahead(1).unwrap(); // part of player ID?
-        let player_id = self.file.read_u8().unwrap();
+        try!(self.file.skip_ahead(1)); // part of player ID?
+        let player_id = try!(self.file.read_u8());
 
-        self.file.skip_ahead(2).unwrap(); // probably counts current num of tick_size
-        self.file.skip_ahead(2).unwrap(); // lots of 0, 16 then 20546 2054720802 21085
-        self.file.skip_ahead(2).unwrap(); // pretty sure it's a player id of some sort
-        let unit_id = self.file.read_u8().unwrap(); // unit id
+        try!(self.file.skip_ahead(2)); // probably counts current num of tick_size
+        try!(self.file.skip_ahead(2)); // lots of 0, 16 then 20546 2054720802 21085
+        try!(self.file.skip_ahead(2)); // pretty sure it's a player id of some sort
+        let unit_id = try!(self.file.read_u8()); // unit id
 
         let command = match Command::from_u8(action_type) {
             Some(val) => val,
-            None => {
-                //error!("unknown command {}", action_type);
-                return;
-            }
+            None => return Ok(()),
         };
 
         match command {
             _ => info!("{}:{}:{:?} u {}", player_id, base_location, command, unit_id)
         }
+
+        Ok(())
     }
 
     /// Parses the Replay version at the current Stream cursor.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or the parsed version is unsupported (< 19545)
 
-    fn parse_version(&mut self) {
+    fn parse_version(&mut self) -> Result<()> {
         trace!("Replay::parse_version");
-        self.version = self.file.read_u16().unwrap();
+        test_eq!(self.file.read_u16(), 0x0);
+        self.version = try!(self.file.read_u16());
         if self.version < 19545 {
-            panic!("version {} unsupported, minimum version 19545 (UKF release) required", self.version);
+            return Err(Error::UnsupportedVersion);
         }
+
+        Ok(())
     }
 
     /// Parses the Replay game type at the current Stream cursor.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails.
 
-    fn parse_game_type(&mut self) {
+    fn parse_game_type(&mut self) -> Result<()> {
         trace!("Replay::parse_game_type");
-        self.game_type = self.file.read_utf8(8).unwrap();
+        self.game_type = try!(self.file.read_utf8(8));
+        Ok(())
     }
 
     /// Parses the Replay timestamp at the current Stream cursor.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unrecoverable error is returned when attempting to read a
-    /// Unicode character.
 
-    fn parse_date_time(&mut self) {
+    fn parse_date_time(&mut self) -> Result<()> {
         trace!("Replay::parse_date_time");
         let mut ch = match self.file.read_utf16_single() {
             Err(e) => {
                 match e {
                     Error::EmptyChar => String::new(),
-                    _ => panic!("unrecoverable error {:?}", e)
+                    _ => return Err(e),
                 }
             },
-            Ok(val) => val
+            Ok(val) => val,
         };
 
         while !ch.is_empty() {
@@ -472,50 +520,48 @@ impl Replay {
                 Err(e) => {
                     match e {
                         Error::EmptyChar => String::new(),
-                        _ => panic!("unrecoverable error {:?}", e)
+                        _ => return Err(e),
                     }
                 },
-                Ok(val) => val
+                Ok(val) => val,
             };
         }
+
+        Ok(())
     }
 
     /// Parses the Replay map information at the current Stream cursor and stores the parsed
     /// information in a Map type associated with the Replay.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_map_info(&mut self, version: u32) {
+    fn parse_map_info(&mut self, version: u32) -> Result<()> {
         trace!("Replay::parse_map_info");
         if version == 0x7E4 {
-            assert_eq!(self.file.read_u32().unwrap(), 0x0);
-            assert_eq!(self.file.read_u32().unwrap(), 0x0);
-            self.file.skip_ahead(4).unwrap(); // can be 1 or 2?
-            assert_eq!(self.file.read_u32().unwrap(), 0x3);
-            assert_eq!(self.file.read_u32().unwrap(), 0x0);
-            assert_eq!(self.file.read_u32().unwrap(), 0x0);
-            assert_eq!(self.file.read_u32().unwrap(), 0x0);
+            test_eq!(self.file.read_u32(), 0x0);
+            test_eq!(self.file.read_u32(), 0x0);
+            try!(self.file.skip_ahead(4)); // can be 1 or 2?
+            test_eq!(self.file.read_u32(), 0x3);
+            test_eq!(self.file.read_u32(), 0x0);
+            test_eq!(self.file.read_u32(), 0x0);
+            test_eq!(self.file.read_u32(), 0x0);
 
-            let mut size = self.file.read_u32().unwrap();
-            let map_file = self.file.read_utf8(size).unwrap();
+            let mut size = try!(self.file.read_u32());
+            let map_file = try!(self.file.read_utf8(size));
 
-            self.file.skip_ahead(16).unwrap(); // something to do with map start positions?
+            try!(self.file.skip_ahead(16)); // something to do with map start positions?
 
-            size = self.file.read_u32().unwrap();
-            let map_name = self.file.read_utf16(size).unwrap();
+            size = try!(self.file.read_u32());
+            let map_name = try!(self.file.read_utf16(size));
 
-            size = self.file.read_u32().unwrap();
-            let map_description_long = self.file.read_utf16(size).unwrap();
+            size = try!(self.file.read_u32());
+            let map_description_long = try!(self.file.read_utf16(size));
 
-            size = self.file.read_u32().unwrap();
-            let map_description = self.file.read_utf16(size).unwrap();
+            size = try!(self.file.read_u32());
+            let map_description = try!(self.file.read_utf16(size));
 
-            let map_players = self.file.read_u32().unwrap();
+            let map_players = try!(self.file.read_u32());
 
-            let map_width = self.file.read_u32().unwrap();
-            let map_height = self.file.read_u32().unwrap();
+            let map_width = try!(self.file.read_u32());
+            let map_height = try!(self.file.read_u32());
 
             self.map = Map::with_data(map_file,
                                       map_name,
@@ -526,216 +572,193 @@ impl Replay {
                                       map_players);
         }
         else {
-            error!("Replay::parse_game_data - cannot parse DATASDSC version {}", version);
+            return Err(Error::UnsupportedChunkVersion);
         }
+
+        Ok(())
     }
 
     /// Parses the Replay opponent information at the current Stream cursor.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails.
 
-    fn parse_opponent_info(&mut self) {
+    fn parse_opponent_info(&mut self) -> Result<()> {
         trace!("Replay::parse_opponent_info");
-        self.opponent_type = self.file.read_u32().unwrap();
+        self.opponent_type = try!(self.file.read_u32());
+        Ok(())
     }
 
     /// Parses the Replay RNG seed at the current Stream cursor.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails.
 
-    fn parse_rng_seed(&mut self) {
+    fn parse_rng_seed(&mut self) -> Result<()> {
         trace!("Replay::parse_rng_seed");
-        self.rng_seed = self.file.read_u32().unwrap();
+        self.rng_seed = try!(self.file.read_u32());
+        Ok(())
     }
 
     /// Parses a section of game data found in a DATADATA Chunk which includes opponent,
     /// information, RNG seed, and player information.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_game_data(&mut self, version: u32) {
+    fn parse_game_data(&mut self, version: u32) -> Result<()> {
         trace!("Replay::parse_game_data");
-        if version >= 0x1B && version <= 0x1C {
-            self.parse_opponent_info();
+        if version == 0x1 {
+            return Ok(()); // do nothing
+        }
+        else if version >= 0x1B && version <= 0x1C {
+            try!(self.parse_opponent_info());
 
-            self.file.skip_ahead(4).unwrap(); // 0 or 1
-            assert_eq!(self.file.read_u32().unwrap(), 0x0);
-            assert_eq!(self.file.read_u16().unwrap(), 0x0);
+            try!(self.file.skip_ahead(4)); // 0 or 1
+            test_eq!(self.file.read_u32(), 0x0);
+            test_eq!(self.file.read_u16(), 0x0);
 
-            self.parse_rng_seed();
+            try!(self.parse_rng_seed());
 
-            self.parse_players();
+            try!(self.parse_players());
         }
         else {
-            error!("Replay::parse_game_data - cannot parse DATADATA version {}", version);
+            return Err(Error::UnsupportedChunkVersion);
         }
+
+        Ok(())
     }
 
-    /// Parses all Player entities in the given Replay, starting at the current Stream cursor. 
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails.
+    /// Parses all Player entities in the given Replay, starting at the current Stream cursor.
 
-    fn parse_players(&mut self) {
+    fn parse_players(&mut self) -> Result<()> {
         trace!("Replay::parse_players");
-        let num_players = self.file.read_u32().unwrap();
+        let num_players = try!(self.file.read_u32());
         debug!("Replay::parse_players - {} players found", num_players);
 
         let mut player: Player;
         for _ in 0..num_players {
-            player = self.parse_player();
+            player = try!(self.parse_player());
             self.players.push(player);
         }
+
+        Ok(())
     }
 
     /// Parses a Player entity at the current Stream cursor, including all Items equipped by that
     /// player.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_player(&mut self) -> Player {
+    fn parse_player(&mut self) -> Result<Player> {
         trace!("Replay::parse_player");
         let mut player = Player::new();
 
-        self.file.skip_ahead(1).unwrap(); // could be 1 = human player, 0 = cpu player?
+        try!(self.file.skip_ahead(1)); // could be 1 = human player, 0 = cpu player?
 
-        let mut size = self.file.read_u32().unwrap();
-        player.update_name(self.file.read_utf16(size).unwrap());
-        player.update_team(self.file.read_u32().unwrap());
+        let mut size = try!(self.file.read_u32());
+        player.update_name(try!(self.file.read_utf16(size)));
+        player.update_team(try!(self.file.read_u32()));
 
         info!("Replay::parse_player - parsing player {}", player.name());
 
-        size = self.file.read_u32().unwrap();
-        player.update_faction(self.file.read_utf8(size).unwrap());
-        assert_eq!(self.file.read_u32().unwrap(), 0x5); // 5 for army type
+        size = try!(self.file.read_u32());
+        player.update_faction(try!(self.file.read_utf8(size)));
+        test_eq!(self.file.read_u32(), 0x5); // 5 for army type
 
-        self.file.skip_ahead(4).unwrap(); // Seb: p00
+        try!(self.file.skip_ahead(4)); // Seb: p00
 
-        size = self.file.read_u32().unwrap();
-        self.file.read_utf8(size).unwrap(); // Seb: default or skirmish
+        size = try!(self.file.read_u32());
+        try!(self.file.read_utf8(size)); // Seb: default or skirmish
 
-        self.file.skip_ahead(4).unwrap(); // Seb: this is not count, it's t1p1 t2p1 t1p2 t2p2 etc 
+        try!(self.file.skip_ahead(4)); // Seb: this is not count, it's t1p1 t2p1 t1p2 t2p2 etc 
                                           // (fixed pos) or I dont even know anymore (for random) 
                                           // its still count
 
-        self.file.skip_ahead(4).unwrap(); // something (not position)
+        try!(self.file.skip_ahead(4)); // something (not position)
 
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        assert_eq!(self.file.read_u32().unwrap(), 0x5);
+        test_eq!(self.file.read_u32(), 0x0);
+        test_eq!(self.file.read_u32(), 0x5);
 
-        assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
+        test_eq!(self.file.read_u16(), 0x1); // not sure what this is yet
 
-        player.add_item(self.parse_item(ItemType::Skin));
-        player.add_item(self.parse_item(ItemType::Skin));
-        player.add_item(self.parse_item(ItemType::Skin));
+        player.add_item(try!(self.parse_item(ItemType::Skin)));
+        player.add_item(try!(self.parse_item(ItemType::Skin)));
+        player.add_item(try!(self.parse_item(ItemType::Skin)));
 
-        assert_eq!(self.file.read_u16().unwrap(), 0x1); // not sure what this is yet
+        test_eq!(self.file.read_u16(), 0x1); // not sure what this is yet
 
-        player.update_steam_id(self.parse_steam_id());
+        player.update_steam_id(try!(self.parse_steam_id()));
 
-        player.add_item(self.parse_item(ItemType::FacePlate));
-        player.add_item(self.parse_item(ItemType::VictoryStrike));
-        player.add_item(self.parse_item(ItemType::Decal));
+        player.add_item(try!(self.parse_item(ItemType::FacePlate)));
+        player.add_item(try!(self.parse_item(ItemType::VictoryStrike)));
+        player.add_item(try!(self.parse_item(ItemType::Decal)));
 
-        size = self.file.read_u32().unwrap();
+        size = try!(self.file.read_u32());
         for _ in 0..size {
-            player.add_item(self.parse_item(ItemType::Commander));
+            player.add_item(try!(self.parse_item(ItemType::Commander)));
         }
 
-        size = self.file.read_u32().unwrap();
+        size = try!(self.file.read_u32());
         for _ in 0..size {
-            player.add_item(self.parse_item(ItemType::Bulletin));
+            player.add_item(try!(self.parse_item(ItemType::Bulletin)));
         }
 
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        self.file.skip_ahead(8).unwrap(); // don't know what this is yet, 2 u32s
+        test_eq!(self.file.read_u32(), 0x0);
+        try!(self.file.skip_ahead(8)); // don't know what this is yet, 2 u32s
 
-        player
+        Ok(player)
     }
 
     /// Parses an Item belonging to a Player at the current Stream cursor, depending on the type
     /// of Item being parsed, and returns that Item to the caller.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected item type is found in the Replay.
 
-    fn parse_item(&mut self, item_type: ItemType) -> Item {
-        let type_label = self.file.read_u16().unwrap();
+    fn parse_item(&mut self, item_type: ItemType) -> Result<Item> {
+        let type_label = try!(self.file.read_u16());
         match type_label {
-            0x1 => Item::new(item_type),
-            0x109 => self.parse_player_item(item_type),
-            0x206 => self.parse_cpu_item(item_type),
-            0x216 => self.parse_player_item_special(item_type),
-            _ => panic!("unexpected item type {} at {}", type_label, self.file.get_cursor_position()),
+            0x1 => Ok(Item::new(item_type)),
+            0x109 => Ok(try!(self.parse_player_item(item_type))),
+            0x206 => Ok(try!(self.parse_cpu_item(item_type))),
+            0x216 => Ok(try!(self.parse_player_item_special(item_type))),
+            _ => Err(Error::UnexpectedValue),
         }
     }
 
     /// Parses an encoded Item whose pattern matches that of most human Player Items.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_player_item(&mut self, item_type: ItemType) -> Item {
-        let primary = self.file.read_u32().unwrap();
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
-        let secondary = self.file.read_u32().unwrap();
-        assert_eq!(self.file.read_u32().unwrap(), 0x0);
+    fn parse_player_item(&mut self, item_type: ItemType) -> Result<Item> {
+        let primary = try!(self.file.read_u32());
+        test_eq!(self.file.read_u32(), 0x0);
+        let secondary = try!(self.file.read_u32());
+        test_eq!(self.file.read_u32(), 0x0);
 
-        let size = self.file.read_u16().unwrap();
-        self.file.skip_ahead(size as u32).unwrap();
+        let size = try!(self.file.read_u16());
+        try!(self.file.skip_ahead(size as u32));
 
-        Item::with_split_id(primary, secondary, item_type)
+        Ok(Item::with_split_id(primary, secondary, item_type))
     }
 
     /// Parses an encoded Item whose pattern matches that of a special case of human Player Item,
     /// usually a special type of Decal.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails.
 
-    fn parse_player_item_special(&mut self, item_type: ItemType) -> Item {
-        self.file.skip_ahead(16).unwrap(); // lots of data, no idea what it is
-        let id = self.file.read_u32().unwrap() as u64; // might not be id
-        self.file.skip_ahead(1).unwrap(); // not sure, was 0x40 in test replay
+    fn parse_player_item_special(&mut self, item_type: ItemType) -> Result<Item> {
+        try!(self.file.skip_ahead(16)); // lots of data, no idea what it is
+        let id = try!(self.file.read_u32()) as u64; // might not be id
+        try!(self.file.skip_ahead(1)); // not sure, was 0x40 in test replay
 
-        Item::with_whole_id(id, item_type)
+        Ok(Item::with_whole_id(id, item_type))
     }
 
     /// Parses an encoded Item whose pattern matches that of most CPU Player Items.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails or an unexpected value is encountered.
 
-    fn parse_cpu_item(&mut self, item_type: ItemType) -> Item {
-        assert_eq!(self.file.read_u8().unwrap(), 0x1);
-        let id = self.file.read_u32().unwrap() as u64;
+    fn parse_cpu_item(&mut self, item_type: ItemType) -> Result<Item> {
+        test_eq!(self.file.read_u8(), 0x1);
+        let id = try!(self.file.read_u32()) as u64;
 
-        Item::with_whole_id(id, item_type)
+        Ok(Item::with_whole_id(id, item_type))
     }
 
     /// Parses a Player Steam ID at the current Stream cursor.
-    ///
-    /// # Panics
-    ///
-    /// If Stream read fails.
 
-    fn parse_steam_id(&mut self) -> u64 {
-        self.file.skip_ahead(8).unwrap(); // u64::MAX if cpu and no steam id, but it will return
+    fn parse_steam_id(&mut self) -> Result<u64> {
+        try!(self.file.skip_ahead(8)); // u64::MAX if cpu and no steam id, but it will return
                                           // 0 in this case so just read anyways
-        self.file.read_u64().unwrap()
+        Ok(try!(self.file.read_u64()))
+    }
+
+    /// Updates the Replay error string to indicate a failure during parsing.
+
+    fn update_error(&mut self, err: Error) {
+        self.error = Some(err.description().to_string());
     }
 
     /// Performs maintenance on the data structures of the Replay type to clean up unneeded
@@ -746,13 +769,9 @@ impl Replay {
     }
 
     /// Serializes Replay as JSON String.
-    ///
-    /// # Panics
-    ///
-    /// If rustc_serialize::json::encode fails to encode the Replay.
 
-    pub fn to_json(&self) -> String {
-        json::encode(&self).unwrap()
+    pub fn to_json(&self) -> Result<String> {
+        Ok(try!(json::encode(&self)))
     }
 
     /// Writes the contents of the Replay to stdout.

@@ -7,6 +7,7 @@ use std::fmt::Result as FmtResult;
 use std::io::Error as IoError;
 use std::string::{FromUtf8Error, FromUtf16Error};
 
+use rustc_serialize::json::EncoderError;
 use zip::result::ZipError;
 
 /// This type contains the various error messages that can be returned from the library.
@@ -19,10 +20,13 @@ pub enum Error {
     EmptyChar,
     InvalidFileExtension,
     UnexpectedValue,
+    UnsupportedVersion,
+    UnsupportedChunkVersion,
     IoError(IoError),
     Utf8Error(FromUtf8Error),
     Utf16Error(FromUtf16Error),
     ZipError(ZipError),
+    EncoderError(EncoderError),
 }
 
 impl From<IoError> for Error {
@@ -49,6 +53,12 @@ impl From<ZipError> for Error {
     }
 }
 
+impl From<EncoderError> for Error {
+    fn from(err: EncoderError) -> Error {
+        Error::EncoderError(err)
+    }
+}
+
 impl StdError for Error {
     fn description(&self) -> &str {
         match *self {
@@ -58,10 +68,13 @@ impl StdError for Error {
             Error::EmptyChar => "Empty character read.",
             Error::InvalidFileExtension => "Cannot parse the given filetype.",
             Error::UnexpectedValue => "Unexpected value found during parsing.",
+            Error::UnsupportedVersion => "Version must be 19545 (UKF release) or higher.",
+            Error::UnsupportedChunkVersion => "Encountered a chunk version that could not be parsed. Please check for an update.",
             Error::IoError(ref err) => err.description(),
             Error::Utf8Error(ref err) => err.description(),
             Error::Utf16Error(ref err) => err.description(),
             Error::ZipError(ref err) => err.description(),
+            Error::EncoderError(ref err) => err.description(),
         }
     }
 
@@ -71,6 +84,7 @@ impl StdError for Error {
             Error::Utf8Error(ref err) => err as &StdError,
             Error::Utf16Error(ref err) => err as &StdError,
             Error::ZipError(ref err) => err as &StdError,
+            Error::EncoderError(ref err) => err as &StdError,
             _ => self as &StdError,
         })
     }
@@ -85,10 +99,13 @@ impl Display for Error {
             Error::EmptyChar => fmt.write_str("Buffer read error (EmptyChar)"),
             Error::InvalidFileExtension => fmt.write_str("The filetype is invalid (InvalidFileExtension)"),
             Error::UnexpectedValue => fmt.write_str("An unexpected value was encountered (UnexpectedValue)"),
+            Error::UnsupportedVersion => fmt.write_str("An unsupported version was encountered (UnsupportedVersion)"),
+            Error::UnsupportedChunkVersion => fmt.write_str("An unsupported chunk version was encountered (UnsupportedChunkVersion)"),
             Error::IoError(ref err) => Display::fmt(err, fmt),
             Error::Utf8Error(ref err) => Display::fmt(err, fmt),
             Error::Utf16Error(ref err) => Display::fmt(err, fmt),
             Error::ZipError(ref err) => Display::fmt(err, fmt),
+            Error::EncoderError(ref err) => Display::fmt(err, fmt),
         }
     }
 }

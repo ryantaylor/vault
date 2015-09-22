@@ -10,7 +10,6 @@ readme = "README.md"
 keywords = ["coh", "coh2", "company", "heroes", "replay"]
 license = "MIT"
 
-
 [dependencies]
 log = "0.3"
 rustc-serialize = "0.3"
