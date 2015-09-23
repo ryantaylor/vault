@@ -11,6 +11,7 @@ keywords = ["coh", "coh2", "company", "heroes", "replay"]
 license = "MIT"
 
 [dependencies]
+libc = "0.1"
 log = "0.3"
 rustc-serialize = "0.3"
 zip = "0.1"

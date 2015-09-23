@@ -4,11 +4,13 @@
 //! This library contains representations of all replay, map, and player information, including
 //! chat and equipped items. Command parsing is also being actively integrated.
 
+extern crate libc;
 #[macro_use]
 extern crate log;
 extern crate rustc_serialize;
 extern crate zip;
 
+use std::ffi::CString;
 use std::fs;
 use std::fs::File;
 use std::io::Read;
@@ -17,6 +19,7 @@ use std::path::Path;
 use std::result;
 use std::thread;
 
+use libc::c_char;
 use rustc_serialize::json;
 use zip::ZipArchive;
 
@@ -270,4 +273,18 @@ impl Vault {
 pub fn print_version() {
     println!("vault v0.1.5");
     println!(" coh2 19545 - 19654");
+}
+
+#[no_mangle]
+pub extern fn parse_to_cstring() -> *mut c_char {
+    let path = Path::new("/home/ryan/replays/angoville_1v1.rec");
+    let vault = Vault::parse(&path).unwrap();
+    let result = vault.to_json().unwrap();
+    let val = CString::new(result.into_bytes()).unwrap();
+    val.into_raw()
+}
+
+#[no_mangle]
+pub extern fn free_cstring(ptr: *mut c_char) {
+    let _ = unsafe { CString::from_raw(ptr) };
 }
