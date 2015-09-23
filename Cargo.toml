@@ -10,6 +10,9 @@ readme = "README.md"
 keywords = ["coh", "coh2", "company", "heroes", "replay"]
 license = "MIT"
 
+[lib]
+crate-type = ["dylib", "rlib"]
+
 [dependencies]
 libc = "0.1"
 log = "0.3"
