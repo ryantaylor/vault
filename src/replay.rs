@@ -100,7 +100,7 @@ impl Replay {
     ///
     /// # Examples
     ///
-    ///```
+    /// ```
     /// extern crate vault;
     ///
     /// use vault::Replay;
@@ -136,17 +136,20 @@ impl Replay {
     /// extern crate zip;
     ///
     /// use vault::Replay;
+    /// use std::ops::Deref;
     /// use std::path::Path;
     /// use zip::read::{ZipArchive. ZipFile};
     ///
     /// let path = Path::new("/path/to/archive.zip");
+    /// let name = path.to_string_lossy();
+    /// let name = name.deref();
     /// let file = File::open(&path).unwrap();
     /// let archive = ZipArchive::new(file).unwrap();
     /// let mut buff: Vec<u8> = Vec::with_capacity(replay_file.size() as usize);
-    /// let mut replay_file = archive.by_index(idx).unwrap();
+    /// let mut replay_file = archive.by_index(0).unwrap();
     ///
     /// replay_file.read_to_end(&mut buff).unwrap();
-    /// let mut replay = Replay::from_bytes(buff).unwrap();
+    /// let mut replay = Replay::from_bytes(&name, buff).unwrap();
     /// replay.parse();
     /// ```
 
