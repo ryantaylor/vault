@@ -10,7 +10,7 @@ extern crate log;
 extern crate rustc_serialize;
 extern crate zip;
 
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::fs;
 use std::fs::File;
 use std::io::Read;
@@ -275,14 +275,56 @@ pub fn print_version() {
     println!(" coh2 19545 - 19654");
 }
 
+/// Extern function for invoking a parse operation across FFI. Returns a Vault type serialized to
+/// JSON.
+///
+/// Note that the return type is a pointer to a c_char array. The function passes ownership of the
+/// CString to the FFI caller and does not deallocate memory when the CString goes out of this
+/// function's scope. It is the responsibility of the FFI caller to pass back the *c_char to this
+/// library via free_cstring so that it can be deallocated. Failure to pass back to free_cstring
+/// will result in a memory leak.
+///
+/// # Examples
+///
+/// ```javascript
+/// // node.js
+///
+/// var ffi = require('ffi');
+/// var ref = require('ref');
+///
+/// var charPtr = ref.refType(ref.types.CString);
+///
+/// var lib = ffi.Library('/path/to/vault/target/release/libvault', {
+///     'parse_to_cstring': [charPtr, ['string']],
+///     'free_cstring': ['void', [charPtr]]
+/// });
+///
+/// var path = '/path/to/rec/zip/or/dir';
+/// var ptr = lib.parse_to_cstring(path);
+/// var str = ref.readCString(ptr, 0);
+/// lib.free_cstring(ptr);
+///
+/// console.log(str);
+/// ```
+
 #[no_mangle]
-pub extern fn parse_to_cstring() -> *mut c_char {
-    let path = Path::new("/home/ryan/replays/angoville_1v1.rec");
+pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
+    let cstr = unsafe { CStr::from_ptr(path) };
+    let cow = cstr.to_string_lossy();
+    let path_str = cow.deref();
+    let path = Path::new(&path_str);
     let vault = Vault::parse(&path).unwrap();
     let result = vault.to_json().unwrap();
     let val = CString::new(result.into_bytes()).unwrap();
     val.into_raw()
 }
+
+/// Extern function for deallocating a CString returned by parse_to_cstring.
+///
+/// Must only be passed a pointer created by parse_to_cstring; passing other pointers is undefined
+/// behaviour, and will likely cause a seg fault or double free. Every call to parse_to_cstring
+/// should have a matching free_cstring to deallocate the memory after the string has been used.
+/// Failure to call this function will result in a memory leak.
 
 #[no_mangle]
 pub extern fn free_cstring(ptr: *mut c_char) {
