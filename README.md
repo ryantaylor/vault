@@ -16,7 +16,7 @@ flank is a very basic CLI parsing application for CoH2 replays written using thi
 Usage
 ================
 
-# Rust
+## Rust
 
 If you are writing a Rust application, you can use vault from Crates.io:
 
@@ -42,7 +42,7 @@ fn main() {
 }
 ```
 
-# FFI
+## FFI
 
 One of the great strengths of Rust is its ability to be called into from foreign code as easily as C. This can be used to parse replays with vault from a higher-level language such as Python or Javascript.
 
