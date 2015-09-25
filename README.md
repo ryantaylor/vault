@@ -109,3 +109,7 @@ $ cargo doc
 ```
 
 The resulting documentation can then be found at `vault/target/doc`.
+
+# License
+
+MIT
