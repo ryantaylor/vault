@@ -14,7 +14,13 @@ license = "MIT"
 crate-type = ["dylib", "rlib"]
 
 [dependencies]
-libc = "0.1"
 log = "0.3"
 rustc-serialize = "0.3"
 zip = "0.1"
+
+[dependencies.libc]
+version = "0.1"
+optional = true
+
+[features]
+ffi = ["libc"]

@@ -4,12 +4,14 @@
 //! This library contains representations of all replay, map, and player information, including
 //! chat and equipped items. Command parsing is also being actively integrated.
 
+#[cfg(feature = "ffi")]
 extern crate libc;
 #[macro_use]
 extern crate log;
 extern crate rustc_serialize;
 extern crate zip;
 
+#[cfg(feature = "ffi")]
 use std::ffi::{CStr, CString};
 use std::fs;
 use std::fs::File;
@@ -19,6 +21,7 @@ use std::path::Path;
 use std::result;
 use std::thread;
 
+#[cfg(feature = "ffi")]
 use libc::c_char;
 use rustc_serialize::json;
 use zip::ZipArchive;
@@ -26,13 +29,13 @@ use zip::ZipArchive;
 pub use self::error::Error;
 pub use self::replay::Replay;
 
-pub mod error;
-pub mod replay;
 mod chat_line;
 mod command;
+mod error;
 mod item;
 mod map;
 mod player;
+mod replay;
 mod stream;
 
 /// Custom Result wrapper for vault, used to return vault::Error from every result.
@@ -307,6 +310,7 @@ pub fn print_version() {
 /// console.log(str);
 /// ```
 
+#[cfg(feature = "ffi")]
 #[no_mangle]
 pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
     let cstr = unsafe { CStr::from_ptr(path) };
@@ -326,6 +330,7 @@ pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
 /// should have a matching free_cstring to deallocate the memory after the string has been used.
 /// Failure to call this function will result in a memory leak.
 
+#[cfg(feature = "ffi")]
 #[no_mangle]
 pub extern fn free_cstring(ptr: *mut c_char) {
     let _ = unsafe { CString::from_raw(ptr) };
