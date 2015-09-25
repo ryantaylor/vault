@@ -1,6 +1,6 @@
 # vault
 
-`vault` is a Company of Heroes 2 replay parsing library written in Rust. It has evolved from work done by a number of individuals in the Company of Heroes community, most notably Seb and pingtoft, and has been helped along by the assistance of Relic Entertainment. This particular project is a rewrite and extension of a parser written by Seb, which itself was an extension of my original PHP port of pingtoft's C# Company of Heroes parsing code. Its goal is to provide a robust, complete, and flexible interface into Company of Heroes 2 replay files through a general library that can be used in a variety of environments and languages. It is also written to be fast and to take advantage of Rust's thread and memory safety features.
+`vault` is a Company of Heroes 2 replay parsing library written in [Rust](https://www.rust-lang.org/). It has evolved from work done by a number of individuals in the Company of Heroes community, most notably Seb and pingtoft, and has been helped along by the assistance of Relic Entertainment. This particular project is a rewrite and extension of a parser written by Seb, which itself was an extension of my original PHP port of pingtoft's C# Company of Heroes parsing code. Its goal is to provide a robust, complete, and flexible interface into Company of Heroes 2 replay files through a general library that can be used in a variety of environments and languages. It is also written to be fast and to take advantage of Rust's thread and memory safety features.
 
 ## File & Version Support
 
@@ -46,7 +46,7 @@ fn main() {
 
 **NOTE**: `vault`'s FFI interface currently takes advantage of Rust functions only available in the unstable nightly builds of the Rust compiler. Please make sure you have nightly Rust installed before you try to build `vault` for FFI.
 
-```bash
+```
 $ rustc -V
 rustc 1.5.0-nightly (...)
 ```
@@ -104,7 +104,7 @@ console.log(str);
 
 Documentation for `vault` is currently not available online. However, you can easily build documentation for yourself with `cargo`:
 
-```bash
+```
 $ cargo doc
 ```
 
