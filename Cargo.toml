@@ -1,16 +1,26 @@
 [package]
 name = "vault"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Ryan Taylor <ryan@ryantaylordev.ca>"]
 
-description = "A parser for Company of Heroes 2 replay files. Valid for replays generated on versions 19545 thru 19654."
+description = "A parser for Company of Heroes 2 replay files. Valid for replays generated on versions 19545 thru 19696."
 homepage = "http://ryantaylordev.ca"
 repository = "https://github.com/ryantaylor/vault"
 readme = "README.md"
 keywords = ["coh", "coh2", "company", "heroes", "replay"]
 license = "MIT"
 
+[lib]
+crate-type = ["dylib", "rlib"]
+
 [dependencies]
 log = "0.3"
 rustc-serialize = "0.3"
 zip = "0.1"
+
+[dependencies.libc]
+version = "0.1"
+optional = true
+
+[features]
+ffi = ["libc"]
