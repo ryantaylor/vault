@@ -51,12 +51,11 @@ $ rustc -V
 rustc 1.5.0-nightly (...)
 ```
 
-First, build `vault` from source:
+First, build `vault` from source with the `ffi` feature enabled:
 
 ```bash
 $ git clone https://github.com/ryantaylor/vault.git && cd vault
-$ git checkout unstable
-$ cargo build --release
+$ cargo build --release --features=ffi
 ```
 
 The library you want to be using is `libvault.so`, which you can find at `vault/target/release`. This library exposes two external functions for use over FFI:
@@ -106,6 +105,12 @@ Documentation for `vault` is currently not available online. However, you can ea
 
 ```
 $ cargo doc
+```
+
+For documentation that includes the FFI functions available with the `ffi` feature, run:
+
+```
+$ cargo doc --features=ffi
 ```
 
 The resulting documentation can then be found at `vault/target/doc`.
