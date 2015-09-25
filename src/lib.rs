@@ -269,5 +269,5 @@ impl Vault {
 
 pub fn print_version() {
     println!("vault v0.1.4");
-    println!(" coh2 19545 - 19654");
+    println!(" coh2 19545 - 19696");
 }
