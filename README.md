@@ -4,9 +4,9 @@
 
 ## File & Version Support
 
-Currently `vault` supports Company of Heroes 2 replays recorded on version 19545 or higher. This was the first version after the release of the British forces expansion.
+Currently `vault` supports Company of Heroes 2 replays recorded on version 19545 or newer. This was the first version after the release of the British forces expansion.
 
-`vault` can handle parsing individual files, archived files in the zip format (.zip only, not .7z currently), and directories of replay files. When parsing an archive, all .rec files inside the archive and its subfolders will be parsed. When parsing a directory, all .rec and .zip files at that directory level will be parsed. `vault` currently will not recursively traverse subdirectories when parsing directories.
+`vault` can handle parsing individual files, archived files in the zip format (`.zip` only, not `.7z` currently), and directories of replay files. When parsing an archive, all `.rec` files inside the archive and its subfolders will be parsed. When parsing a directory, all `.rec` and `.zip` files at that directory level will be parsed. `vault` currently will not recursively traverse subdirectories when parsing directories.
 
 ## flank
 
@@ -42,16 +42,21 @@ fn main() {
 
 ## FFI
 
-One of the great strengths of Rust is its ability to be called into from foreign code as easily as C. This can be used to parse replays with `vault` from a higher-level language such as Python or Javascript.
+`vault` can be called into from foreign code as easily as a C library. This can be used to parse replays with `vault` from a higher-level language such as Python or Javascript.
 
 **NOTE**: `vault`'s FFI interface currently takes advantage of Rust functions only available in the unstable nightly builds of the Rust compiler. Please make sure you have nightly Rust installed before you try to build `vault` for FFI.
+
+```bash
+$ rustc -V
+rustc 1.5.0-nightly (...)
+```
 
 First, build `vault` from source:
 
 ```bash
-git clone https://github.com/ryantaylor/vault.git && cd vault
-git checkout unstable
-cargo build --release
+$ git clone https://github.com/ryantaylor/vault.git && cd vault
+$ git checkout unstable
+$ cargo build --release
 ```
 
 The library you want to be using is `libvault.so`, which you can find at `vault/target/release`. This library exposes two external functions for use over FFI:
@@ -99,8 +104,8 @@ console.log(str);
 
 Documentation for `vault` is currently not available online. However, you can easily build documentation for yourself with `cargo`:
 
-```
-cargo doc
+```bash
+$ cargo doc
 ```
 
 The resulting documentation can then be found at `vault/target/doc`.
