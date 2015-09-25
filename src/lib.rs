@@ -272,7 +272,7 @@ impl Vault {
 
 pub fn print_version() {
     println!("vault v0.1.5");
-    println!(" coh2 19545 - 19654");
+    println!(" coh2 19545 - 19696");
 }
 
 /// Extern function for invoking a parse operation across FFI. Returns a Vault type serialized to
