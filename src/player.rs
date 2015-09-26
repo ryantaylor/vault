@@ -79,7 +79,7 @@ impl Player {
         println!("team: {}", self.team);
         println!("faction: {}", self.faction);
 
-        for item in self.items.iter() {
+        for item in &self.items {
             println!("{:?}: {}", item.item_type(), item.id());
         }
     }

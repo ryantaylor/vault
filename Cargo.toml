@@ -14,6 +14,7 @@ license = "MIT"
 crate-type = ["dylib", "rlib"]
 
 [dependencies]
+clippy = "*"
 log = "0.3"
 rustc-serialize = "0.3"
 zip = "0.1"

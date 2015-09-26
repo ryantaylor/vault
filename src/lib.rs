@@ -4,6 +4,9 @@
 //! This library contains representations of all replay, map, and player information, including
 //! chat and equipped items. Command parsing is also being actively integrated.
 
+#![feature(plugin)]
+#![plugin(clippy)]
+
 #[cfg(feature = "ffi")]
 extern crate libc;
 #[macro_use]
@@ -131,7 +134,7 @@ impl Vault {
                     continue;
                 }
             };
-            let name = replay_file.name().to_string();
+            let name = replay_file.name().to_owned();
             let inner_path = Path::new(&name);
             match inner_path.extension() {
                 Some(ext) => match ext.to_string_lossy().deref() {

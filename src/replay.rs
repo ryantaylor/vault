@@ -113,7 +113,7 @@ impl Replay {
 
     pub fn new_with_error(name: &str, err: Error) -> Replay {
         Replay {
-            error: Some(err.description().to_string()),
+            error: Some(err.description().to_owned()),
             file: Stream::new(name),
             version: 0,
             game_type: String::new(),
@@ -761,7 +761,7 @@ impl Replay {
     /// Updates the Replay error string to indicate a failure during parsing.
 
     fn update_error(&mut self, err: Error) {
-        self.error = Some(err.description().to_string());
+        self.error = Some(err.description().to_owned());
     }
 
     /// Performs maintenance on the data structures of the Replay type to clean up unneeded
@@ -787,11 +787,11 @@ impl Replay {
         println!("duration: {}", self.duration);
         println!("num players: {}", self.players.len());
 
-        for player in self.players.iter() {
+        for player in &self.players {
             player.display();
         }
 
-        for line in self.chat.iter() {
+        for line in &self.chat {
             line.display();
         }
     }

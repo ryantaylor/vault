@@ -13,16 +13,6 @@ pub struct ChatLine {
 
 impl ChatLine {
 
-    /// Constructs a new ChatLine with empty initial data.
-
-    pub fn new() -> ChatLine {
-        ChatLine {
-            tick: 0,
-            name: String::new(),
-            message: String::new(),
-        }
-    }
-
     /// Constructs a new ChatLine initialized with the data given.
 
     pub fn with_data<S>(tick: u32, name: S, message: S) -> ChatLine where S: Into<String> {

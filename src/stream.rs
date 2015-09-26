@@ -318,7 +318,7 @@ impl Stream {
     /// Returns the current position of the cursor.
 
     pub fn get_cursor_position(&self) -> u32 {
-        return self.cursor;
+        self.cursor
     }
 
     /// Clears the vector of data bytes loaded from file and sets the cursor to the length of the
