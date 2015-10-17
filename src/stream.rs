@@ -315,6 +315,28 @@ impl Stream {
         Ok(result)
     }
 
+    /// Reads the given number of bytes at the current cursor location into a vector and returns
+    /// it without moving the cursor. Mainly useful for debugging things like command byte
+    /// sequences.
+
+    pub fn read_to_vec(&self, len: u32) -> Result<Vec<u8>> {
+        trace!("Stream::read_to_vec - at cursor {} with len {}", self.cursor, len);
+
+        if self.cursor >= self.data.len() as u32 {
+            return Err(Error::CursorOutOfBounds);
+        }
+
+        if self.data.len() as u32 - self.cursor < len {
+            return Err(Error::CursorOutOfBounds);
+        }
+
+        let stream = &self.data[self.cursor as usize..(self.cursor + len) as usize];
+        let mut stream_vec = Vec::with_capacity(len as usize);
+        stream_vec.extend(stream.iter().cloned());
+
+        Ok(stream_vec)
+    }
+
     /// Returns the current position of the cursor.
 
     pub fn get_cursor_position(&self) -> u32 {

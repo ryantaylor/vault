@@ -8,6 +8,7 @@ use item::Item;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Player {
+    pub id: u8,
     pub name: String,
     pub steam_id: u64,
     pub team: u32,
@@ -19,8 +20,9 @@ impl Player {
 
     /// Constructs a new Player with empty initial data.
 
-    pub fn new() -> Player {
+    pub fn new(id: u8) -> Player {
         Player {
+            id: id,
             name: String::new(),
             steam_id: 0,
             team: 0,
@@ -33,6 +35,7 @@ impl Player {
 
     #[allow(dead_code)]
     pub fn display(&self) {
+        println!("id: {}", self.id);
         println!("name: {}", self.name);
         println!("steam_id: {}", self.steam_id);
         println!("team: {}", self.team);

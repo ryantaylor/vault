@@ -7,7 +7,7 @@ use std::string::String;
 use rustc_serialize::json;
 
 use chat_line::ChatLine;
-use command::{CmdType, Command};
+use command::{Blueprint, CmdType, Command};
 use Error;
 use item::{Item, ItemType};
 use map::Map;
@@ -403,9 +403,9 @@ impl Replay {
 
                     while !done {
                         let inter_position = self.file.get_cursor_position();
-                        let bundle_part_length = try!(self.file.read_u16()) as u32;
+                        let bundle_part_length = try!(self.file.read_u8()) as u32;
 
-                        try!(self.parse_action(bundle_part_length));
+                        try!(self.parse_action(tick_id, bundle_part_length));
 
                         let current_position = self.file.get_cursor_position();
                         let diff = inter_position + bundle_part_length - current_position;
@@ -460,8 +460,12 @@ impl Replay {
     /// Parses a segment of an Action type Tick and extracts the details of the contained action,
     /// depending on the type of Command encoded in the action.
 
-    fn parse_action(&mut self, len: u32) -> Result<()> {
+    fn parse_action(&mut self, tick: u32, len: u32) -> Result<()> {
         trace!("Replay::parse_action");
+
+        let bytes = try!(self.file.read_to_vec(len));
+
+        try!(self.file.skip_ahead(1)); // not sure? mostly 0 I think
 
         let action_type = try!(self.file.read_u8());
         let base_location = try!(self.file.read_u8());
@@ -471,18 +475,39 @@ impl Replay {
 
         try!(self.file.skip_ahead(2)); // probably counts current num of tick_size
         try!(self.file.skip_ahead(2)); // lots of 0, 16 then 20546 2054720802 21085
-        try!(self.file.skip_ahead(2)); // pretty sure it's a player id of some sort
-        let unit_id = try!(self.file.read_u8()); // unit id
+        try!(self.file.skip_ahead(1)); // command type (CMD, PCMD, SCMD)
+        try!(self.file.skip_ahead(1)); // some sort of target ID (unit/building/player)
+        //let unit_id = try!(self.file.read_u8()); // unit id
 
-        let command = match CmdType::from_u8(action_type) {
+        let command_type = match CmdType::from_u8(action_type) {
             Some(val) => val,
             None => return Ok(()),
         };
 
-        match command {
-            _ => info!("{}:{}:{:?} u {}", player_id, base_location, command, unit_id)
+        let mut command = Command::new(tick, command_type);
+        command.player_id = player_id;
+        command.bytes = bytes;
+
+        // command-specific parsing, when necessary
+        match command_type {
+            CmdType::CMD_BuildSquad |
+            CmdType::CMD_Upgrade => {
+                try!(self.file.skip_ahead(3)); // not sure what this is
+                command.entity_id = try!(self.file.read_u32()); // usually a u8? but maybe could be more
+                try!(self.file.skip_ahead(2)); // player ID of some sort I think
+                try!(self.file.skip_ahead(4)); // usually 0 I think
+            },
+            CmdType::CMD_RallyPoint => {
+                // there are coordinates in here somewhere
+            },
+            CmdType::SCMD_Move => {
+                // there are coordinates in here somewhere
+            },
+            //_ => info!("{}:{}:{:?} u {}", player_id, base_location, command_type, unit_id)
+            _ => {}
         }
 
+        self.commands.push(command);
         Ok(())
     }
 
@@ -631,12 +656,12 @@ impl Replay {
 
     fn parse_players(&mut self) -> Result<()> {
         trace!("Replay::parse_players");
-        let num_players = try!(self.file.read_u32());
+        let num_players = try!(self.file.read_u32()) as u8;
         debug!("Replay::parse_players - {} players found", num_players);
 
         let mut player: Player;
-        for _ in 0..num_players {
-            player = try!(self.parse_player());
+        for id in 0..num_players {
+            player = try!(self.parse_player(id));
             self.players.push(player);
         }
 
@@ -646,9 +671,9 @@ impl Replay {
     /// Parses a Player entity at the current Stream cursor, including all Items equipped by that
     /// player.
 
-    fn parse_player(&mut self) -> Result<Player> {
+    fn parse_player(&mut self, id: u8) -> Result<Player> {
         trace!("Replay::parse_player");
-        let mut player = Player::new();
+        let mut player = Player::new(id);
 
         try!(self.file.skip_ahead(1)); // could be 1 = human player, 0 = cpu player?
 

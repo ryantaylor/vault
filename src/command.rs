@@ -9,27 +9,30 @@ use std::mem;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Command {
-    pub player_id: u32,
+    pub player_id: u8,
     pub tick: u32,
     pub command_type: CmdType,
     pub blueprint: Blueprint,
-    pub unit_id: u8,
+    pub entity_id: u32,
     pub x: u32,
     pub y: u32,
+    pub bytes: Vec<u8>,
 }
 
 impl Command {
 
     /// Constructs a new, empty Command.
 
-    pub fn new() -> Command {
+    pub fn new(tick: u32, command_type: CmdType) -> Command {
         Command {
-            tick: 0,
-            command_type: CmdType::CMD_DefaultAction,
+            player_id: 0,
+            tick: tick,
+            command_type: command_type,
             blueprint: Blueprint::Ebps,
-            unit_id: 0,
+            entity_id: 0,
             x: 0,
             y: 0,
+            bytes: Vec::new(),
         }
     }
 }
