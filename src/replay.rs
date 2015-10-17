@@ -7,7 +7,7 @@ use std::string::String;
 use rustc_serialize::json;
 
 use chat_line::ChatLine;
-use command::Command;
+use command::{CmdType, Command};
 use Error;
 use item::{Item, ItemType};
 use map::Map;
@@ -49,17 +49,18 @@ macro_rules! test_eq {
 
 #[derive(Debug, RustcEncodable)]
 pub struct Replay {
-    error: Option<String>,
-    file: Stream,
-    version: u16,
-    game_type: String,
-    date_time: String,
-    map: Map,
-    players: Vec<Player>,
-    duration: u32,              // seconds
-    rng_seed: u32,
-    opponent_type: u32,         // 1 = human, 2 = cpu
-    chat: Vec<ChatLine>,
+    pub error: Option<String>,
+    pub file: Stream,
+    pub version: u16,
+    pub game_type: String,
+    pub date_time: String,
+    pub map: Map,
+    pub players: Vec<Player>,
+    pub duration: u32,              // seconds
+    pub rng_seed: u32,
+    pub opponent_type: u32,         // 1 = human, 2 = cpu
+    pub chat: Vec<ChatLine>,
+    pub commands: Vec<Command>,
 }
 
 impl Replay {
@@ -91,6 +92,7 @@ impl Replay {
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
+            commands: Vec::new(),
         })
     }
 
@@ -124,6 +126,7 @@ impl Replay {
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
+            commands: Vec::new(),
         }
     }
 
@@ -166,6 +169,7 @@ impl Replay {
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
+            commands: Vec::new(),
         })
     }
 
@@ -470,7 +474,7 @@ impl Replay {
         try!(self.file.skip_ahead(2)); // pretty sure it's a player id of some sort
         let unit_id = try!(self.file.read_u8()); // unit id
 
-        let command = match Command::from_u8(action_type) {
+        let command = match CmdType::from_u8(action_type) {
             Some(val) => val,
             None => return Ok(()),
         };
@@ -649,13 +653,13 @@ impl Replay {
         try!(self.file.skip_ahead(1)); // could be 1 = human player, 0 = cpu player?
 
         let mut size = try!(self.file.read_u32());
-        player.update_name(try!(self.file.read_utf16(size)));
-        player.update_team(try!(self.file.read_u32()));
+        player.name = try!(self.file.read_utf16(size));
+        player.team = try!(self.file.read_u32());
 
-        info!("Replay::parse_player - parsing player {}", player.name());
+        info!("Replay::parse_player - parsing player {}", player.name);
 
         size = try!(self.file.read_u32());
-        player.update_faction(try!(self.file.read_utf8(size)));
+        player.faction = try!(self.file.read_utf8(size));
         test_eq!(self.file.read_u32(), 0x5); // 5 for army type
 
         try!(self.file.skip_ahead(4)); // Seb: p00
@@ -674,26 +678,26 @@ impl Replay {
 
         test_eq!(self.file.read_u16(), 0x1); // not sure what this is yet
 
-        player.add_item(try!(self.parse_item(ItemType::Skin)));
-        player.add_item(try!(self.parse_item(ItemType::Skin)));
-        player.add_item(try!(self.parse_item(ItemType::Skin)));
+        player.items.push(try!(self.parse_item(ItemType::Skin)));
+        player.items.push(try!(self.parse_item(ItemType::Skin)));
+        player.items.push(try!(self.parse_item(ItemType::Skin)));
 
         test_eq!(self.file.read_u16(), 0x1); // not sure what this is yet
 
-        player.update_steam_id(try!(self.parse_steam_id()));
+        player.steam_id = try!(self.parse_steam_id());
 
-        player.add_item(try!(self.parse_item(ItemType::FacePlate)));
-        player.add_item(try!(self.parse_item(ItemType::VictoryStrike)));
-        player.add_item(try!(self.parse_item(ItemType::Decal)));
+        player.items.push(try!(self.parse_item(ItemType::FacePlate)));
+        player.items.push(try!(self.parse_item(ItemType::VictoryStrike)));
+        player.items.push(try!(self.parse_item(ItemType::Decal)));
 
         size = try!(self.file.read_u32());
         for _ in 0..size {
-            player.add_item(try!(self.parse_item(ItemType::Commander)));
+            player.items.push(try!(self.parse_item(ItemType::Commander)));
         }
 
         size = try!(self.file.read_u32());
         for _ in 0..size {
-            player.add_item(try!(self.parse_item(ItemType::Bulletin)));
+            player.items.push(try!(self.parse_item(ItemType::Bulletin)));
         }
 
         test_eq!(self.file.read_u32(), 0x0);

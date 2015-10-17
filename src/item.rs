@@ -18,8 +18,8 @@ pub enum ItemType {
 
 #[derive(Debug, RustcEncodable)]
 pub struct Item {
-    id: u64,
-    item_type: ItemType
+    pub id: u64,
+    pub item_type: ItemType
 }
 
 impl Item {
@@ -64,17 +64,5 @@ impl Item {
         let secondary_64 = secondary as u64;
 
         self.id = (primary_64 << 32) + secondary_64;
-    }
-
-    /// Returns the Item's ID.
-
-    pub fn id(&self) -> u64 {
-        self.id
-    }
-
-    /// Returns a copy of the Item's ItemType.
-
-    pub fn item_type(&self) -> ItemType {
-        self.item_type
     }
 }

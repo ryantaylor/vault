@@ -5,6 +5,35 @@
 
 use std::mem;
 
+/// This type represents a single Company of Heroes 2 player command.
+
+#[derive(Debug, RustcEncodable)]
+pub struct Command {
+    pub player_id: u32,
+    pub tick: u32,
+    pub command_type: CmdType,
+    pub blueprint: Blueprint,
+    pub unit_id: u8,
+    pub x: u32,
+    pub y: u32,
+}
+
+impl Command {
+
+    /// Constructs a new, empty Command.
+
+    pub fn new() -> Command {
+        Command {
+            tick: 0,
+            command_type: CmdType::CMD_DefaultAction,
+            blueprint: Blueprint::Ebps,
+            unit_id: 0,
+            x: 0,
+            y: 0,
+        }
+    }
+}
+
 /// This type contains a numerical u8 representation of every command/action possible in a CoH2 command
 /// sequence. Contents of this enum provided by Relic Entertainment.
 
@@ -12,7 +41,7 @@ use std::mem;
 #[repr(u8)]
 #[allow(dead_code)]
 #[allow(non_camel_case_types)]
-pub enum Command {
+pub enum CmdType {
     //[EntityCommandType]
     CMD_DefaultAction = 0,
     CMD_Stop = 1,
@@ -130,13 +159,91 @@ pub enum Command {
     DCMD_COUNT = 106,
 }
 
-impl Command {
+impl CmdType {
 
-    /// Converts a numerical representation of a Command enum into the correct enum value by
-    /// unsafely transmuting the numerical representation into the Command type.
+    /// Converts a numerical representation of a CmdType enum into the correct enum value by
+    /// unsafely transmuting the numerical representation into the CmdType type.
 
-    pub fn from_u8(n: u8) -> Option<Command> {
+    pub fn from_u8(n: u8) -> Option<CmdType> {
         if n <= 106 {
+            Some(unsafe { mem::transmute(n) })
+        } else {
+            None
+        }
+    }
+}
+
+/// This type contains a numerical u8 representation of entity type IDs as given in Relic's entity
+/// blueprints for Company of Heroes 2.
+
+#[derive(Debug, Copy, Clone, RustcEncodable)]
+#[repr(u8)]
+#[allow(dead_code)]
+#[allow(non_camel_case_types)]
+pub enum Blueprint {
+    Ebps = 0,
+    Sbps = 1,
+    Formation = 2,
+    Squad_Formation = 3,
+    Turn_Plan = 4,
+    Racebps = 5,
+    Upgrade = 6,
+    Ability = 7,
+    Tuning = 8,
+    Material = 9,
+    Weapon = 10,
+    Slot_Item = 11,
+    Pass_Type = 12,
+    Move_Type = 13,
+    Hit_Material = 14,
+    Critical = 15,
+    Camouflage_Stance_Type = 16,
+    Posture = 17,
+    Ui_Selection = 18,
+    Ui_Territory = 19,
+    Ui_Tacticalmap = 20,
+    Commander = 21,
+    Aura = 22,
+    Engine_Type = 23,
+    Intel_Bulletin = 24,
+    Leveling = 25,
+    Thq_Store = 26,
+    Construction_Menu = 27,
+    Post_Game_Achievement = 28,
+    Ui_Reticule = 29,
+    Load_Tips = 30,
+    Load_Tip_Group = 31,
+    Skin_Pack = 32,
+    Ribbon = 33,
+    Ui_Rectangle = 34,
+    Ui_Setfacing = 35,
+    Ai_Economy = 36,
+    Ai_Economy_Group = 37,
+    Ai_Personality = 38,
+    Ai_Settings = 39,
+    Faceplate = 40,
+    Fatality = 41,
+    Tow_Operation = 42,
+    Campaign = 43,
+    Ribbon_Group = 44,
+    Achievement = 45,
+    Vehicle_Decal = 46,
+    Building_Info = 47,
+    Weapon_Building_Damage = 48,
+    Ai_Ability = 49,
+    Commander_Ability = 50,
+    Ai_Squad = 51,
+    Inventory_Item_Category = 52,
+    Army = 53,
+}
+
+impl Blueprint {
+
+    /// Converts a numerical representation of a Blueprint enum into the correct enum value by
+    /// unsafely transmuting the numerical representation into the Blueprint type.
+
+    pub fn from_u8(n: u8) -> Option<Blueprint> {
+        if n <= 53 {
             Some(unsafe { mem::transmute(n) })
         } else {
             None
