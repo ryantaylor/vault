@@ -4,6 +4,7 @@
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
+use std::mem;
 use std::ops::Deref;
 use std::path::Path;
 use std::string::String;
@@ -220,6 +221,17 @@ impl Stream {
         debug!("Stream::read_u64 - result: {}", result);
         self.cursor += 8;
         Ok(result)
+    }
+
+    /// Reads a 32-bit (8-byte) float at the current cursor position, then moves the cursor ahead 4
+    /// positions.
+    ///
+    /// This method reads a little endian float by reading a u32 and then unsafely transmuting it
+    /// into an f32.
+
+    pub fn read_f32(&mut self) -> Result<f32> {
+        let result_u32 = try!(self.read_u32());
+        Ok(unsafe { mem::transmute(result_u32) })
     }
 
     /// Reads a sequence of 16-bit unsigned integers that represent 16-bit Unicode characters, then

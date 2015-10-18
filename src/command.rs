@@ -14,8 +14,9 @@ pub struct Command {
     pub command_type: CmdType,
     pub blueprint: Blueprint,
     pub entity_id: u32,
-    pub x: u32,
-    pub y: u32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
     pub bytes: Vec<u8>,
 }
 
@@ -30,8 +31,9 @@ impl Command {
             command_type: command_type,
             blueprint: Blueprint::Ebps,
             entity_id: 0,
-            x: 0,
-            y: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
             bytes: Vec::new(),
         }
     }

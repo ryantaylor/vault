@@ -478,6 +478,7 @@ impl Replay {
         try!(self.file.skip_ahead(2)); // lots of 0, 16 then 20546 2054720802 21085
         try!(self.file.skip_ahead(1)); // command type (CMD, PCMD, SCMD)
         try!(self.file.skip_ahead(1)); // some sort of target ID (unit/building/player)
+        let command_sub_id = try!(self.file.read_u8());
         //let unit_id = try!(self.file.read_u8()); // unit id
 
         let command_type = match CmdType::from_u8(action_type) {
@@ -493,16 +494,35 @@ impl Replay {
         match command_type {
             CmdType::CMD_BuildSquad |
             CmdType::CMD_Upgrade => {
-                try!(self.file.skip_ahead(3)); // not sure what this is
-                command.entity_id = try!(self.file.read_u32()); // usually a u8? but maybe could be more
+                if command_sub_id != 0x14 { return Err(Error::UnexpectedValue); }
+                try!(self.file.skip_ahead(1)); // inner data length
+                test_eq!(self.file.read_u8(), 0x1);
+                command.entity_id = try!(self.file.read_u32());
                 try!(self.file.skip_ahead(2)); // player ID of some sort I think
                 try!(self.file.skip_ahead(3)); // usually 0 I think
             },
             CmdType::CMD_RallyPoint => {
-                // there are coordinates in here somewhere
+                if command_sub_id != 0x1 { return Err(Error::UnexpectedValue); }
+                try!(self.file.skip_ahead(1)); // inner data length
+                test_eq!(self.file.read_u8(), 0x2);
+                try!(self.parse_coordinates(&mut command));
             },
             CmdType::SCMD_Move => {
-                // there are coordinates in here somewhere
+                try!(self.file.skip_ahead(1)); // inner data length
+                match command_sub_id {
+                    0x1 |
+                    0x1C => {
+                        if try!(self.file.read_u8()) == 0x2 {
+                            try!(self.parse_coordinates(&mut command));
+                        }
+                    },
+                    0x6 => {
+                        test_eq!(self.file.read_u32(), 0x0);
+                        test_eq!(self.file.read_u8(), 0x2);
+                        try!(self.parse_coordinates(&mut command));
+                    },
+                    _ => return Err(Error::UnexpectedValue)
+                }
             },
             CmdType::DCMD_DataCommand1 |
             CmdType::DCMD_DataCommand2 => return Ok(()), // don't want to add these
@@ -788,6 +808,13 @@ impl Replay {
         try!(self.file.skip_ahead(8)); // u64::MAX if cpu and no steam id, but it will return
                                           // 0 in this case so just read anyways
         Ok(try!(self.file.read_u64()))
+    }
+
+    fn parse_coordinates(&mut self, command: &mut Command) -> Result<()> {
+        command.x = try!(self.file.read_f32());
+        command.y = try!(self.file.read_f32());
+        command.z = try!(self.file.read_f32());
+        Ok(())
     }
 
     /// Adds a command to the list for the given player.
