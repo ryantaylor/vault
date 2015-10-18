@@ -17,7 +17,7 @@ use Result;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Stream {
-    name: String,
+    pub name: String,
     data: Vec<u8>,
     cursor: u32,
 }
@@ -341,6 +341,12 @@ impl Stream {
 
     pub fn get_cursor_position(&self) -> u32 {
         self.cursor
+    }
+
+    /// Returns the filename of the loaded replay.
+
+    pub fn name(&self) -> &str {
+        &self.name
     }
 
     /// Clears the vector of data bytes loaded from file and sets the cursor to the length of the

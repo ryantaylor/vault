@@ -29,6 +29,7 @@ use libc::c_char;
 use rustc_serialize::json;
 use zip::ZipArchive;
 
+pub use self::command::Command;
 pub use self::error::Error;
 pub use self::replay::Replay;
 
@@ -50,7 +51,7 @@ pub type Result<T> = result::Result<T, Error>;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Vault {
-    replays: Vec<Replay>
+    pub replays: Vec<Replay>
 }
 
 impl Vault {
@@ -259,12 +260,6 @@ impl Vault {
         }
 
         Ok(replays)
-    }
-
-    /// Returns a reference to the vector of Replays.
-
-    pub fn replays(&self) -> &Vec<Replay> {
-        &self.replays
     }
 
     /// Serializes Vault as JSON String.

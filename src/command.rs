@@ -35,6 +35,19 @@ impl Command {
             bytes: Vec::new(),
         }
     }
+
+    /// Writes the contents of the Command to stdout.
+
+    pub fn display(&self) {
+        let mut output = String::new();
+        output.push_str(&format!("P{}: ", self.player_id));
+        for byte in &self.bytes {
+            output.push_str(&format!("{:02X} ", byte));
+        }
+
+        output.push_str(&format!("{:?} {}", self.command_type, self.entity_id));
+        println!("{}", output);
+    }
 }
 
 /// This type contains a numerical u8 representation of every command/action possible in a CoH2 command

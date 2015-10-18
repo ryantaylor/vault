@@ -1,5 +1,6 @@
 //! A module containing a representative state of a Company of Heroes 2 replay file.
 
+use std::collections::HashMap;
 use std::error::Error as StdError;
 use std::path::Path;
 use std::string::String;
@@ -55,12 +56,11 @@ pub struct Replay {
     pub game_type: String,
     pub date_time: String,
     pub map: Map,
-    pub players: Vec<Player>,
+    pub players: HashMap<u8, Player>,
     pub duration: u32,              // seconds
     pub rng_seed: u32,
     pub opponent_type: u32,         // 1 = human, 2 = cpu
     pub chat: Vec<ChatLine>,
-    pub commands: Vec<Command>,
 }
 
 impl Replay {
@@ -87,12 +87,11 @@ impl Replay {
             game_type: String::new(),
             date_time: String::new(),
             map: Map::new(),
-            players: Vec::with_capacity(8),
+            players: HashMap::with_capacity(8),
             duration: 0,
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
-            commands: Vec::new(),
         })
     }
 
@@ -121,12 +120,11 @@ impl Replay {
             game_type: String::new(),
             date_time: String::new(),
             map: Map::new(),
-            players: Vec::with_capacity(8),
+            players: HashMap::with_capacity(8),
             duration: 0,
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
-            commands: Vec::new(),
         }
     }
 
@@ -164,12 +162,11 @@ impl Replay {
             game_type: String::new(),
             date_time: String::new(),
             map: Map::new(),
-            players: Vec::with_capacity(8),
+            players: HashMap::with_capacity(8),
             duration: 0,
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
-            commands: Vec::new(),
         })
     }
 
@@ -409,6 +406,10 @@ impl Replay {
 
                         let current_position = self.file.get_cursor_position();
                         let diff = inter_position + bundle_part_length - current_position;
+                        trace!("inter_position: {}", inter_position);
+                        trace!("bundle_part_length: {}", bundle_part_length);
+                        trace!("current_position: {}", current_position);
+                        trace!("diff: {}", diff);
 
                         if diff > 0 {
                             try!(self.file.skip_ahead(diff)); // inter raw
@@ -463,7 +464,7 @@ impl Replay {
     fn parse_action(&mut self, tick: u32, len: u32) -> Result<()> {
         trace!("Replay::parse_action");
 
-        let bytes = try!(self.file.read_to_vec(len));
+        let bytes = try!(self.file.read_to_vec(len - 1));
 
         try!(self.file.skip_ahead(1)); // not sure? mostly 0 I think
 
@@ -495,7 +496,7 @@ impl Replay {
                 try!(self.file.skip_ahead(3)); // not sure what this is
                 command.entity_id = try!(self.file.read_u32()); // usually a u8? but maybe could be more
                 try!(self.file.skip_ahead(2)); // player ID of some sort I think
-                try!(self.file.skip_ahead(4)); // usually 0 I think
+                try!(self.file.skip_ahead(3)); // usually 0 I think
             },
             CmdType::CMD_RallyPoint => {
                 // there are coordinates in here somewhere
@@ -503,11 +504,13 @@ impl Replay {
             CmdType::SCMD_Move => {
                 // there are coordinates in here somewhere
             },
+            CmdType::DCMD_DataCommand1 |
+            CmdType::DCMD_DataCommand2 => return Ok(()), // don't want to add these
             //_ => info!("{}:{}:{:?} u {}", player_id, base_location, command_type, unit_id)
             _ => {}
         }
 
-        self.commands.push(command);
+        self.add_command(player_id, command);
         Ok(())
     }
 
@@ -662,7 +665,7 @@ impl Replay {
         let mut player: Player;
         for id in 0..num_players {
             player = try!(self.parse_player(id));
-            self.players.push(player);
+            self.players.insert(id, player);
         }
 
         Ok(())
@@ -787,6 +790,14 @@ impl Replay {
         Ok(try!(self.file.read_u64()))
     }
 
+    /// Adds a command to the list for the given player.
+
+    fn add_command(&mut self, player_id: u8, command: Command) {
+        if let Some(player) = self.players.get_mut(&player_id) {
+            player.commands.push(command);
+        }
+    }
+
     /// Updates the Replay error string to indicate a failure during parsing.
 
     fn update_error(&mut self, err: Error) {
@@ -806,6 +817,12 @@ impl Replay {
         Ok(try!(json::encode(&self)))
     }
 
+    /// Returns the filename of the parsed replay.
+
+    pub fn filename(&self) -> &str {
+        &self.file.name
+    }
+
     /// Writes the contents of the Replay to stdout.
 
     pub fn display(&self) {
@@ -816,7 +833,7 @@ impl Replay {
         println!("duration: {}", self.duration);
         println!("num players: {}", self.players.len());
 
-        for player in &self.players {
+        for (player_id, player) in &self.players {
             player.display();
         }
 
