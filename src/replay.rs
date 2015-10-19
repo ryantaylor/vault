@@ -8,7 +8,7 @@ use std::string::String;
 use rustc_serialize::json;
 
 use chat_line::ChatLine;
-use command::{Blueprint, CmdType, Command};
+use command::{CmdType, Command};
 use Error;
 use item::{Item, ItemType};
 use map::Map;
@@ -494,20 +494,18 @@ impl Replay {
         match command_type {
             CmdType::CMD_BuildSquad |
             CmdType::CMD_Upgrade => {
-                if command_sub_id != 0x14 { return Err(Error::UnexpectedValue); }
-                try!(self.file.skip_ahead(1)); // inner data length
-                test_eq!(self.file.read_u8(), 0x1);
-                command.entity_id = try!(self.file.read_u32());
-                try!(self.file.skip_ahead(2)); // player ID of some sort I think
-                try!(self.file.skip_ahead(3)); // usually 0 I think
+                if command_sub_id == 0x14 {
+                    try!(self.file.skip_ahead(1)); // inner data length
+                    test_eq!(self.file.read_u8(), 0x1);
+                    command.entity_id = try!(self.file.read_u32());
+                    try!(self.file.skip_ahead(2)); // player ID of some sort I think
+                    try!(self.file.skip_ahead(3)); // usually 0 I think
+                }
             },
-            CmdType::CMD_RallyPoint => {
-                if command_sub_id != 0x1 { return Err(Error::UnexpectedValue); }
-                try!(self.file.skip_ahead(1)); // inner data length
-                test_eq!(self.file.read_u8(), 0x2);
-                try!(self.parse_coordinates(&mut command));
-            },
-            CmdType::SCMD_Move => {
+            CmdType::CMD_RallyPoint |
+            CmdType::SCMD_Move |
+            CmdType::SCMD_AttackMove |
+            CmdType::SCMD_Unload => {
                 try!(self.file.skip_ahead(1)); // inner data length
                 match command_sub_id {
                     0x1 |
@@ -521,12 +519,27 @@ impl Replay {
                         test_eq!(self.file.read_u8(), 0x2);
                         try!(self.parse_coordinates(&mut command));
                     },
-                    _ => return Err(Error::UnexpectedValue)
+                    _ => {}
+                }
+            },
+            CmdType::PCMD_ConstructStructure => {
+                // there are coordinates in here too
+                if command_sub_id == 0x19 {
+                    try!(self.file.skip_ahead(1)); // inner data length
+                    test_eq!(self.file.read_u8(), 0x1);
+                    command.entity_id = try!(self.file.read_u32());
+                }
+            },
+            CmdType::PCMD_ConstructFence => {
+                // there are coordinates in here too
+                if command_sub_id == 0x1A {
+                    try!(self.file.skip_ahead(1)); // inner data length
+                    test_eq!(self.file.read_u8(), 0x1);
+                    command.entity_id = try!(self.file.read_u32());
                 }
             },
             CmdType::DCMD_DataCommand1 |
             CmdType::DCMD_DataCommand2 => return Ok(()), // don't want to add these
-            //_ => info!("{}:{}:{:?} u {}", player_id, base_location, command_type, unit_id)
             _ => {}
         }
 
