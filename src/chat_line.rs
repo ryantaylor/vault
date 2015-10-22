@@ -25,7 +25,6 @@ impl ChatLine {
 
     /// Writes the contents of the ChatLine to stdout.
 
-    #[allow(dead_code)]
     pub fn display(&self) {
         println!("{} - {}: {}", self.tick, self.name, self.message);
     }

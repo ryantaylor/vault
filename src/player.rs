@@ -36,7 +36,6 @@ impl Player {
 
     /// Writes the contents of the Player to stdout.
 
-    #[allow(dead_code)]
     pub fn display(&self) {
         println!("id: {}", self.id);
         println!("name: {}", self.name);
