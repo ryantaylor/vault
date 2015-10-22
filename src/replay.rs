@@ -51,7 +51,7 @@ macro_rules! test_eq {
 #[derive(Debug, RustcEncodable)]
 pub struct Replay {
     pub error: Option<String>,
-    pub file: Stream,
+    file: Stream,
     pub version: u16,
     pub game_type: String,
     pub date_time: String,
@@ -69,7 +69,7 @@ impl Replay {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// extern crate vault;
     ///
     /// use vault::Replay;
@@ -101,7 +101,7 @@ impl Replay {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// extern crate vault;
     ///
     /// use vault::Replay;
@@ -132,14 +132,14 @@ impl Replay {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// extern crate vault;
     /// extern crate zip;
     ///
     /// use vault::Replay;
     /// use std::ops::Deref;
     /// use std::path::Path;
-    /// use zip::read::{ZipArchive. ZipFile};
+    /// use zip::read::{ZipArchive, ZipFile};
     ///
     /// let path = Path::new("/path/to/archive.zip");
     /// let name = path.to_string_lossy();
@@ -179,7 +179,7 @@ impl Replay {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// extern crate vault;
     ///
     /// use vault::replay::Replay;
@@ -371,19 +371,18 @@ impl Replay {
             Ok(val) => val,
         };
 
-        let start_position = self.file.get_cursor_position();
+        //let start_position = self.file.get_cursor_position();
 
         if tick_size > 0 {
             // action
             if tick_type == 0x0 {
                 try!(self.file.skip_ahead(1)); // usually 0x20 but can be 0x0
                 let tick_id = try!(self.file.read_u32());
-                let some_id = try!(self.file.read_u32());
+                try!(self.file.skip_ahead(4)); // some id
 
                 let bundle_count = try!(self.file.read_u32());
                 for _ in 0..bundle_count {
-                    let bundle_part_count = try!(self.file.read_u32());
-
+                    try!(self.file.skip_ahead(4)); // bundle part count
                     try!(self.file.skip_ahead(4)); // Seb: thought 0 but can be 33554432
 
                     let bundle_length = try!(self.file.read_u32());
@@ -469,7 +468,7 @@ impl Replay {
         try!(self.file.skip_ahead(1)); // not sure? mostly 0 I think
 
         let action_type = try!(self.file.read_u8());
-        let base_location = try!(self.file.read_u8());
+        try!(self.file.skip_ahead(1)); // base location
 
         try!(self.file.skip_ahead(1)); // part of player ID?
         let player_id = try!(self.file.read_u8());
@@ -857,12 +856,6 @@ impl Replay {
         Ok(try!(json::encode(&self)))
     }
 
-    /// Returns the filename of the parsed replay.
-
-    pub fn filename(&self) -> &str {
-        &self.file.name
-    }
-
     /// Writes the contents of the Replay to stdout.
 
     pub fn display(&self) {
@@ -873,7 +866,7 @@ impl Replay {
         println!("duration: {}", self.duration);
         println!("num players: {}", self.players.len());
 
-        for (player_id, player) in &self.players {
+        for (_, player) in &self.players {
             player.display();
         }
 

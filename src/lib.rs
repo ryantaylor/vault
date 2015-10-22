@@ -65,7 +65,7 @@ impl Vault {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// extern crate vault;
     ///
     /// use vault::Vault;
@@ -160,7 +160,6 @@ impl Vault {
                                 Ok(replay) => {
                                     let mut replay = replay;
                                     replay.parse();
-                                    let replay = replay;
                                     replay
                                 },
                                 Err(err) => Replay::new_with_error(&combo_name, err),
