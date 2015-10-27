@@ -1,15 +1,34 @@
+sudo: false
 language: rust
 rust:
-  - stable
-  - beta
-  - nightly
+- nightly
+- beta
+- stable
 matrix:
   allow_failures:
-    - rust: stable
-    - rust: beta
-after_success: |
-  sudo apt-get install libcurl4-openssl-dev libelf-dev libdw-dev &&
-  wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
-  tar xzf master.tar.gz && mkdir kcov-master/build && cd kcov-master/build && cmake .. && make &&
-  sudo make install && cd ../.. &&
-  kcov --coveralls-id=$TRAVIS_JOB_ID --exclude-pattern=/.cargo target/kcov target/debug/vault-*
+  - rust: nightly
+before_script:
+- |
+  pip install 'travis-cargo<0.2' --user &&
+  export PATH=$HOME/.local/bin:$PATH
+script:
+- |
+  travis-cargo build &&
+  travis-cargo test &&
+  travis-cargo --only stable doc
+addons:
+  apt:
+    packages:
+    - libcurl4-openssl-dev
+    - libelf-dev
+    - libdw-dev
+after_success:
+- travis-cargo --only stable doc-upload --branch gh-pages
+- travis-cargo coveralls --no-sudo
+notifications:
+  email:
+    on_success: never
+env:
+  global:
+  - TRAVIS_CARGO_NIGHTLY_FEATURE=dev
+  - secure: tJbibSLrBW0qqYKRCARuCm+cuwleUa45xAb4+oTBUafCtGlpFsTw0S7xYqIKS56Eph1D0nETowIM7tgO3RDWIcR1BBmr+t2e7ZFjsEk5SSZMWGdiabI8PaStj688wbyYRDuKmDyE3xylqms2Ueejemrd1FEpKYd0zh24MIU+lQLQ2yCtvGAZz3WjNeMrIiNcEyV0Us66xZC8Ddp8bguaaNQ/UecgWj6LuNUakxSJFgN+h+THxqsemj9fp1YyW5Twu/SRoFbbS7YFt6RQcMo4TJAgBrCRKIpdczEbEK0iHB04DzMCHhyRei2U6WGFHL73dVyOgL+7jhMScwEtmAeOUJ5JUPXU+Zg6EBdib3uHZW5Yq6CRpBVu7AnDkx1cKBC5Q5RN63Sqteh7D6OQ4NDZeM4ftd1bvGakSg9lgIWZTPjHf6OFSLUSKu8Z4TaauXIhkn1Cf2YlqbRoS2MSvJaa3EZU+wOsmigcEZZeA8HdwITHU5TY4yiGwiyt+O5SsI1LZGKBEFOQk0Xw50aRyFHII3J/6ummrMowxsX6/L5fMUWnfDL9DKXSnwtJPsWVw4nntC/5v0n2aHxcqEWjYdLiOKwCcYHTwzcaepbAfJ9fjPUNWyRWv8/+Td1Lu4rwX6SpcjXy9BgRSz+tmKGEgeRpxTdBuXorUmrYq+lYIHqVuD0=
