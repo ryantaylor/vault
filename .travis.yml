@@ -23,7 +23,7 @@ addons:
     - libelf-dev
     - libdw-dev
 after_success:
-- travis-cargo --only stable doc-upload --branch gh-pages
+- travis-cargo --only stable doc-upload --branch unstable
 - travis-cargo coveralls --no-sudo
 notifications:
   email:
