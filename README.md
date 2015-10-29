@@ -44,14 +44,12 @@ fn main() {
 
 `vault` can be called into from foreign code as easily as a C library. This can be used to parse replays with `vault` from a higher-level language such as Python or Javascript.
 
-**NOTE**: `vault`'s FFI interface currently takes advantage of Rust functions only available in the unstable nightly builds of the Rust compiler. Please make sure you have nightly Rust installed before you try to build `vault` for FFI.
+First, build `vault` from source with the `ffi` feature enabled. You're going to need the latest version of stable Rust:
 
 ```
 $ rustc -V
-rustc 1.5.0-nightly (...)
+rustc 1.4.0 (...)
 ```
-
-First, build `vault` from source with the `ffi` feature enabled:
 
 ```bash
 $ git clone https://github.com/ryantaylor/vault.git && cd vault
