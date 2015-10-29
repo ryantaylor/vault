@@ -16,6 +16,7 @@ pub struct Player {
     pub faction: String,
     pub items: Vec<Item>,
     pub commands: Vec<Command>,
+    pub cpm: f64,
 }
 
 impl Player {
@@ -31,6 +32,7 @@ impl Player {
             faction: String::new(),
             items: Vec::with_capacity(12), // cmdr x3, intel x3, skin x3, decal, strike, faceplate
             commands: Vec::new(),
+            cpm: 0.0,
         }
     }
 
@@ -42,6 +44,7 @@ impl Player {
         println!("steam_id: {}", self.steam_id);
         println!("team: {}", self.team);
         println!("faction: {}", self.faction);
+        println!("cpm: {}", self.cpm);
 
         for item in &self.items {
             println!("{:?}: {}", item.item_type, item.id);

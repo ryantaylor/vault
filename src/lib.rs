@@ -31,6 +31,7 @@ use zip::ZipArchive;
 
 pub use self::command::Command;
 pub use self::error::Error;
+//pub use self::player::Player;
 pub use self::replay::Replay;
 
 mod chat_line;

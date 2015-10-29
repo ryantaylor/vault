@@ -15,7 +15,7 @@ script:
 - |
   travis-cargo build &&
   travis-cargo test &&
-  travis-cargo doc
+  travis-cargo --only stable doc
 addons:
   apt:
     packages:
@@ -23,7 +23,7 @@ addons:
     - libelf-dev
     - libdw-dev
 after_success:
-- travis-cargo doc-upload --branch unstable
+- travis-cargo --only stable doc-upload --branch unstable
 - travis-cargo coveralls --no-sudo
 notifications:
   email:

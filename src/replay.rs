@@ -198,63 +198,27 @@ impl Replay {
     /// ```
 
     pub fn parse(&mut self) {
-        match self.parse_version() {
-            Ok(_) => (),
-            Err(err) => {
-                self.update_error(err);
-                self.cleanup();
-                return;
-            }
+        macro_rules! try_or_clean {
+            ($expr:expr, $rep:ident) => (match $expr {
+                Ok(_) => (),
+                Err(err) => {
+                    $rep.cleanup(Some(err));
+                    return;
+                }
+            })
         }
 
-        match self.parse_game_type() {
-            Ok(_) => (),
-            Err(err) => {
-                self.update_error(err);
-                self.cleanup();
-                return;
-            }
-        }
-
-        match self.parse_date_time() {
-            Ok(_) => (),
-            Err(err) => {
-                self.update_error(err);
-                self.cleanup();
-                return;
-            }
-        }
+        try_or_clean!(self.parse_version(), self);
+        try_or_clean!(self.parse_game_type(), self);
+        try_or_clean!(self.parse_date_time(), self);
 
         self.file.seek(76);
 
-        match self.parse_chunky() {
-            Ok(_) => (),
-            Err(err) => {
-                self.update_error(err);
-                self.cleanup();
-                return;
-            }
-        }
+        try_or_clean!(self.parse_chunky(), self);
+        try_or_clean!(self.parse_chunky(), self);
+        try_or_clean!(self.parse_data(), self);
 
-        match self.parse_chunky() {
-            Ok(_) => (),
-            Err(err) => {
-                self.update_error(err);
-                self.cleanup();
-                return;
-            }
-        }
-
-        match self.parse_data() {
-            Ok(_) => (),
-            Err(err) => {
-                self.update_error(err);
-                self.cleanup();
-                return;
-            }
-        }
-
-        self.cleanup();
+        self.cleanup(None);
     }
 
     /// Parses a Chunky file segment at the current Stream cursor.
@@ -846,7 +810,18 @@ impl Replay {
     /// Performs maintenance on the data structures of the Replay type to clean up unneeded
     /// elements once parsing is complete, in order to simplify the resulting information.
 
-    fn cleanup(&mut self) {
+    fn cleanup(&mut self, err: Option<Error>) {
+        if let Some(val) = err {
+            self.update_error(val);
+            for (_, player) in self.players.iter_mut() {
+                player.commands = Vec::new();
+            }
+        } else {
+            for (_, player) in self.players.iter_mut() {
+                player.cpm = player.commands.len() as f64 / ( self.duration as f64 / 480.0f64 ); // 8 ticks/s x 60s = 480 ticks/min
+            }
+        }
+
         self.file.cleanup();
     }
 
