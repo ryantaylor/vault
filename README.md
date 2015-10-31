@@ -99,7 +99,9 @@ console.log(str);
 
 # Documentation
 
-Documentation for `vault` is currently not available online. However, you can easily build documentation for yourself with `cargo`:
+Documentation for `vault` [can be viewed online](http://ryantaylor.github.io/vault/vault/index.html).
+
+Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
 ```
 $ cargo doc
