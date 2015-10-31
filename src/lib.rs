@@ -272,8 +272,7 @@ impl Vault {
 /// Prints out the current vault version and compatible CoH2 game versions.
 
 pub fn print_version() {
-    println!("vault v0.2.0");
-    println!(" coh2 19545 - 19696");
+    println!("vault v{}", env!("CARGO_PKG_VERSION"));
 }
 
 /// Extern function for invoking a parse operation across FFI. Returns a Vault type serialized to
