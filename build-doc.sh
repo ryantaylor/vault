@@ -13,5 +13,5 @@ if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ] && [ 
   git config user.name "travis"
   git config user.email "ryan@ryantaylordev.ca"
   git commit -m "(docs-autogen) ${TRAVIS_REPO_SLUG}."
-  git push -q "https://${TOKEN}:x-oauth-basic@github.com/ryantaylor/vault.git" gh-pages
+  git push -q "https://${GH_TOKEN}:x-oauth-basic@github.com/ryantaylor/vault.git" gh-pages
 fi
