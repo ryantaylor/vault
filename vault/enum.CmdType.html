@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `CmdType` enum in crate `vault`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, CmdType">
+
+    <title>vault::CmdType - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>vault</a></p><script>window.sidebarCurrent = {name: 'CmdType', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content enum">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>vault</a>::<wbr><a class='enum' href=''>CmdType</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-854' class='srclink' href='../src/vault/command.rs.html#60-176' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum CmdType {
+    CMD_DefaultAction,
+    CMD_Stop,
+    CMD_Destroy,
+    CMD_BuildSquad,
+    CMD_InstantBuildSquad,
+    CMD_CancelProduction,
+    CMD_BuildStructure,
+    CMD_Move,
+    CMD_Face,
+    CMD_Attack,
+    CMD_AttackMove,
+    CMD_RallyPoint,
+    CMD_Capture,
+    CMD_Ability,
+    CMD_Evacuate,
+    CMD_Upgrade,
+    CMD_InstantUpgrade,
+    CMD_ChooseResource,
+    CMD_Load,
+    CMD_Unload,
+    CMD_UnloadSquads,
+    CMD_AttackStop,
+    CMD_AttackForced,
+    CMD_SetHoldHeading,
+    CMD_Halt,
+    CMD_Fidget,
+    CMD_Paradrop,
+    CMD_DefuseMine,
+    CMD_Casualty,
+    CMD_Death,
+    CMD_InstantDeath,
+    CMD_Projectile,
+    CMD_PlaceCharge,
+    CMD_BuildEntity,
+    CMD_RescueCasualty,
+    CMD_AttackFromHold,
+    CMD_Vault,
+    CMD_COUNT,
+    SCMD_Move,
+    SCMD_Stop,
+    SCMD_Destroy,
+    SCMD_BuildStructure,
+    SCMD_Capture,
+    SCMD_Attack,
+    SCMD_ReinforceUnit,
+    SCMD_Upgrade,
+    SCMD_CancelProduction,
+    SCMD_AttackMove,
+    SCMD_Ability,
+    SCMD_Load,
+    SCMD_InstantLoad,
+    SCMD_UnloadSquads,
+    SCMD_Unload,
+    SCMD_SlotItemRemove,
+    SCMD_Retreat,
+    SCMD_CaptureTeamWeapon,
+    SCMD_SetMoveType,
+    SCMD_InstantReinforceUnit,
+    SCMD_InstantUpgrade,
+    SCMD_SetCamouflageStance,
+    SCMD_PlaceCharge,
+    SCMD_DefuseCharge,
+    SCMD_PickUpSlotItem,
+    SCMD_DefuseMine,
+    SCMD_DoPlan,
+    SCMD_Patrol,
+    SCMD_Surprise,
+    SCMD_InstantSetupTeamWeapon,
+    SCMD_AbandonTeamWeapon,
+    SCMD_StationaryAttack,
+    SCMD_RevertFieldSupport,
+    SCMD_Face,
+    SCMD_BuildSquad,
+    SCMD_RallyPoint,
+    SCMD_RescueCasualty,
+    SCMD_Recrew,
+    SCMD_Merge,
+    SCMD_Pilfer,
+    SCMD_COUNT,
+    PCMD_ConstructStructure,
+    PCMD_ManpowerDonation,
+    PCMD_FuelDonation,
+    PCMD_MunitionDonation,
+    PCMD_CheatResources,
+    PCMD_CheatRevealAll,
+    PCMD_CheatKillSelf,
+    PCMD_Ability,
+    PCMD_CheatBuildTime,
+    PCMD_CriticalHit,
+    PCMD_Upgrade,
+    PCMD_InstantUpgrade,
+    PCMD_ConstructFence,
+    PCMD_ConstructField,
+    PCMD_UpgradeRemove,
+    PCMD_SlotItemRemove,
+    PCMD_CancelProduction,
+    PCMD_DetonateCharges,
+    PCMD_AIPlayer,
+    PCMD_AIPlayer_ObjectiveNotification,
+    PCMD_SetCommander,
+    PCMD_Surrender,
+    PCMD_WaitObjectDone,
+    PCMD_BroadcastMessage,
+    PCMD_COUNT,
+    DCMD_DataCommand1,
+    DCMD_DataCommand2,
+    DCMD_COUNT,
+}</pre><div class='docblock'><p>This type contains a numerical u8 representation of every command/action possible in a CoH2 command
+sequence. Contents of this enum provided by Relic Entertainment.</p>
+</div><h2 class='variants'>Variants</h2>
+<table><tr><td id='variant.CMD_DefaultAction'><code>CMD_DefaultAction</code></td><td></td></tr><tr><td id='variant.CMD_Stop'><code>CMD_Stop</code></td><td></td></tr><tr><td id='variant.CMD_Destroy'><code>CMD_Destroy</code></td><td></td></tr><tr><td id='variant.CMD_BuildSquad'><code>CMD_BuildSquad</code></td><td></td></tr><tr><td id='variant.CMD_InstantBuildSquad'><code>CMD_InstantBuildSquad</code></td><td></td></tr><tr><td id='variant.CMD_CancelProduction'><code>CMD_CancelProduction</code></td><td></td></tr><tr><td id='variant.CMD_BuildStructure'><code>CMD_BuildStructure</code></td><td></td></tr><tr><td id='variant.CMD_Move'><code>CMD_Move</code></td><td></td></tr><tr><td id='variant.CMD_Face'><code>CMD_Face</code></td><td></td></tr><tr><td id='variant.CMD_Attack'><code>CMD_Attack</code></td><td></td></tr><tr><td id='variant.CMD_AttackMove'><code>CMD_AttackMove</code></td><td></td></tr><tr><td id='variant.CMD_RallyPoint'><code>CMD_RallyPoint</code></td><td></td></tr><tr><td id='variant.CMD_Capture'><code>CMD_Capture</code></td><td></td></tr><tr><td id='variant.CMD_Ability'><code>CMD_Ability</code></td><td></td></tr><tr><td id='variant.CMD_Evacuate'><code>CMD_Evacuate</code></td><td></td></tr><tr><td id='variant.CMD_Upgrade'><code>CMD_Upgrade</code></td><td></td></tr><tr><td id='variant.CMD_InstantUpgrade'><code>CMD_InstantUpgrade</code></td><td></td></tr><tr><td id='variant.CMD_ChooseResource'><code>CMD_ChooseResource</code></td><td></td></tr><tr><td id='variant.CMD_Load'><code>CMD_Load</code></td><td></td></tr><tr><td id='variant.CMD_Unload'><code>CMD_Unload</code></td><td></td></tr><tr><td id='variant.CMD_UnloadSquads'><code>CMD_UnloadSquads</code></td><td></td></tr><tr><td id='variant.CMD_AttackStop'><code>CMD_AttackStop</code></td><td></td></tr><tr><td id='variant.CMD_AttackForced'><code>CMD_AttackForced</code></td><td></td></tr><tr><td id='variant.CMD_SetHoldHeading'><code>CMD_SetHoldHeading</code></td><td></td></tr><tr><td id='variant.CMD_Halt'><code>CMD_Halt</code></td><td></td></tr><tr><td id='variant.CMD_Fidget'><code>CMD_Fidget</code></td><td></td></tr><tr><td id='variant.CMD_Paradrop'><code>CMD_Paradrop</code></td><td></td></tr><tr><td id='variant.CMD_DefuseMine'><code>CMD_DefuseMine</code></td><td></td></tr><tr><td id='variant.CMD_Casualty'><code>CMD_Casualty</code></td><td></td></tr><tr><td id='variant.CMD_Death'><code>CMD_Death</code></td><td></td></tr><tr><td id='variant.CMD_InstantDeath'><code>CMD_InstantDeath</code></td><td></td></tr><tr><td id='variant.CMD_Projectile'><code>CMD_Projectile</code></td><td></td></tr><tr><td id='variant.CMD_PlaceCharge'><code>CMD_PlaceCharge</code></td><td></td></tr><tr><td id='variant.CMD_BuildEntity'><code>CMD_BuildEntity</code></td><td></td></tr><tr><td id='variant.CMD_RescueCasualty'><code>CMD_RescueCasualty</code></td><td></td></tr><tr><td id='variant.CMD_AttackFromHold'><code>CMD_AttackFromHold</code></td><td></td></tr><tr><td id='variant.CMD_Vault'><code>CMD_Vault</code></td><td></td></tr><tr><td id='variant.CMD_COUNT'><code>CMD_COUNT</code></td><td></td></tr><tr><td id='variant.SCMD_Move'><code>SCMD_Move</code></td><td></td></tr><tr><td id='variant.SCMD_Stop'><code>SCMD_Stop</code></td><td></td></tr><tr><td id='variant.SCMD_Destroy'><code>SCMD_Destroy</code></td><td></td></tr><tr><td id='variant.SCMD_BuildStructure'><code>SCMD_BuildStructure</code></td><td></td></tr><tr><td id='variant.SCMD_Capture'><code>SCMD_Capture</code></td><td></td></tr><tr><td id='variant.SCMD_Attack'><code>SCMD_Attack</code></td><td></td></tr><tr><td id='variant.SCMD_ReinforceUnit'><code>SCMD_ReinforceUnit</code></td><td></td></tr><tr><td id='variant.SCMD_Upgrade'><code>SCMD_Upgrade</code></td><td></td></tr><tr><td id='variant.SCMD_CancelProduction'><code>SCMD_CancelProduction</code></td><td></td></tr><tr><td id='variant.SCMD_AttackMove'><code>SCMD_AttackMove</code></td><td></td></tr><tr><td id='variant.SCMD_Ability'><code>SCMD_Ability</code></td><td></td></tr><tr><td id='variant.SCMD_Load'><code>SCMD_Load</code></td><td></td></tr><tr><td id='variant.SCMD_InstantLoad'><code>SCMD_InstantLoad</code></td><td></td></tr><tr><td id='variant.SCMD_UnloadSquads'><code>SCMD_UnloadSquads</code></td><td></td></tr><tr><td id='variant.SCMD_Unload'><code>SCMD_Unload</code></td><td></td></tr><tr><td id='variant.SCMD_SlotItemRemove'><code>SCMD_SlotItemRemove</code></td><td></td></tr><tr><td id='variant.SCMD_Retreat'><code>SCMD_Retreat</code></td><td></td></tr><tr><td id='variant.SCMD_CaptureTeamWeapon'><code>SCMD_CaptureTeamWeapon</code></td><td></td></tr><tr><td id='variant.SCMD_SetMoveType'><code>SCMD_SetMoveType</code></td><td></td></tr><tr><td id='variant.SCMD_InstantReinforceUnit'><code>SCMD_InstantReinforceUnit</code></td><td></td></tr><tr><td id='variant.SCMD_InstantUpgrade'><code>SCMD_InstantUpgrade</code></td><td></td></tr><tr><td id='variant.SCMD_SetCamouflageStance'><code>SCMD_SetCamouflageStance</code></td><td></td></tr><tr><td id='variant.SCMD_PlaceCharge'><code>SCMD_PlaceCharge</code></td><td></td></tr><tr><td id='variant.SCMD_DefuseCharge'><code>SCMD_DefuseCharge</code></td><td></td></tr><tr><td id='variant.SCMD_PickUpSlotItem'><code>SCMD_PickUpSlotItem</code></td><td></td></tr><tr><td id='variant.SCMD_DefuseMine'><code>SCMD_DefuseMine</code></td><td></td></tr><tr><td id='variant.SCMD_DoPlan'><code>SCMD_DoPlan</code></td><td></td></tr><tr><td id='variant.SCMD_Patrol'><code>SCMD_Patrol</code></td><td></td></tr><tr><td id='variant.SCMD_Surprise'><code>SCMD_Surprise</code></td><td></td></tr><tr><td id='variant.SCMD_InstantSetupTeamWeapon'><code>SCMD_InstantSetupTeamWeapon</code></td><td></td></tr><tr><td id='variant.SCMD_AbandonTeamWeapon'><code>SCMD_AbandonTeamWeapon</code></td><td></td></tr><tr><td id='variant.SCMD_StationaryAttack'><code>SCMD_StationaryAttack</code></td><td></td></tr><tr><td id='variant.SCMD_RevertFieldSupport'><code>SCMD_RevertFieldSupport</code></td><td></td></tr><tr><td id='variant.SCMD_Face'><code>SCMD_Face</code></td><td></td></tr><tr><td id='variant.SCMD_BuildSquad'><code>SCMD_BuildSquad</code></td><td></td></tr><tr><td id='variant.SCMD_RallyPoint'><code>SCMD_RallyPoint</code></td><td></td></tr><tr><td id='variant.SCMD_RescueCasualty'><code>SCMD_RescueCasualty</code></td><td></td></tr><tr><td id='variant.SCMD_Recrew'><code>SCMD_Recrew</code></td><td></td></tr><tr><td id='variant.SCMD_Merge'><code>SCMD_Merge</code></td><td></td></tr><tr><td id='variant.SCMD_Pilfer'><code>SCMD_Pilfer</code></td><td></td></tr><tr><td id='variant.SCMD_COUNT'><code>SCMD_COUNT</code></td><td></td></tr><tr><td id='variant.PCMD_ConstructStructure'><code>PCMD_ConstructStructure</code></td><td></td></tr><tr><td id='variant.PCMD_ManpowerDonation'><code>PCMD_ManpowerDonation</code></td><td></td></tr><tr><td id='variant.PCMD_FuelDonation'><code>PCMD_FuelDonation</code></td><td></td></tr><tr><td id='variant.PCMD_MunitionDonation'><code>PCMD_MunitionDonation</code></td><td></td></tr><tr><td id='variant.PCMD_CheatResources'><code>PCMD_CheatResources</code></td><td></td></tr><tr><td id='variant.PCMD_CheatRevealAll'><code>PCMD_CheatRevealAll</code></td><td></td></tr><tr><td id='variant.PCMD_CheatKillSelf'><code>PCMD_CheatKillSelf</code></td><td></td></tr><tr><td id='variant.PCMD_Ability'><code>PCMD_Ability</code></td><td></td></tr><tr><td id='variant.PCMD_CheatBuildTime'><code>PCMD_CheatBuildTime</code></td><td></td></tr><tr><td id='variant.PCMD_CriticalHit'><code>PCMD_CriticalHit</code></td><td></td></tr><tr><td id='variant.PCMD_Upgrade'><code>PCMD_Upgrade</code></td><td></td></tr><tr><td id='variant.PCMD_InstantUpgrade'><code>PCMD_InstantUpgrade</code></td><td></td></tr><tr><td id='variant.PCMD_ConstructFence'><code>PCMD_ConstructFence</code></td><td></td></tr><tr><td id='variant.PCMD_ConstructField'><code>PCMD_ConstructField</code></td><td></td></tr><tr><td id='variant.PCMD_UpgradeRemove'><code>PCMD_UpgradeRemove</code></td><td></td></tr><tr><td id='variant.PCMD_SlotItemRemove'><code>PCMD_SlotItemRemove</code></td><td></td></tr><tr><td id='variant.PCMD_CancelProduction'><code>PCMD_CancelProduction</code></td><td></td></tr><tr><td id='variant.PCMD_DetonateCharges'><code>PCMD_DetonateCharges</code></td><td></td></tr><tr><td id='variant.PCMD_AIPlayer'><code>PCMD_AIPlayer</code></td><td></td></tr><tr><td id='variant.PCMD_AIPlayer_ObjectiveNotification'><code>PCMD_AIPlayer_ObjectiveNotification</code></td><td></td></tr><tr><td id='variant.PCMD_SetCommander'><code>PCMD_SetCommander</code></td><td></td></tr><tr><td id='variant.PCMD_Surrender'><code>PCMD_Surrender</code></td><td></td></tr><tr><td id='variant.PCMD_WaitObjectDone'><code>PCMD_WaitObjectDone</code></td><td></td></tr><tr><td id='variant.PCMD_BroadcastMessage'><code>PCMD_BroadcastMessage</code></td><td></td></tr><tr><td id='variant.PCMD_COUNT'><code>PCMD_COUNT</code></td><td></td></tr><tr><td id='variant.DCMD_DataCommand1'><code>DCMD_DataCommand1</code></td><td></td></tr><tr><td id='variant.DCMD_DataCommand2'><code>DCMD_DataCommand2</code></td><td></td></tr><tr><td id='variant.DCMD_COUNT'><code>DCMD_COUNT</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='enum' href='../vault/enum.CmdType.html' title='vault::CmdType'>CmdType</a></code></h3><div class='impl-items'><h4 id='method.from_u8' class='method'><code>fn <a href='#method.from_u8' class='fnname'>from_u8</a>(n: <a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../vault/enum.CmdType.html' title='vault::CmdType'>CmdType</a>&gt;</code></h4>
+<div class='docblock'><p>Converts a numerical representation of a CmdType enum into the correct enum value by
+unsafely transmuting the numerical representation into the CmdType type.</p>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='enum' href='../vault/enum.CmdType.html' title='vault::CmdType'>CmdType</a></code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../vault/enum.CmdType.html' title='vault::CmdType'>CmdType</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../vault/enum.CmdType.html' title='vault::CmdType'>CmdType</a></code></h4>
+<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../vault/enum.CmdType.html' title='vault::CmdType'>CmdType</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../vault/enum.CmdType.html' title='vault::CmdType'>CmdType</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "vault";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>

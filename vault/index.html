@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `vault` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, vault">
+
+    <title>vault - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'vault', ty: 'mod', relpath: '../'};</script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>vault</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/vault/lib.rs.html#1-337' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>vault is a fully-featured Company of Heroes 2 replay parser valid for replays created on or
+after the release of the British forces (version 19545).</p>
+
+<p>This library contains representations of all replay, map, and player information, including
+chat and equipped items. Command parsing is also being actively integrated.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.ChatLine.html'
+                               title='vault::ChatLine'>ChatLine</a></td>
+                        <td class='docblock short'>
+                             <p>This type represents a single Company of Heroes 2 chat message.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Command.html'
+                               title='vault::Command'>Command</a></td>
+                        <td class='docblock short'>
+                             <p>This type represents a single Company of Heroes 2 player command.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Item.html'
+                               title='vault::Item'>Item</a></td>
+                        <td class='docblock short'>
+                             <p>This type contains a parsed representation of an item that can be equipped in a CoH2 replay.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Map.html'
+                               title='vault::Map'>Map</a></td>
+                        <td class='docblock short'>
+                             <p>This type represents a Company of Heroes 2 map as presented in a CoH2 replay file.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Player.html'
+                               title='vault::Player'>Player</a></td>
+                        <td class='docblock short'>
+                             <p>This type represents a Company of Heroes 2 player entity as it appears in a CoH2 replay file.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Replay.html'
+                               title='vault::Replay'>Replay</a></td>
+                        <td class='docblock short'>
+                             <p>The main Replay type, contains all currently parsed replay data. Can be serialized to JSON for
+output using rustc_serialize.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Vault.html'
+                               title='vault::Vault'>Vault</a></td>
+                        <td class='docblock short'>
+                             <p>This type is the main entry point for the vault replay parser and provides the cleanest
+interface for use by external code.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.CmdType.html'
+                               title='vault::CmdType'>CmdType</a></td>
+                        <td class='docblock short'>
+                             <p>This type contains a numerical u8 representation of every command/action possible in a CoH2 command
+sequence. Contents of this enum provided by Relic Entertainment.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Error.html'
+                               title='vault::Error'>Error</a></td>
+                        <td class='docblock short'>
+                             <p>This type contains the various error messages that can be returned from the library.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.free_cstring.html'
+                               title='vault::free_cstring'>free_cstring</a></td>
+                        <td class='docblock short'>
+                             <p>Extern function for deallocating a CString returned by parse_to_cstring.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.parse_to_cstring.html'
+                               title='vault::parse_to_cstring'>parse_to_cstring</a></td>
+                        <td class='docblock short'>
+                             <p>Extern function for invoking a parse operation across FFI. Returns a Vault type serialized to
+JSON.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.print_version.html'
+                               title='vault::print_version'>print_version</a></td>
+                        <td class='docblock short'>
+                             <p>Prints out the current vault version and compatible CoH2 game versions.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.Result.html'
+                               title='vault::Result'>Result</a></td>
+                        <td class='docblock short'>
+                             <p>Custom Result wrapper for vault, used to return vault::Error from every result.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "vault";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>
