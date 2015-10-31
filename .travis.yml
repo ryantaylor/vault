@@ -24,7 +24,7 @@ addons:
     - libdw-dev
 after_success:
 #- travis-cargo doc-upload
-- curl https://raw.githubusercontent.com/ryantaylor/vault/master/build-doc.sh | sh 
+- 'curl https://raw.githubusercontent.com/ryantaylor/vault/master/build-doc.sh | sh'
 - travis-cargo coveralls --no-sudo
 notifications:
   email:
