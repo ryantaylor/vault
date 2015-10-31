@@ -16,4 +16,7 @@ if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ] && [ 
   git push -q "https://${TOKEN}:x-oauth-basic@github.com/ryantaylor/vault.git" gh-pages
 fi
 
+echo $TRAVIS_BRANCH
+echo $TRAVIS_PULL_REQUEST
+echo $TRAVIS_RUST_VERSION
 echo 'doc upload completed'
