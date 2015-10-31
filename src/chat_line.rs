@@ -6,9 +6,9 @@ use std::string::String;
 
 #[derive(Debug, RustcEncodable)]
 pub struct ChatLine {
-    tick: u32,
-    name: String,
-    message: String,
+    pub tick: u32,
+    pub name: String,
+    pub message: String,
 }
 
 impl ChatLine {

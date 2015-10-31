@@ -6,13 +6,13 @@ use std::string::String;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Map {
-    file: String,
-    name: String,
-    description: String,
-    description_long: String,
-    width: u32,
-    height: u32,
-    players: u32
+    pub file: String,
+    pub name: String,
+    pub description: String,
+    pub description_long: String,
+    pub width: u32,
+    pub height: u32,
+    pub players: u32
 }
 
 impl Map {

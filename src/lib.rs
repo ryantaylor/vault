@@ -29,9 +29,12 @@ use libc::c_char;
 use rustc_serialize::json;
 use zip::ZipArchive;
 
-pub use self::command::Command;
+pub use self::chat_line::ChatLine;
+pub use self::command::{CmdType, Command};
 pub use self::error::Error;
-//pub use self::player::Player;
+pub use self::item::Item;
+pub use self::map::Map;
+pub use self::player::Player;
 pub use self::replay::Replay;
 
 mod chat_line;
