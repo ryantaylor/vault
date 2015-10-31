@@ -813,11 +813,11 @@ impl Replay {
     fn cleanup(&mut self, err: Option<Error>) {
         if let Some(val) = err {
             self.update_error(val);
-            for (_, player) in self.players.iter_mut() {
+            for (_, player) in &mut self.players {
                 player.commands = Vec::new();
             }
         } else {
-            for (_, player) in self.players.iter_mut() {
+            for (_, player) in &mut self.players {
                 player.cpm = player.commands.len() as f64 / ( self.duration as f64 / 480.0f64 ); // 8 ticks/s x 60s = 480 ticks/min
             }
         }
