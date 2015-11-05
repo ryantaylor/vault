@@ -892,6 +892,7 @@
 <span id="850">850</span>
 <span id="851">851</span>
 <span id="852">852</span>
+<span id="853">853</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representative state of a Company of Heroes 2 replay file.</span>
 
@@ -1373,7 +1374,8 @@
                         }
                     },
                     <span class='number'>0x6</span> <span class='op'>=&gt;</span> {
-                        <span class='macro'>test_eq</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>(), <span class='number'>0x0</span>);
+                        <span class='comment'>//test_eq!(self.file.read_u32(), 0x0);</span>
+                        <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>4</span>)); <span class='comment'>// usually 0x0 but sometimes 0x2</span>
                         <span class='macro'>test_eq</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u8</span>(), <span class='number'>0x2</span>);
                         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>parse_coordinates</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>command</span>));
                     },
@@ -1744,7 +1746,8 @@
             <span class='ident'>line</span>.<span class='ident'>display</span>();
         }
     }
-}</pre>
+}
+</pre>
 </section>
     <section id='search' class="content hidden"></section>
 
