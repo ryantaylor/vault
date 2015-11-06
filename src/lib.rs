@@ -327,7 +327,7 @@ pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
     let cow = cstr.to_string_lossy();
     let path_str = cow.deref();
     let path = Path::new(&path_str);
-    let vault = Vault::parse(&path).unwrap();
+    let vault = Vault::parse(&path, false).unwrap();
     let result = vault.to_json().unwrap();
     let val = CString::new(result.into_bytes()).unwrap();
     val.into_raw()
