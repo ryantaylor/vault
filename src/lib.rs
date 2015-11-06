@@ -65,7 +65,10 @@ impl Vault {
     ///
     /// Currently .rec and .zip (archives) are supported filetypes. When an archive is provided,
     /// all .rec files in the archive will be parsed. All resulting Replays have their raw byte
-    /// data cleaned automatically after parse completes, and cannot be mutated.
+    /// data cleaned automatically after parse completes.
+    ///
+    /// Note that if the `strict` parameter is set to `true`, parsing with fail with an error if
+    /// the path does not point to a directory or a file with a .rec or .zip extension.
     ///
     /// # Examples
     ///
@@ -76,14 +79,14 @@ impl Vault {
     /// use std::path::Path;
     ///
     /// let path = Path::new("/path/to/file");
-    /// let results = Vault::parse(&path).unwrap();
+    /// let results = Vault::parse(&path, false).unwrap();
     ///
     /// for replay in results.replays().iter() {
     ///     println!("{}", replay.to_json());
     /// }
     /// ```
 
-    pub fn parse(path: &Path) -> Result<Vault> {
+    pub fn parse(path: &Path, strict: bool) -> Result<Vault> {
         let meta = try!(fs::metadata(path));
 
         let replays = if meta.is_dir() {
@@ -96,7 +99,14 @@ impl Vault {
                     "zip" => try!(Vault::parse_zip(path)),
                     _ => return Err(Error::InvalidFileExtension),
                 },
-                None => return Err(Error::InvalidFileExtension),
+                None => {
+                    if strict {
+                        return Err(Error::InvalidFileExtension);
+                    }
+                    else {
+                        try!(Vault::parse_rec(path))
+                    }
+                }
             }
         }
         else {
@@ -317,7 +327,7 @@ pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
     let cow = cstr.to_string_lossy();
     let path_str = cow.deref();
     let path = Path::new(&path_str);
-    let vault = Vault::parse(&path).unwrap();
+    let vault = Vault::parse(&path, false).unwrap();
     let result = vault.to_json().unwrap();
     let val = CString::new(result.into_bytes()).unwrap();
     val.into_raw()

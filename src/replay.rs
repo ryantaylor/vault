@@ -478,7 +478,8 @@ impl Replay {
                         }
                     },
                     0x6 => {
-                        test_eq!(self.file.read_u32(), 0x0);
+                        //test_eq!(self.file.read_u32(), 0x0);
+                        try!(self.file.skip_ahead(4)); // usually 0x0 but sometimes 0x2
                         test_eq!(self.file.read_u8(), 0x2);
                         try!(self.parse_coordinates(&mut command));
                     },
