@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-0a35038f75765ae4/flate2-0.2.9/src/raw.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-0a35038f75765ae4/flate2-0.2.11/src/raw.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>raw.rs.html -- source</title>
@@ -326,6 +326,59 @@
 <span id="284">284</span>
 <span id="285">285</span>
 <span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Raw un-exported bindings to miniz for encoding/decoding</span>
 
@@ -359,7 +412,10 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span> <span class='ident'>EncoderWriter</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span> {
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>w</span>: <span class='ident'>W</span>, <span class='ident'>level</span>: <span class='ident'>Compression</span>, <span class='ident'>raw</span>: <span class='ident'>bool</span>, <span class='ident'>buf</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>)
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>w</span>: <span class='ident'>W</span>,
+               <span class='ident'>level</span>: <span class='ident'>Compression</span>,
+               <span class='ident'>raw</span>: <span class='ident'>bool</span>,
+               <span class='ident'>buf</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>)
                <span class='op'>-&gt;</span> <span class='ident'>EncoderWriter</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span> {
         <span class='ident'>EncoderWriter</span>(<span class='ident'>InnerWrite</span> {
             <span class='ident'>inner</span>: <span class='prelude-val'>Some</span>(<span class='ident'>w</span>),
@@ -374,9 +430,13 @@
         })
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>W</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>() }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>W</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>()
+    }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>take_inner</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>W</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>() }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>take_inner</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>W</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>()
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>write_all_raw</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>buf</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>as_mut</span>().<span class='ident'>unwrap</span>().<span class='ident'>write_all</span>(<span class='ident'>buf</span>)
@@ -406,15 +466,17 @@
                 <span class='ident'>stream</span>.<span class='ident'>compress_vec</span>(<span class='ident'>buf</span>, <span class='ident'>inner</span>, <span class='ident'>Flush</span>::<span class='prelude-val'>None</span>)
             }));
             <span class='kw'>if</span> <span class='ident'>buf</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> <span class='op'>||</span> <span class='ident'>n</span> <span class='op'>!=</span> <span class='number'>0</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>n</span>)
+                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>n</span>);
             }
         }
     }
 
     <span class='kw'>fn</span> <span class='ident'>flush</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>finish</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>|</span><span class='ident'>stream</span>, <span class='ident'>inner</span><span class='op'>|</span> {
-            <span class='ident'>stream</span>.<span class='ident'>compress_vec</span>(<span class='kw-2'>&amp;</span>[], <span class='ident'>inner</span>, <span class='ident'>Flush</span>::<span class='ident'>Sync</span>)
-        }).<span class='ident'>and_then</span>(<span class='op'>|</span>()<span class='op'>|</span> <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>as_mut</span>().<span class='ident'>unwrap</span>().<span class='ident'>flush</span>())
+        <span class='self'>self</span>.<span class='number'>0</span>
+            .<span class='ident'>finish</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>|</span><span class='ident'>stream</span>, <span class='ident'>inner</span><span class='op'>|</span> {
+                <span class='ident'>stream</span>.<span class='ident'>compress_vec</span>(<span class='kw-2'>&amp;</span>[], <span class='ident'>inner</span>, <span class='ident'>Flush</span>::<span class='ident'>Sync</span>)
+            })
+            .<span class='ident'>and_then</span>(<span class='op'>|</span>()<span class='op'>|</span> <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>as_mut</span>().<span class='ident'>unwrap</span>().<span class='ident'>flush</span>())
     }
 }
 
@@ -447,7 +509,17 @@
         })
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>W</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>() }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>W</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>()
+    }
+
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>total_in</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u64</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>.<span class='ident'>total_in</span>()
+    }
+
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>total_out</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u64</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>.<span class='ident'>total_out</span>()
+    }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span> <span class='ident'>Write</span> <span class='kw'>for</span> <span class='ident'>DecoderWriter</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span> {
@@ -458,15 +530,17 @@
                 <span class='ident'>stream</span>.<span class='ident'>decompress_vec</span>(<span class='ident'>buf</span>, <span class='ident'>inner</span>, <span class='ident'>Flush</span>::<span class='prelude-val'>None</span>)
             }));
             <span class='kw'>if</span> <span class='ident'>buf</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> <span class='op'>||</span> <span class='ident'>n</span> <span class='op'>!=</span> <span class='number'>0</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>n</span>)
+                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>n</span>);
             }
         }
     }
 
     <span class='kw'>fn</span> <span class='ident'>flush</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>finish</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>|</span><span class='ident'>stream</span>, <span class='ident'>inner</span><span class='op'>|</span> {
-            <span class='ident'>stream</span>.<span class='ident'>decompress_vec</span>(<span class='kw-2'>&amp;</span>[], <span class='ident'>inner</span>, <span class='ident'>Flush</span>::<span class='ident'>Sync</span>)
-        }).<span class='ident'>and_then</span>(<span class='op'>|</span>()<span class='op'>|</span> <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>as_mut</span>().<span class='ident'>unwrap</span>().<span class='ident'>flush</span>())
+        <span class='self'>self</span>.<span class='number'>0</span>
+            .<span class='ident'>finish</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>|</span><span class='ident'>stream</span>, <span class='ident'>inner</span><span class='op'>|</span> {
+                <span class='ident'>stream</span>.<span class='ident'>decompress_vec</span>(<span class='kw-2'>&amp;</span>[], <span class='ident'>inner</span>, <span class='ident'>Flush</span>::<span class='ident'>Sync</span>)
+            })
+            .<span class='ident'>and_then</span>(<span class='op'>|</span>()<span class='op'>|</span> <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>as_mut</span>().<span class='ident'>unwrap</span>().<span class='ident'>flush</span>())
     }
 }
 
@@ -512,7 +586,10 @@
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Read</span><span class='op'>&gt;</span> <span class='ident'>EncoderReader</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> {
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>w</span>: <span class='ident'>R</span>, <span class='ident'>level</span>: <span class='ident'>Compression</span>, <span class='ident'>raw</span>: <span class='ident'>bool</span>, <span class='ident'>buf</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>)
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>w</span>: <span class='ident'>R</span>,
+               <span class='ident'>level</span>: <span class='ident'>Compression</span>,
+               <span class='ident'>raw</span>: <span class='ident'>bool</span>,
+               <span class='ident'>buf</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>)
                <span class='op'>-&gt;</span> <span class='ident'>EncoderReader</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> {
         <span class='ident'>EncoderReader</span>(<span class='ident'>InnerRead</span> {
             <span class='ident'>inner</span>: <span class='ident'>w</span>,
@@ -522,8 +599,12 @@
             <span class='ident'>pos</span>: <span class='number'>0</span>,
         })
     }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_ref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>R</span> { <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span> }
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>R</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span> }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_ref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>R</span> {
+        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>
+    }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>R</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>reset</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>r</span>: <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>R</span> {
         <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>.<span class='ident'>reset</span>();
@@ -557,20 +638,38 @@
         <span class='ident'>mem</span>::<span class='ident'>replace</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>, <span class='ident'>r</span>)
     }
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>R</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span> }
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>R</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>
+    }
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_raw</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>buf</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>from</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>buf</span>[<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>pos</span>..<span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>cap</span>];
         <span class='kw'>match</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Read</span>::<span class='ident'>read</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>from</span>, <span class='ident'>buf</span>)) {
             <span class='number'>0</span> <span class='op'>=&gt;</span> {}
-            <span class='ident'>n</span> <span class='op'>=&gt;</span> { <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>pos</span> <span class='op'>+=</span> <span class='ident'>n</span>; <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>n</span>) }
+            <span class='ident'>n</span> <span class='op'>=&gt;</span> {
+                <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>pos</span> <span class='op'>+=</span> <span class='ident'>n</span>;
+                <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>n</span>);
+            }
         }
         <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>inner</span>.<span class='ident'>read</span>(<span class='ident'>buf</span>)
+    }
+
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>total_in</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u64</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>.<span class='ident'>total_in</span>()
+    }
+
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>total_out</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u64</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>stream</span>.<span class='ident'>total_out</span>()
     }
 }
 
 <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Read</span><span class='op'>&gt;</span> <span class='ident'>Read</span> <span class='kw'>for</span> <span class='ident'>DecoderReader</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> {
     <span class='kw'>fn</span> <span class='ident'>read</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>buf</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span> {
+        <span class='comment'>// zero-length reads currently aren&#39;t handled well here, so just punt</span>
+        <span class='comment'>// those upstream.</span>
+        <span class='kw'>if</span> <span class='ident'>buf</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> {
+            <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='number'>0</span>)
+        }
         <span class='self'>self</span>.<span class='number'>0</span>.<span class='ident'>read</span>(<span class='op'>|</span><span class='ident'>stream</span>, <span class='ident'>inner</span>, <span class='ident'>flush</span><span class='op'>|</span> <span class='ident'>stream</span>.<span class='ident'>decompress</span>(<span class='ident'>inner</span>, <span class='ident'>buf</span>, <span class='ident'>flush</span>))
     }
 }
@@ -589,8 +688,13 @@
 
             <span class='kw'>let</span> <span class='ident'>before_out</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>stream</span>.<span class='ident'>total_out</span>();
             <span class='kw'>let</span> <span class='ident'>before_in</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>stream</span>.<span class='ident'>total_in</span>();
-            <span class='kw'>let</span> <span class='ident'>ret</span> <span class='op'>=</span> <span class='ident'>f</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>stream</span>, <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>buf</span>[<span class='self'>self</span>.<span class='ident'>pos</span>..<span class='self'>self</span>.<span class='ident'>cap</span>],
-                        <span class='kw'>if</span> <span class='ident'>eof</span> {<span class='ident'>Flush</span>::<span class='ident'>Finish</span>} <span class='kw'>else</span> {<span class='ident'>Flush</span>::<span class='prelude-val'>None</span>});
+            <span class='kw'>let</span> <span class='ident'>ret</span> <span class='op'>=</span> <span class='ident'>f</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>stream</span>,
+                        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>buf</span>[<span class='self'>self</span>.<span class='ident'>pos</span>..<span class='self'>self</span>.<span class='ident'>cap</span>],
+                        <span class='kw'>if</span> <span class='ident'>eof</span> {
+                            <span class='ident'>Flush</span>::<span class='ident'>Finish</span>
+                        } <span class='kw'>else</span> {
+                            <span class='ident'>Flush</span>::<span class='prelude-val'>None</span>
+                        });
             <span class='kw'>let</span> <span class='ident'>read</span> <span class='op'>=</span> (<span class='self'>self</span>.<span class='ident'>stream</span>.<span class='ident'>total_out</span>() <span class='op'>-</span> <span class='ident'>before_out</span>) <span class='kw'>as</span> <span class='ident'>usize</span>;
             <span class='self'>self</span>.<span class='ident'>pos</span> <span class='op'>+=</span> (<span class='self'>self</span>.<span class='ident'>stream</span>.<span class='ident'>total_in</span>() <span class='op'>-</span> <span class='ident'>before_in</span>) <span class='kw'>as</span> <span class='ident'>usize</span>;
 
@@ -600,7 +704,9 @@
                     <span class='comment'>// then we need to keep asking for more data because if we</span>
                     <span class='comment'>// return that 0 bytes of data have been read then it will</span>
                     <span class='comment'>// be interpreted as EOF.</span>
-                    <span class='kw'>if</span> <span class='ident'>read</span> <span class='op'>==</span> <span class='number'>0</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ident'>eof</span> { <span class='kw'>continue</span> }
+                    <span class='kw'>if</span> <span class='ident'>read</span> <span class='op'>==</span> <span class='number'>0</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ident'>eof</span> {
+                        <span class='kw'>continue</span>;
+                    }
                     <span class='prelude-val'>Ok</span>(<span class='ident'>read</span>)
                 }
                 <span class='ident'>ffi</span>::<span class='ident'>MZ_STREAM_END</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>read</span>),
@@ -609,7 +715,7 @@
                                        <span class='string'>&quot;corrupt deflate stream&quot;</span>))
                 }
                 <span class='ident'>n</span> <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;unexpected return {}&quot;</span>, <span class='ident'>n</span>),
-            }
+            };
         }
     }
 }

@@ -387,6 +387,8 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! vault is a fully-featured Company of Heroes 2 replay parser valid for replays created on or</span>
 <span class='doccomment'>//! after the release of the British forces (version 19545).</span>
@@ -435,6 +437,8 @@
 <span class='kw'>mod</span> <span class='ident'>player</span>;
 <span class='kw'>mod</span> <span class='ident'>replay</span>;
 <span class='kw'>mod</span> <span class='ident'>stream</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
+<span class='kw'>mod</span> <span class='ident'>tests</span>;
 
 <span class='doccomment'>/// Custom Result wrapper for vault, used to return vault::Error from every result.</span>
 

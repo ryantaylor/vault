@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-0a35038f75765ae4/miniz-sys-0.1.6/lib.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-0a35038f75765ae4/miniz-sys-0.1.7/lib.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>lib.rs.html -- source</title>
@@ -181,20 +181,20 @@
                            <span class='ident'>method</span>: <span class='ident'>c_int</span>,
                            <span class='ident'>window_bits</span>: <span class='ident'>c_int</span>,
                            <span class='ident'>mem_level</span>: <span class='ident'>c_int</span>,
-                           <span class='ident'>strategy</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
+                           <span class='ident'>strategy</span>: <span class='ident'>c_int</span>)
+                           <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mz_deflate</span>(<span class='ident'>stream</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>mz_stream</span>, <span class='ident'>flush</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mz_deflateEnd</span>(<span class='ident'>stream</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>mz_stream</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mz_deflateReset</span>(<span class='ident'>stream</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>mz_stream</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mz_inflateInit2</span>(<span class='ident'>stream</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>mz_stream</span>,
-                           <span class='ident'>window_bits</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
+                           <span class='ident'>window_bits</span>: <span class='ident'>c_int</span>)
+                           <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mz_inflate</span>(<span class='ident'>stream</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>mz_stream</span>, <span class='ident'>flush</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mz_inflateEnd</span>(<span class='ident'>stream</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>mz_stream</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mz_crc32</span>(<span class='ident'>crc</span>: <span class='ident'>c_ulong</span>, <span class='ident'>ptr</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>u8</span>,
-                    <span class='ident'>len</span>: <span class='ident'>size_t</span>) <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>;
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>mz_crc32</span>(<span class='ident'>crc</span>: <span class='ident'>c_ulong</span>, <span class='ident'>ptr</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>u8</span>, <span class='ident'>len</span>: <span class='ident'>size_t</span>) <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>;
 }
-
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
