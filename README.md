@@ -37,7 +37,7 @@ use vault::Vault;
 
 fn main() {
     let path = Path::new("/path/to/replay.rec");
-    let vault = Vault::parse(&path).unwrap();
+    let vault = Vault::parse(&path, false).unwrap();
     println!("{}", vault.to_json().unwrap());
 }
 ```
