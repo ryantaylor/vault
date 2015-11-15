@@ -1,9 +1,9 @@
 [package]
 name = "vault"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Ryan Taylor <ryan@ryantaylordev.ca>"]
 
-description = "A parser for Company of Heroes 2 replay files. Valid for replays generated on versions 19545 thru 19696."
+description = "A parser for Company of Heroes 2 replay files. Valid for replays generated since UKF release (version 19545)."
 homepage = "http://ryantaylordev.ca"
 repository = "https://github.com/ryantaylor/vault"
 readme = "README.md"
