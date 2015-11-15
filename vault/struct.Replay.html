@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-9642' class='srclink' href='../src/vault/replay.rs.html#52-64' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-9887' class='srclink' href='../src/vault/replay.rs.html#53-66' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Replay {
     pub error: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;,
     pub version: <a href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>,
@@ -71,7 +71,7 @@ output using rustc_serialize.</p>
                                   <td id='structfield.duration'><code>duration</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.rng_seed'><code>rng_seed</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.opponent_type'><code>opponent_type</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.chat'><code>chat</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Replay.html' title='vault::Replay'>Replay</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(path: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/std/path/struct.Path.html' title='std::path::Path'>Path</a>) -&gt; <a class='type' href='../vault/type.Result.html' title='vault::Result'>Result</a>&lt;<a class='struct' href='../vault/struct.Replay.html' title='vault::Replay'>Replay</a>&gt;</code></h4>
+                                  <td id='structfield.chat'><code>chat</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Replay.html' title='vault::Replay'>Replay</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(path: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/std/path/struct.Path.html' title='std::path::Path'>Path</a>, config: <a class='struct' href='../vault/struct.Config.html' title='vault::Config'>Config</a>) -&gt; <a class='type' href='../vault/type.Result.html' title='vault::Result'>Result</a>&lt;<a class='struct' href='../vault/struct.Replay.html' title='vault::Replay'>Replay</a>&gt;</code></h4>
 <div class='docblock'><p>Constructs a new Replay and loads the file specified by path into memory.</p>
 
 <h1 id="examples" class='section-header'><a
@@ -98,7 +98,7 @@ encountered during creation.</p>
     <span class='prelude-val'>Ok</span>(<span class='ident'>replay</span>) <span class='op'>=&gt;</span> <span class='ident'>replay</span>,
     <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> <span class='ident'>Replay</span>::<span class='ident'>with_new_error</span>(<span class='ident'>err</span>),
 }</pre>
-</div><h4 id='method.from_bytes' class='method'><code>fn <a href='#method.from_bytes' class='fnname'>from_bytes</a>(name: &amp;<a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, bytes: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>&gt;) -&gt; <a class='type' href='../vault/type.Result.html' title='vault::Result'>Result</a>&lt;<a class='struct' href='../vault/struct.Replay.html' title='vault::Replay'>Replay</a>&gt;</code></h4>
+</div><h4 id='method.from_bytes' class='method'><code>fn <a href='#method.from_bytes' class='fnname'>from_bytes</a>(name: &amp;<a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, bytes: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>&gt;, config: <a class='struct' href='../vault/struct.Config.html' title='vault::Config'>Config</a>) -&gt; <a class='type' href='../vault/type.Result.html' title='vault::Result'>Result</a>&lt;<a class='struct' href='../vault/struct.Replay.html' title='vault::Replay'>Replay</a>&gt;</code></h4>
 <div class='docblock'><p>Constructs a new Replay and loads the byte vector given as the file data.</p>
 
 <h1 id="examples" class='section-header'><a

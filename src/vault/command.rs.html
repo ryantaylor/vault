@@ -230,6 +230,8 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representation of all possible commands and actions in CoH2 replays.</span>
 <span class='doccomment'>//!</span>
@@ -249,7 +251,7 @@
     <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>f32</span>,
     <span class='kw'>pub</span> <span class='ident'>y</span>: <span class='ident'>f32</span>,
     <span class='kw'>pub</span> <span class='ident'>z</span>: <span class='ident'>f32</span>,
-    <span class='kw'>pub</span> <span class='ident'>bytes</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>,
+    <span class='kw'>pub</span> <span class='ident'>bytes</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;&gt;</span>,
 }
 
 <span class='kw'>impl</span> <span class='ident'>Command</span> {
@@ -265,7 +267,7 @@
             <span class='ident'>x</span>: <span class='number'>0.0</span>,
             <span class='ident'>y</span>: <span class='number'>0.0</span>,
             <span class='ident'>z</span>: <span class='number'>0.0</span>,
-            <span class='ident'>bytes</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
+            <span class='ident'>bytes</span>: <span class='prelude-val'>None</span>,
         }
     }
 
@@ -273,10 +275,12 @@
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>display</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span> <span class='op'>=</span> <span class='ident'>String</span>::<span class='ident'>new</span>();
-        <span class='ident'>output</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;P{}: &quot;</span>, <span class='self'>self</span>.<span class='ident'>player_id</span>));
-        <span class='kw'>for</span> <span class='ident'>byte</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>bytes</span> {
-            <span class='ident'>output</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{:02X} &quot;</span>, <span class='ident'>byte</span>));
-        }
+        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>bytes</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>bytes</span> {
+            <span class='ident'>output</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;P{}: &quot;</span>, <span class='self'>self</span>.<span class='ident'>player_id</span>));
+            <span class='kw'>for</span> <span class='ident'>byte</span> <span class='kw'>in</span> <span class='ident'>bytes</span> {
+                <span class='ident'>output</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{:02X} &quot;</span>, <span class='ident'>byte</span>));
+            }
+        };
 
         <span class='ident'>output</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{:?} {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>command_type</span>, <span class='self'>self</span>.<span class='ident'>entity_id</span>));
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>output</span>);
