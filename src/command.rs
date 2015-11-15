@@ -16,7 +16,7 @@ pub struct Command {
     pub x: f32,
     pub y: f32,
     pub z: f32,
-    pub bytes: Vec<u8>,
+    pub bytes: Option<Vec<u8>>,
 }
 
 impl Command {
@@ -32,7 +32,7 @@ impl Command {
             x: 0.0,
             y: 0.0,
             z: 0.0,
-            bytes: Vec::new(),
+            bytes: None,
         }
     }
 
@@ -40,10 +40,12 @@ impl Command {
 
     pub fn display(&self) {
         let mut output = String::new();
-        output.push_str(&format!("P{}: ", self.player_id));
-        for byte in &self.bytes {
-            output.push_str(&format!("{:02X} ", byte));
-        }
+        if let Some(ref bytes) = self.bytes {
+            output.push_str(&format!("P{}: ", self.player_id));
+            for byte in bytes {
+                output.push_str(&format!("{:02X} ", byte));
+            }
+        };
 
         output.push_str(&format!("{:?} {}", self.command_type, self.entity_id));
         println!("{}", output);

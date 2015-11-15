@@ -31,6 +31,7 @@ use zip::ZipArchive;
 
 pub use self::chat_line::ChatLine;
 pub use self::command::{CmdType, Command};
+pub use self::config::Config;
 pub use self::error::Error;
 pub use self::item::Item;
 pub use self::map::Map;
@@ -39,6 +40,7 @@ pub use self::replay::Replay;
 
 mod chat_line;
 mod command;
+mod config;
 mod error;
 mod item;
 mod map;
@@ -69,8 +71,13 @@ impl Vault {
     /// all .rec files in the archive will be parsed. All resulting Replays have their raw byte
     /// data cleaned automatically after parse completes.
     ///
-    /// Note that if the `strict` parameter is set to `true`, parsing with fail with an error if
-    /// the path does not point to a directory or a file with a .rec or .zip extension.
+    /// This function uses the following default configuration:
+    ///
+    /// ```text
+    /// strict = false
+    /// commands = true
+    /// command_bytes = false
+    /// ```
     ///
     /// # Examples
     ///
@@ -81,32 +88,57 @@ impl Vault {
     /// use std::path::Path;
     ///
     /// let path = Path::new("/path/to/file");
-    /// let results = Vault::parse(&path, false).unwrap();
+    /// let results = Vault::parse(&path).unwrap();
     ///
     /// for replay in results.replays().iter() {
     ///     println!("{}", replay.to_json());
     /// }
     /// ```
 
-    pub fn parse(path: &Path, strict: bool) -> Result<Vault> {
+    pub fn parse(path: &Path) -> Result<Vault> {
+        let config = Config::default();
+        Ok(try!(Vault::parse_with_config(path, config)))
+    }
+
+    /// Functions the same as `parse`, but lets you specify non-default configuration options.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// extern crate vault;
+    ///
+    /// use vault::Vault;
+    /// use vault::Config;
+    /// use std::path::Path;
+    ///
+    /// let path = Path::new("/path/to/file");
+    /// let config = Config::new(true, false, false);
+    /// let results = Vault::parse_with_config(&path, config).unwrap();
+    ///
+    /// for replay in results.replays().iter() {
+    ///     println!("{}", replay.to_json());
+    /// }
+    /// ```
+
+    pub fn parse_with_config(path: &Path, config: Config) -> Result<Vault> {
         let meta = try!(fs::metadata(path));
 
         let replays = if meta.is_dir() {
-            try!(Vault::parse_dir(path))
+            try!(Vault::parse_dir(path, config))
         }
         else if meta.is_file() {
             match path.extension() {
                 Some(ext) => match ext.to_string_lossy().deref() {
-                    "rec" => try!(Vault::parse_rec(path)),
-                    "zip" => try!(Vault::parse_zip(path)),
+                    "rec" => try!(Vault::parse_rec(path, config)),
+                    "zip" => try!(Vault::parse_zip(path, config)),
                     _ => return Err(Error::InvalidFileExtension),
                 },
                 None => {
-                    if strict {
+                    if config.strict {
                         return Err(Error::InvalidFileExtension);
                     }
                     else {
-                        try!(Vault::parse_rec(path))
+                        try!(Vault::parse_rec(path, config))
                     }
                 }
             }
@@ -122,8 +154,8 @@ impl Vault {
 
     /// Parses a .rec file.
 
-    fn parse_rec(path: &Path) -> Result<Vec<Replay>> {
-        let mut replay = try!(Replay::new(&path));
+    fn parse_rec(path: &Path, config: Config) -> Result<Vec<Replay>> {
+        let mut replay = try!(Replay::new(&path, config));
         replay.parse();
         let replay = replay;
 
@@ -136,7 +168,7 @@ impl Vault {
 
     /// Parses .rec files in a .zip archive.
 
-    fn parse_zip(path: &Path) -> Result<Vec<Replay>> {
+    fn parse_zip(path: &Path, config: Config) -> Result<Vec<Replay>> {
         let archive_file = try!(File::open(path));
         let mut archive = try!(ZipArchive::new(archive_file));
         let mut handles: Vec<_> = Vec::new();
@@ -171,8 +203,9 @@ impl Vault {
                             }
                         }
 
+                        let config = config.clone();
                         let handle = thread::spawn(move || {
-                            match Replay::from_bytes(&combo_name, buff) {
+                            match Replay::from_bytes(&combo_name, buff, config) {
                                 Ok(replay) => {
                                     let mut replay = replay;
                                     replay.parse();
@@ -202,7 +235,7 @@ impl Vault {
 
     /// Parses all .rec and .zip files in the given directory.
 
-    fn parse_dir(path: &Path) -> Result<Vec<Replay>> {
+    fn parse_dir(path: &Path, config: Config) -> Result<Vec<Replay>> {
         let dir = try!(fs::read_dir(path));
         let mut replays: Vec<Replay> = Vec::new();
         let mut handles: Vec<_> = Vec::new();
@@ -230,8 +263,9 @@ impl Vault {
                     Some(ext) => match ext.to_string_lossy().deref() {
                         "rec" => {
                             let path = path.to_owned();
+                            let config = config.clone();
                             let handle = thread::spawn(move || {
-                                match Vault::parse_rec(&path) {
+                                match Vault::parse_rec(&path, config) {
                                     Ok(results) => results,
                                     Err(err) => {
                                         let mut result = Vec::with_capacity(1);
@@ -246,8 +280,9 @@ impl Vault {
                         },
                         "zip" => {
                             let path = path.to_owned();
+                            let config = config.clone();
                             let handle = thread::spawn(move || {
-                                match Vault::parse_zip(&path) {
+                                match Vault::parse_zip(&path, config) {
                                     Ok(results) => results,
                                     Err(err) => {
                                         let mut result = Vec::with_capacity(1);
@@ -329,7 +364,7 @@ pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
     let cow = cstr.to_string_lossy();
     let path_str = cow.deref();
     let path = Path::new(&path_str);
-    let vault = Vault::parse(&path, false).unwrap();
+    let vault = Vault::parse(&path).unwrap();
     let result = vault.to_json().unwrap();
     let val = CString::new(result.into_bytes()).unwrap();
     val.into_raw()

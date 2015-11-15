@@ -9,7 +9,8 @@ use rustc_serialize::json;
 
 use chat_line::ChatLine;
 use command::{CmdType, Command};
-use Error;
+use config::Config;
+use error::Error;
 use item::{Item, ItemType};
 use map::Map;
 use player::Player;
@@ -61,6 +62,7 @@ pub struct Replay {
     pub rng_seed: u32,
     pub opponent_type: u32,         // 1 = human, 2 = cpu
     pub chat: Vec<ChatLine>,
+    config: Config,
 }
 
 impl Replay {
@@ -79,7 +81,7 @@ impl Replay {
     /// let replay = Replay::new(&path).unwrap();
     /// ```
 
-    pub fn new(path: &Path) -> Result<Replay> {
+    pub fn new(path: &Path, config: Config) -> Result<Replay> {
         Ok(Replay {
             error: None,
             file: try!(Stream::from_file(&path)),
@@ -92,6 +94,7 @@ impl Replay {
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
+            config: config,
         })
     }
 
@@ -125,6 +128,7 @@ impl Replay {
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
+            config: Config::default(),
         }
     }
 
@@ -154,7 +158,7 @@ impl Replay {
     /// replay.parse();
     /// ```
 
-    pub fn from_bytes(name: &str, bytes: Vec<u8>) -> Result<Replay> {
+    pub fn from_bytes(name: &str, bytes: Vec<u8>, config: Config) -> Result<Replay> {
         Ok(Replay {
             error: None,
             file: try!(Stream::from_bytes(name, bytes)),
@@ -167,6 +171,7 @@ impl Replay {
             rng_seed: 0,
             opponent_type: 0,
             chat: Vec::new(),
+            config: config,
         })
     }
 
@@ -340,6 +345,13 @@ impl Replay {
         if tick_size > 0 {
             // action
             if tick_type == 0x0 {
+                // skip command parsing if we don't want to do it
+                if !self.config.commands {
+                    try!(self.file.skip_ahead(tick_size));
+                    self.duration += 1;
+                    return Ok(true);
+                }
+
                 try!(self.file.skip_ahead(1)); // usually 0x20 but can be 0x0
                 let tick_id = try!(self.file.read_u32());
                 try!(self.file.skip_ahead(4)); // some id
@@ -427,7 +439,11 @@ impl Replay {
     fn parse_action(&mut self, tick: u32, len: u32) -> Result<()> {
         trace!("Replay::parse_action");
 
-        let bytes = try!(self.file.read_to_vec(len - 1));
+        let bytes = if self.config.command_bytes {
+            Some(try!(self.file.read_to_vec(len - 1)))
+        } else {
+            None
+        };
 
         try!(self.file.skip_ahead(1)); // not sure? mostly 0 I think
 

@@ -24,7 +24,7 @@ version = "*"
 optional = true
 
 [dependencies.libc]
-version = "0.1"
+version = "0.2"
 optional = true
 
 [features]
