@@ -24,7 +24,7 @@ If you are writing a Rust application, you can use `vault` from [crates.io](http
 
 ```toml
 [dependencies]
-vault = "0.2"
+vault = "0.3"
 ```
 
 `src/main.rs`:
@@ -37,7 +37,7 @@ use vault::Vault;
 
 fn main() {
     let path = Path::new("/path/to/replay.rec");
-    let vault = Vault::parse(&path, false).unwrap();
+    let vault = Vault::parse(&path).unwrap();
     println!("{}", vault.to_json().unwrap());
 }
 ```
