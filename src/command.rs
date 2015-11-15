@@ -21,7 +21,7 @@ pub struct Command {
 
 impl Command {
 
-    /// Constructs a new, empty Command.
+    /// Constructs a new, empty `Command`.
 
     pub fn new(tick: u32, command_type: CmdType) -> Command {
         Command {
@@ -36,7 +36,7 @@ impl Command {
         }
     }
 
-    /// Writes the contents of the Command to stdout.
+    /// Writes the contents of the `Command` to stdout.
 
     pub fn display(&self) {
         let mut output = String::new();
@@ -179,8 +179,8 @@ pub enum CmdType {
 
 impl CmdType {
 
-    /// Converts a numerical representation of a CmdType enum into the correct enum value by
-    /// unsafely transmuting the numerical representation into the CmdType type.
+    /// Converts a numerical representation of a `CmdType` enum into the correct enum value by
+    /// unsafely transmuting the numerical representation into the `CmdType` type.
 
     pub fn from_u8(n: u8) -> Option<CmdType> {
         if n <= 106 {

@@ -17,8 +17,8 @@ use player::Player;
 use Result;
 use stream::Stream;
 
-/// Takes a Result<T>, unwraps it, then checks for equality against another T. If Result<T>
-/// unwraps to an Err, that Err is returned. If the equality check fails, an Err is returned
+/// Takes a `Result<T>`, unwraps it, then checks for equality against another `T`. If `Result<T>`
+/// unwraps to an `Err`, that `Err` is returned. If the equality check fails, an `Err` is returned
 /// instead of panicking.
 
 #[cfg(not(debug_assertions))]
@@ -34,7 +34,7 @@ macro_rules! test_eq {
     })
 }
 
-/// Debug version of the above macro, panics if Result<T> unwraps to Err or the equality check
+/// Debug version of the above macro, panics if `Result<T>` unwraps to `Err` or the equality check
 /// fails.
 
 #[cfg(debug_assertions)]
@@ -46,8 +46,8 @@ macro_rules! test_eq {
     })
 }
 
-/// The main Replay type, contains all currently parsed replay data. Can be serialized to JSON for
-/// output using rustc_serialize.
+/// The main `Replay` type, contains all currently parsed replay data. Can be serialized to JSON
+/// for output using `rustc_serialize`.
 
 #[derive(Debug, RustcEncodable)]
 pub struct Replay {
@@ -67,7 +67,7 @@ pub struct Replay {
 
 impl Replay {
 
-    /// Constructs a new Replay and loads the file specified by path into memory.
+    /// Constructs a new `Replay` and loads the file specified by path into memory.
     ///
     /// # Examples
     ///
@@ -75,10 +75,12 @@ impl Replay {
     /// extern crate vault;
     ///
     /// use vault::Replay;
+    /// use vault::Config;
     /// use std::path::Path;
     ///
     /// let path = Path::new("/path/to/replay.rec");
-    /// let replay = Replay::new(&path).unwrap();
+    /// let config = Config::default();
+    /// let replay = Replay::new(&path, config).unwrap();
     /// ```
 
     pub fn new(path: &Path, config: Config) -> Result<Replay> {
@@ -98,8 +100,8 @@ impl Replay {
         })
     }
 
-    /// Constructs a junk Replay type with empty data and an error value set. Used to return a
-    /// Replay and its error information out of a thread without panicking if an error was
+    /// Constructs a junk `Replay` type with empty data and an error value set. Used to return a
+    /// `Replay` and its error information out of a thread without panicking if an error was
     /// encountered during creation.
     ///
     /// # Examples
@@ -132,7 +134,7 @@ impl Replay {
         }
     }
 
-    /// Constructs a new Replay and loads the byte vector given as the file data.
+    /// Constructs a new `Replay` and loads the byte vector given as the file data.
     ///
     /// # Examples
     ///
@@ -141,11 +143,13 @@ impl Replay {
     /// extern crate zip;
     ///
     /// use vault::Replay;
+    /// use vault::Config;
     /// use std::ops::Deref;
     /// use std::path::Path;
     /// use zip::read::{ZipArchive, ZipFile};
     ///
     /// let path = Path::new("/path/to/archive.zip");
+    /// let config = Config::default();
     /// let name = path.to_string_lossy();
     /// let name = name.deref();
     /// let file = File::open(&path).unwrap();
@@ -154,7 +158,7 @@ impl Replay {
     /// let mut replay_file = archive.by_index(0).unwrap();
     ///
     /// replay_file.read_to_end(&mut buff).unwrap();
-    /// let mut replay = Replay::from_bytes(&name, buff).unwrap();
+    /// let mut replay = Replay::from_bytes(&name, buff, config).unwrap();
     /// replay.parse();
     /// ```
 
@@ -175,7 +179,7 @@ impl Replay {
         })
     }
 
-    /// Parses the loaded replay and populates the Replay type with the return data.
+    /// Parses the loaded replay and populates the `Replay` type with the return data.
     ///
     /// When the replay has finished being parsed, the vector of byte data loaded into memory from
     /// file is dropped. This is done to clean up the resulting type in order to make working with
@@ -187,11 +191,13 @@ impl Replay {
     /// ```ignore
     /// extern crate vault;
     ///
-    /// use vault::replay::Replay;
+    /// use vault::Replay;
+    /// use vault::Config;
     /// use std::path::Path;
     ///
     /// let path = Path::new("/path/to/replay.rec");
-    /// let replay = Replay::new(&path).unwrap();
+    /// let config = Config::default();
+    /// let replay = Replay::new(&path, config).unwrap();
     ///
     /// replay.parse();
     /// 
@@ -226,7 +232,7 @@ impl Replay {
         self.cleanup(None);
     }
 
-    /// Parses a Chunky file segment at the current Stream cursor.
+    /// Parses a Chunky file segment at the current `Stream` cursor.
     ///
     /// A Chunky segment is a container of replay data that houses one or more Chunks.
 
@@ -244,12 +250,12 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses a Chunk file segment at the current Stream cursor.
+    /// Parses a Chunk file segment at the current `Stream` cursor.
     ///
     /// A Chunk segment is a block of replay data inside a Chunky segment that contains one or more
     /// pieces of information that we want to parse out. Depending on the Chunk type and Chunk
     /// version, different parsing rules apply and different information is pulled from the file
-    /// into the Replay.
+    /// into the `Replay`.
 
     fn parse_chunk(&mut self) -> Result<bool> {
         trace!("Replay::parse_chunk");
@@ -302,7 +308,7 @@ impl Replay {
         Ok(true)
     }
 
-    /// Parses the Data section of a Replay. This section comes after all Chunky and Chunk
+    /// Parses the `Data` section of a Replay. This section comes after all Chunky and Chunk
     /// segments, and encodes all actions and chat messages.
 
     fn parse_data(&mut self) -> Result<()> {
@@ -311,10 +317,10 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses a Tick at the current Stream cursor.
+    /// Parses a Tick at the current `Stream` cursor.
     ///
-    /// A Tick is a block of data in the Data section of a Replay that stores information about
-    /// player actions and chat messages that occurred at that moment in time in the Replay. One
+    /// A Tick is a block of data in the Data section of a `Replay` that stores information about
+    /// player actions and chat messages that occurred at that moment in time in the `Replay`. One
     /// Tick represents 1/8 seconds of real-world time, and can contain Action information (player
     /// commands) or Special information (chat messages).
 
@@ -434,7 +440,7 @@ impl Replay {
     }
 
     /// Parses a segment of an Action type Tick and extracts the details of the contained action,
-    /// depending on the type of Command encoded in the action.
+    /// depending on the type of `Command` encoded in the action.
 
     fn parse_action(&mut self, tick: u32, len: u32) -> Result<()> {
         trace!("Replay::parse_action");
@@ -527,7 +533,7 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses the Replay version at the current Stream cursor.
+    /// Parses the `Replay` version at the current `Stream` cursor.
 
     fn parse_version(&mut self) -> Result<()> {
         trace!("Replay::parse_version");
@@ -540,7 +546,7 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses the Replay game type at the current Stream cursor.
+    /// Parses the `Replay` game type at the current `Stream` cursor.
 
     fn parse_game_type(&mut self) -> Result<()> {
         trace!("Replay::parse_game_type");
@@ -548,7 +554,7 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses the Replay timestamp at the current Stream cursor.
+    /// Parses the `Replay` timestamp at the current `Stream` cursor.
 
     fn parse_date_time(&mut self) -> Result<()> {
         trace!("Replay::parse_date_time");
@@ -578,8 +584,8 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses the Replay map information at the current Stream cursor and stores the parsed
-    /// information in a Map type associated with the Replay.
+    /// Parses the `Replay` map information at the current `Stream` cursor and stores the parsed
+    /// information in a `Map` type associated with the `Replay`.
 
     fn parse_map_info(&mut self, version: u32) -> Result<()> {
         trace!("Replay::parse_map_info");
@@ -626,7 +632,7 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses the Replay opponent information at the current Stream cursor.
+    /// Parses the `Replay` opponent information at the current `Stream` cursor.
 
     fn parse_opponent_info(&mut self) -> Result<()> {
         trace!("Replay::parse_opponent_info");
@@ -634,7 +640,7 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses the Replay RNG seed at the current Stream cursor.
+    /// Parses the `Replay` RNG seed at the current `Stream` cursor.
 
     fn parse_rng_seed(&mut self) -> Result<()> {
         trace!("Replay::parse_rng_seed");
@@ -668,7 +674,8 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses all Player entities in the given Replay, starting at the current Stream cursor.
+    /// Parses all `Player` entities in the given `Replay`, starting at the current `Stream`
+    /// cursor.
 
     fn parse_players(&mut self) -> Result<()> {
         trace!("Replay::parse_players");
@@ -684,8 +691,8 @@ impl Replay {
         Ok(())
     }
 
-    /// Parses a Player entity at the current Stream cursor, including all Items equipped by that
-    /// player.
+    /// Parses a `Player` entity at the current `Stream` cursor, including all `Items` equipped by
+    /// that player.
 
     fn parse_player(&mut self, id: u8) -> Result<Player> {
         trace!("Replay::parse_player");
@@ -747,8 +754,8 @@ impl Replay {
         Ok(player)
     }
 
-    /// Parses an Item belonging to a Player at the current Stream cursor, depending on the type
-    /// of Item being parsed, and returns that Item to the caller.
+    /// Parses an `Item` belonging to a `Player` at the current `Stream` cursor, depending on the
+    /// type of `Item` being parsed, and returns that `Item` to the caller.
 
     fn parse_item(&mut self, item_type: ItemType) -> Result<Item> {
         let type_label = try!(self.file.read_u16());
@@ -761,7 +768,7 @@ impl Replay {
         }
     }
 
-    /// Parses an encoded Item whose pattern matches that of most human Player Items.
+    /// Parses an encoded `Item` whose pattern matches that of most human `Player` `Items`.
 
     fn parse_player_item(&mut self, item_type: ItemType) -> Result<Item> {
         let primary = try!(self.file.read_u32());
@@ -775,8 +782,8 @@ impl Replay {
         Ok(Item::with_split_id(primary, secondary, item_type))
     }
 
-    /// Parses an encoded Item whose pattern matches that of a special case of human Player Item,
-    /// usually a special type of Decal.
+    /// Parses an encoded `Item` whose pattern matches that of a special case of human `Player`
+    /// `Item`, usually a special type of Decal.
 
     fn parse_player_item_special(&mut self, item_type: ItemType) -> Result<Item> {
         try!(self.file.skip_ahead(16)); // lots of data, no idea what it is
@@ -786,7 +793,7 @@ impl Replay {
         Ok(Item::with_whole_id(id, item_type))
     }
 
-    /// Parses an encoded Item whose pattern matches that of most CPU Player Items.
+    /// Parses an encoded `Item` whose pattern matches that of most CPU `Player` `Items`.
 
     fn parse_cpu_item(&mut self, item_type: ItemType) -> Result<Item> {
         test_eq!(self.file.read_u8(), 0x1);
@@ -795,7 +802,7 @@ impl Replay {
         Ok(Item::with_whole_id(id, item_type))
     }
 
-    /// Parses a Player Steam ID at the current Stream cursor.
+    /// Parses a `Player` Steam ID at the current `Stream` cursor.
 
     fn parse_steam_id(&mut self) -> Result<u64> {
         try!(self.file.skip_ahead(8)); // u64::MAX if cpu and no steam id, but it will return
@@ -810,7 +817,7 @@ impl Replay {
         Ok(())
     }
 
-    /// Adds a command to the list for the given player.
+    /// Adds a `Command` to the list for the given `Player`.
 
     fn add_command(&mut self, player_id: u8, command: Command) {
         if let Some(player) = self.players.get_mut(&player_id) {
@@ -818,13 +825,13 @@ impl Replay {
         }
     }
 
-    /// Updates the Replay error string to indicate a failure during parsing.
+    /// Updates the `Replay` error string to indicate a failure during parsing.
 
     fn update_error(&mut self, err: Error) {
         self.error = Some(err.description().to_owned());
     }
 
-    /// Performs maintenance on the data structures of the Replay type to clean up unneeded
+    /// Performs maintenance on the data structures of the `Replay` type to clean up unneeded
     /// elements once parsing is complete, in order to simplify the resulting information.
 
     fn cleanup(&mut self, err: Option<Error>) {
@@ -842,13 +849,13 @@ impl Replay {
         self.file.cleanup();
     }
 
-    /// Serializes Replay as JSON String.
+    /// Serializes `Replay` as JSON String.
 
     pub fn to_json(&self) -> Result<String> {
         Ok(try!(json::encode(&self)))
     }
 
-    /// Writes the contents of the Replay to stdout.
+    /// Writes the contents of the `Replay` to `stdout`.
 
     pub fn display(&self) {
         println!("version: {}", self.version);

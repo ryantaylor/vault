@@ -17,7 +17,7 @@ pub struct Map {
 
 impl Map {
 
-    /// Constructs a new Map with empty initial data.
+    /// Constructs a new `Map` with empty initial data.
 
     pub fn new() -> Map {
         Map {
@@ -31,7 +31,7 @@ impl Map {
         }
     }
 
-    /// Constructs a new Map initialized with the data given.
+    /// Constructs a new `Map` initialized with the data given.
 
     pub fn with_data(file: String,
                      name: String,
@@ -51,7 +51,7 @@ impl Map {
         }
     }
 
-    /// Writes the contents of the Map to stdout.
+    /// Writes the contents of the `Map` to `stdout`.
 
     pub fn display(&self) {
         println!("map_file: {}", self.file);

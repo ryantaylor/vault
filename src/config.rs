@@ -2,7 +2,7 @@
 
 use std::default::Default;
 
-/// This type contains option and configuration information for the associated Vault instance.
+/// This type contains option and configuration information for the associated `Vault` instance.
 
 #[derive(Debug, Copy, Clone, RustcEncodable)]
 pub struct Config {
@@ -13,7 +13,7 @@ pub struct Config {
 
 impl Config {
 
-    /// Constructs a new Config structure with the given options set.
+    /// Constructs a new `Config` structure with the given options set.
 
     pub fn new(strict: bool, commands: bool, command_bytes: bool) -> Config {
         Config {
@@ -26,7 +26,7 @@ impl Config {
 
 impl Default for Config {
 
-    /// Constructs a new Config structure with default options set.
+    /// Constructs a new `Config` structure with default options set.
 
     fn default() -> Self {
         Config {

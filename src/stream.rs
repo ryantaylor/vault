@@ -25,7 +25,7 @@ pub struct Stream {
 
 impl Stream {
 
-    /// Constructs an empty Stream.
+    /// Constructs an empty `Stream`.
 
     pub fn new(name: &str) -> Stream {
         Stream {
@@ -35,7 +35,7 @@ impl Stream {
         }
     }
 
-    /// Constructs a new Stream using the file specified in path.
+    /// Constructs a new `Stream` using the file specified in path.
 
     pub fn from_file(path: &Path) -> Result<Stream> {
         let meta = try!(fs::metadata(path));
@@ -64,7 +64,7 @@ impl Stream {
         })
     }
 
-    /// Constructs a new Stream from the given byte vector.
+    /// Constructs a new `Stream` from the given byte vector.
 
     pub fn from_bytes(name: &str, bytes: Vec<u8>) -> Result<Stream> {
         if bytes.len() >= u32::MAX as usize {
@@ -78,7 +78,7 @@ impl Stream {
         })
     }
 
-    /// Moves the file cursor pos positions forward.
+    /// Moves the file cursor `pos` positions forward.
 
     pub fn skip_ahead(&mut self, pos: u32) -> Result<()> {
         trace!("Stream::skip_ahead - skipping {} bytes", pos);
@@ -97,7 +97,7 @@ impl Stream {
         Ok(())
     }
 
-    /// Moves the file cursor pos positions backward.
+    /// Moves the file cursor `pos` positions backward.
 
     pub fn skip_back(&mut self, pos: u32) -> Result<()> {
         trace!("Stream::skip_back - skipping {} bytes", pos);
@@ -116,7 +116,7 @@ impl Stream {
         Ok(())
     }
 
-    /// Moves the file cursor to the position given in pos.
+    /// Moves the file cursor to the position given in `pos`.
 
     pub fn seek(&mut self, pos: u32) {
         trace!("Stream::seek - seeking to {}", pos);
@@ -147,8 +147,8 @@ impl Stream {
     /// Reads a 16-bit (2-byte) unsigned integer at the current cursor position, then moves the
     /// cursor ahead 2 positions.
     ///
-    /// This method reads a little endian integer. When called on the byte stream 01 00 the return
-    /// value will be 1.
+    /// This method reads a little endian integer. When called on the byte stream `01 00` the
+    /// return value will be `1`.
 
     pub fn read_u16(&mut self) -> Result<u16> {
         trace!("Stream::read_u16 - at cursor {}", self.cursor);
@@ -170,8 +170,8 @@ impl Stream {
     /// Reads a 32-bit (4-byte) unsigned integer at the current cursor position, then moves the
     /// cursor ahead 4 positions.
     ///
-    /// This method reads a little endian integer. When called on the byte stream 01 00 00 00 the
-    /// return value will be 1.
+    /// This method reads a little endian integer. When called on the byte stream `01 00 00 00` the
+    /// return value will be `1`.
 
     pub fn read_u32(&mut self) -> Result<u32> {
         trace!("Stream::read_u32 - at cursor {}", self.cursor);
@@ -197,7 +197,7 @@ impl Stream {
     /// cursor ahead 8 positions.
     ///
     /// This method reads a little endian integer. When called on the byte stream
-    /// 01 00 00 00 00 00 00 00 the return value will be 1.
+    /// `01 00 00 00 00 00 00 00` the return value will be `1`.
 
     pub fn read_u64(&mut self) -> Result<u64> {
         trace!("Stream::read_u64 - at cursor {}", self.cursor);
@@ -226,8 +226,8 @@ impl Stream {
     /// Reads a 32-bit (8-byte) float at the current cursor position, then moves the cursor ahead 4
     /// positions.
     ///
-    /// This method reads a little endian float by reading a u32 and then unsafely transmuting it
-    /// into an f32.
+    /// This method reads a little endian float by reading a `u32` and then unsafely transmuting it
+    /// into an `f32`.
 
     pub fn read_f32(&mut self) -> Result<f32> {
         let result_u32 = try!(self.read_u32());
@@ -235,7 +235,7 @@ impl Stream {
     }
 
     /// Reads a sequence of 16-bit unsigned integers that represent 16-bit Unicode characters, then
-    /// moves the cursor ahead len * 2 positions.
+    /// moves the cursor ahead `len * 2` positions.
 
     pub fn read_utf16(&mut self, len: u32) -> Result<String> {
         trace!("Stream::read_utf16 - at cursor {} with len {}", self.cursor, len);
@@ -303,7 +303,7 @@ impl Stream {
     }
 
     /// Reads a sequence of 8-bit unsigned integers that represent 8-bit Unicode characters, then
-    /// moves the cursor ahead len positions.
+    /// moves the cursor ahead `len` positions.
 
     pub fn read_utf8(&mut self, len: u32) -> Result<String> {
         trace!("Stream::read_utf8 - at cursor {} with len {}", self.cursor, len);
@@ -359,7 +359,7 @@ impl Stream {
     /// file.
     ///
     /// This is generally done at the end of parsing because we no longer have any use for the raw
-    /// byte stream, and keeping it makes serializing the Replay type messy.
+    /// byte stream, and keeping it makes serializing the `Replay` type messy.
 
     pub fn cleanup(&mut self) {
         self.cursor = self.data.len() as u32;

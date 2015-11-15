@@ -13,7 +13,7 @@ pub struct ChatLine {
 
 impl ChatLine {
 
-    /// Constructs a new ChatLine initialized with the data given.
+    /// Constructs a new `ChatLine` initialized with the data given.
 
     pub fn with_data<S>(tick: u32, name: S, message: S) -> ChatLine where S: Into<String> {
         ChatLine {
@@ -23,7 +23,7 @@ impl ChatLine {
         }
     }
 
-    /// Writes the contents of the ChatLine to stdout.
+    /// Writes the contents of the `ChatLine` to stdout.
 
     pub fn display(&self) {
         println!("{} - {}: {}", self.tick, self.name, self.message);

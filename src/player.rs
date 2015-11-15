@@ -21,7 +21,7 @@ pub struct Player {
 
 impl Player {
 
-    /// Constructs a new Player with empty initial data.
+    /// Constructs a new `Player` with empty initial data.
 
     pub fn new(id: u8) -> Player {
         Player {
@@ -36,7 +36,7 @@ impl Player {
         }
     }
 
-    /// Writes the contents of the Player to stdout.
+    /// Writes the contents of the `Player` to `stdout`.
 
     pub fn display(&self) {
         println!("id: {}", self.id);

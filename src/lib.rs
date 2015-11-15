@@ -50,11 +50,11 @@ mod stream;
 #[cfg(test)]
 mod tests;
 
-/// Custom Result wrapper for vault, used to return vault::Error from every result.
+/// Custom `Result` wrapper for `vault`, used to return `vault::Error` from every result.
 
 pub type Result<T> = result::Result<T, Error>;
 
-/// This type is the main entry point for the vault replay parser and provides the cleanest
+/// This type is the main entry point for the `vault` replay parser and provides the cleanest
 /// interface for use by external code.
 
 #[derive(Debug, RustcEncodable)]
@@ -64,12 +64,12 @@ pub struct Vault {
 
 impl Vault {
 
-    /// Attempts to parse the given file, returning a Vault type populated with the Replay(s) if
-    /// successful.
+    /// Attempts to parse the given file, returning a `Vault` type populated with the `Replay`(s)
+    /// if successful.
     ///
-    /// Currently .rec and .zip (archives) are supported filetypes. When an archive is provided,
-    /// all .rec files in the archive will be parsed. All resulting Replays have their raw byte
-    /// data cleaned automatically after parse completes.
+    /// Currently `.rec` and `.zip` (archives) are supported filetypes. When an archive is
+    /// provided, all `.rec` files in the archive will be parsed. All resulting `Replay`s have
+    /// their raw byte data cleaned automatically after parse completes.
     ///
     /// This function uses the following default configuration:
     ///
@@ -152,7 +152,7 @@ impl Vault {
         })
     }
 
-    /// Parses a .rec file.
+    /// Parses a `.rec` file.
 
     fn parse_rec(path: &Path, config: Config) -> Result<Vec<Replay>> {
         let mut replay = try!(Replay::new(&path, config));
@@ -166,7 +166,7 @@ impl Vault {
         Ok(replays)
     }
 
-    /// Parses .rec files in a .zip archive.
+    /// Parses `.rec` files in a `.zip` archive.
 
     fn parse_zip(path: &Path, config: Config) -> Result<Vec<Replay>> {
         let archive_file = try!(File::open(path));
@@ -233,7 +233,7 @@ impl Vault {
         Ok(replays)
     }
 
-    /// Parses all .rec and .zip files in the given directory.
+    /// Parses all `.rec` and `.zip` files in the given directory.
 
     fn parse_dir(path: &Path, config: Config) -> Result<Vec<Replay>> {
         let dir = try!(fs::read_dir(path));
@@ -312,7 +312,7 @@ impl Vault {
         Ok(replays)
     }
 
-    /// Serializes Vault as JSON String.
+    /// Serializes `Vault` as JSON String.
 
     pub fn to_json(&self) -> Result<String> {
         Ok(try!(json::encode(&self)))
@@ -328,11 +328,11 @@ pub fn print_version() {
 /// Extern function for invoking a parse operation across FFI. Returns a Vault type serialized to
 /// JSON.
 ///
-/// Note that the return type is a pointer to a c_char array. The function passes ownership of the
-/// CString to the FFI caller and does not deallocate memory when the CString goes out of this
-/// function's scope. It is the responsibility of the FFI caller to pass back the *c_char to this
-/// library via free_cstring so that it can be deallocated. Failure to pass back to free_cstring
-/// will result in a memory leak.
+/// Note that the return type is a pointer to a `c_char` array. The function passes ownership of
+/// the `CString` to the FFI caller and does not deallocate memory when the `CString` goes out of
+/// this function's scope. It is the responsibility of the FFI caller to pass back the `*c_char` to
+/// this library via `free_cstring` so that it can be deallocated. Failure to pass back to
+/// `free_cstring` will result in a memory leak.
 ///
 /// # Examples
 ///
@@ -370,12 +370,12 @@ pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
     val.into_raw()
 }
 
-/// Extern function for deallocating a CString returned by parse_to_cstring.
+/// Extern function for deallocating a `CString` returned by `parse_to_cstring`.
 ///
-/// Must only be passed a pointer created by parse_to_cstring; passing other pointers is undefined
-/// behaviour, and will likely cause a seg fault or double free. Every call to parse_to_cstring
-/// should have a matching free_cstring to deallocate the memory after the string has been used.
-/// Failure to call this function will result in a memory leak.
+/// Must only be passed a pointer created by `parse_to_cstring`; passing other pointers is
+/// undefined behaviour, and will likely cause a seg fault or double free. Every call to
+/// `parse_to_cstring` should have a matching `free_cstring` to deallocate the memory after the
+/// string has been used. Failure to call this function will result in a memory leak.
 
 #[cfg(feature = "ffi")]
 #[no_mangle]
