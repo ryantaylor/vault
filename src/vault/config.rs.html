@@ -83,7 +83,7 @@
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>default</span>::<span class='ident'>Default</span>;
 
-<span class='doccomment'>/// This type contains option and configuration information for the associated Vault instance.</span>
+<span class='doccomment'>/// This type contains option and configuration information for the associated `Vault` instance.</span>
 
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>RustcEncodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Config</span> {
@@ -94,7 +94,7 @@
 
 <span class='kw'>impl</span> <span class='ident'>Config</span> {
 
-    <span class='doccomment'>/// Constructs a new Config structure with the given options set.</span>
+    <span class='doccomment'>/// Constructs a new `Config` structure with the given options set.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>strict</span>: <span class='ident'>bool</span>, <span class='ident'>commands</span>: <span class='ident'>bool</span>, <span class='ident'>command_bytes</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>Config</span> {
         <span class='ident'>Config</span> {
@@ -107,7 +107,7 @@
 
 <span class='kw'>impl</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>Config</span> {
 
-    <span class='doccomment'>/// Constructs a new Config structure with default options set.</span>
+    <span class='doccomment'>/// Constructs a new `Config` structure with default options set.</span>
 
     <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
         <span class='ident'>Config</span> {

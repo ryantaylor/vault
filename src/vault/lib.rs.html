@@ -477,11 +477,11 @@
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
 <span class='kw'>mod</span> <span class='ident'>tests</span>;
 
-<span class='doccomment'>/// Custom Result wrapper for vault, used to return vault::Error from every result.</span>
+<span class='doccomment'>/// Custom `Result` wrapper for `vault`, used to return `vault::Error` from every result.</span>
 
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>result</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>Error</span><span class='op'>&gt;</span>;
 
-<span class='doccomment'>/// This type is the main entry point for the vault replay parser and provides the cleanest</span>
+<span class='doccomment'>/// This type is the main entry point for the `vault` replay parser and provides the cleanest</span>
 <span class='doccomment'>/// interface for use by external code.</span>
 
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>RustcEncodable</span>)]</span>
@@ -491,12 +491,12 @@
 
 <span class='kw'>impl</span> <span class='ident'>Vault</span> {
 
-    <span class='doccomment'>/// Attempts to parse the given file, returning a Vault type populated with the Replay(s) if</span>
-    <span class='doccomment'>/// successful.</span>
+    <span class='doccomment'>/// Attempts to parse the given file, returning a `Vault` type populated with the `Replay`(s)</span>
+    <span class='doccomment'>/// if successful.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Currently .rec and .zip (archives) are supported filetypes. When an archive is provided,</span>
-    <span class='doccomment'>/// all .rec files in the archive will be parsed. All resulting Replays have their raw byte</span>
-    <span class='doccomment'>/// data cleaned automatically after parse completes.</span>
+    <span class='doccomment'>/// Currently `.rec` and `.zip` (archives) are supported filetypes. When an archive is</span>
+    <span class='doccomment'>/// provided, all `.rec` files in the archive will be parsed. All resulting `Replay`s have</span>
+    <span class='doccomment'>/// their raw byte data cleaned automatically after parse completes.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This function uses the following default configuration:</span>
     <span class='doccomment'>///</span>
@@ -579,7 +579,7 @@
         })
     }
 
-    <span class='doccomment'>/// Parses a .rec file.</span>
+    <span class='doccomment'>/// Parses a `.rec` file.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_rec</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Replay</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='ident'>config</span>));
@@ -593,7 +593,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
     }
 
-    <span class='doccomment'>/// Parses .rec files in a .zip archive.</span>
+    <span class='doccomment'>/// Parses `.rec` files in a `.zip` archive.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_zip</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>archive_file</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>File</span>::<span class='ident'>open</span>(<span class='ident'>path</span>));
@@ -660,7 +660,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
     }
 
-    <span class='doccomment'>/// Parses all .rec and .zip files in the given directory.</span>
+    <span class='doccomment'>/// Parses all `.rec` and `.zip` files in the given directory.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_dir</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>dir</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>fs</span>::<span class='ident'>read_dir</span>(<span class='ident'>path</span>));
@@ -739,7 +739,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
     }
 
-    <span class='doccomment'>/// Serializes Vault as JSON String.</span>
+    <span class='doccomment'>/// Serializes `Vault` as JSON String.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_json</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>json</span>::<span class='ident'>encode</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>)))
@@ -755,11 +755,11 @@
 <span class='doccomment'>/// Extern function for invoking a parse operation across FFI. Returns a Vault type serialized to</span>
 <span class='doccomment'>/// JSON.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// Note that the return type is a pointer to a c_char array. The function passes ownership of the</span>
-<span class='doccomment'>/// CString to the FFI caller and does not deallocate memory when the CString goes out of this</span>
-<span class='doccomment'>/// function&#39;s scope. It is the responsibility of the FFI caller to pass back the *c_char to this</span>
-<span class='doccomment'>/// library via free_cstring so that it can be deallocated. Failure to pass back to free_cstring</span>
-<span class='doccomment'>/// will result in a memory leak.</span>
+<span class='doccomment'>/// Note that the return type is a pointer to a `c_char` array. The function passes ownership of</span>
+<span class='doccomment'>/// the `CString` to the FFI caller and does not deallocate memory when the `CString` goes out of</span>
+<span class='doccomment'>/// this function&#39;s scope. It is the responsibility of the FFI caller to pass back the `*c_char` to</span>
+<span class='doccomment'>/// this library via `free_cstring` so that it can be deallocated. Failure to pass back to</span>
+<span class='doccomment'>/// `free_cstring` will result in a memory leak.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// # Examples</span>
 <span class='doccomment'>///</span>
@@ -797,12 +797,12 @@
     <span class='ident'>val</span>.<span class='ident'>into_raw</span>()
 }
 
-<span class='doccomment'>/// Extern function for deallocating a CString returned by parse_to_cstring.</span>
+<span class='doccomment'>/// Extern function for deallocating a `CString` returned by `parse_to_cstring`.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// Must only be passed a pointer created by parse_to_cstring; passing other pointers is undefined</span>
-<span class='doccomment'>/// behaviour, and will likely cause a seg fault or double free. Every call to parse_to_cstring</span>
-<span class='doccomment'>/// should have a matching free_cstring to deallocate the memory after the string has been used.</span>
-<span class='doccomment'>/// Failure to call this function will result in a memory leak.</span>
+<span class='doccomment'>/// Must only be passed a pointer created by `parse_to_cstring`; passing other pointers is</span>
+<span class='doccomment'>/// undefined behaviour, and will likely cause a seg fault or double free. Every call to</span>
+<span class='doccomment'>/// `parse_to_cstring` should have a matching `free_cstring` to deallocate the memory after the</span>
+<span class='doccomment'>/// string has been used. Failure to call this function will result in a memory leak.</span>
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ffi&quot;</span>)]</span>
 <span class='attribute'>#[<span class='ident'>no_mangle</span>]</span>

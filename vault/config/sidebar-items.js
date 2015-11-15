@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Config","This type contains option and configuration information for the associated Vault instance."]]});
+initSidebarItems({"struct":[["Config","This type contains option and configuration information for the associated `Vault` instance."]]});

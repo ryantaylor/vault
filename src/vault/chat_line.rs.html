@@ -87,7 +87,7 @@
 
 <span class='kw'>impl</span> <span class='ident'>ChatLine</span> {
 
-    <span class='doccomment'>/// Constructs a new ChatLine initialized with the data given.</span>
+    <span class='doccomment'>/// Constructs a new `ChatLine` initialized with the data given.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_data</span><span class='op'>&lt;</span><span class='ident'>S</span><span class='op'>&gt;</span>(<span class='ident'>tick</span>: <span class='ident'>u32</span>, <span class='ident'>name</span>: <span class='ident'>S</span>, <span class='ident'>message</span>: <span class='ident'>S</span>) <span class='op'>-&gt;</span> <span class='ident'>ChatLine</span> <span class='kw'>where</span> <span class='ident'>S</span>: <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='ident'>ChatLine</span> {
@@ -97,7 +97,7 @@
         }
     }
 
-    <span class='doccomment'>/// Writes the contents of the ChatLine to stdout.</span>
+    <span class='doccomment'>/// Writes the contents of the `ChatLine` to stdout.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>display</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} - {}: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>tick</span>, <span class='self'>self</span>.<span class='ident'>name</span>, <span class='self'>self</span>.<span class='ident'>message</span>);

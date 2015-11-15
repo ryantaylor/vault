@@ -117,7 +117,7 @@
 
 <span class='kw'>impl</span> <span class='ident'>Player</span> {
 
-    <span class='doccomment'>/// Constructs a new Player with empty initial data.</span>
+    <span class='doccomment'>/// Constructs a new `Player` with empty initial data.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>id</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='ident'>Player</span> {
         <span class='ident'>Player</span> {
@@ -132,7 +132,7 @@
         }
     }
 
-    <span class='doccomment'>/// Writes the contents of the Player to stdout.</span>
+    <span class='doccomment'>/// Writes the contents of the `Player` to `stdout`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>display</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;id: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>id</span>);

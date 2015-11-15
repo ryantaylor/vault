@@ -256,7 +256,7 @@
 
 <span class='kw'>impl</span> <span class='ident'>Command</span> {
 
-    <span class='doccomment'>/// Constructs a new, empty Command.</span>
+    <span class='doccomment'>/// Constructs a new, empty `Command`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>tick</span>: <span class='ident'>u32</span>, <span class='ident'>command_type</span>: <span class='ident'>CmdType</span>) <span class='op'>-&gt;</span> <span class='ident'>Command</span> {
         <span class='ident'>Command</span> {
@@ -271,7 +271,7 @@
         }
     }
 
-    <span class='doccomment'>/// Writes the contents of the Command to stdout.</span>
+    <span class='doccomment'>/// Writes the contents of the `Command` to stdout.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>display</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span> <span class='op'>=</span> <span class='ident'>String</span>::<span class='ident'>new</span>();
@@ -414,8 +414,8 @@
 
 <span class='kw'>impl</span> <span class='ident'>CmdType</span> {
 
-    <span class='doccomment'>/// Converts a numerical representation of a CmdType enum into the correct enum value by</span>
-    <span class='doccomment'>/// unsafely transmuting the numerical representation into the CmdType type.</span>
+    <span class='doccomment'>/// Converts a numerical representation of a `CmdType` enum into the correct enum value by</span>
+    <span class='doccomment'>/// unsafely transmuting the numerical representation into the `CmdType` type.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_u8</span>(<span class='ident'>n</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>CmdType</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='ident'>n</span> <span class='op'>&lt;=</span> <span class='number'>106</span> {

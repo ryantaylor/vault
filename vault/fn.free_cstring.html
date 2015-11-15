@@ -46,12 +46,12 @@
                 [<span class='inner'>&#x2212;</span>]
             </a>
         </span><a id='src-24138' class='srclink' href='../src/vault/lib.rs.html#382-384' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub extern fn free_cstring(ptr: <a href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../libc/unix/notbsd/linux/other/b64/x86_64/type.c_char.html' title='libc::unix::notbsd::linux::other::b64::x86_64::c_char'>c_char</a></a>)</pre><div class='docblock'><p>Extern function for deallocating a CString returned by parse_to_cstring.</p>
+<pre class='rust fn'>pub extern fn free_cstring(ptr: <a href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../libc/unix/notbsd/linux/other/b64/x86_64/type.c_char.html' title='libc::unix::notbsd::linux::other::b64::x86_64::c_char'>c_char</a></a>)</pre><div class='docblock'><p>Extern function for deallocating a <code>CString</code> returned by <code>parse_to_cstring</code>.</p>
 
-<p>Must only be passed a pointer created by parse_to_cstring; passing other pointers is undefined
-behaviour, and will likely cause a seg fault or double free. Every call to parse_to_cstring
-should have a matching free_cstring to deallocate the memory after the string has been used.
-Failure to call this function will result in a memory leak.</p>
+<p>Must only be passed a pointer created by <code>parse_to_cstring</code>; passing other pointers is
+undefined behaviour, and will likely cause a seg fault or double free. Every call to
+<code>parse_to_cstring</code> should have a matching <code>free_cstring</code> to deallocate the memory after the
+string has been used. Failure to call this function will result in a memory leak.</p>
 </div></section>
     <section id='search' class="content hidden"></section>
 

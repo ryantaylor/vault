@@ -909,6 +909,13 @@
 <span id="867">867</span>
 <span id="868">868</span>
 <span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representative state of a Company of Heroes 2 replay file.</span>
 
@@ -929,8 +936,8 @@
 <span class='kw'>use</span> <span class='prelude-ty'>Result</span>;
 <span class='kw'>use</span> <span class='ident'>stream</span>::<span class='ident'>Stream</span>;
 
-<span class='doccomment'>/// Takes a Result&lt;T&gt;, unwraps it, then checks for equality against another T. If Result&lt;T&gt;</span>
-<span class='doccomment'>/// unwraps to an Err, that Err is returned. If the equality check fails, an Err is returned</span>
+<span class='doccomment'>/// Takes a `Result&lt;T&gt;`, unwraps it, then checks for equality against another `T`. If `Result&lt;T&gt;`</span>
+<span class='doccomment'>/// unwraps to an `Err`, that `Err` is returned. If the equality check fails, an `Err` is returned</span>
 <span class='doccomment'>/// instead of panicking.</span>
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>not</span>(<span class='ident'>debug_assertions</span>))]</span>
@@ -946,7 +953,7 @@
     })
 }
 
-<span class='doccomment'>/// Debug version of the above macro, panics if Result&lt;T&gt; unwraps to Err or the equality check</span>
+<span class='doccomment'>/// Debug version of the above macro, panics if `Result&lt;T&gt;` unwraps to `Err` or the equality check</span>
 <span class='doccomment'>/// fails.</span>
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>debug_assertions</span>)]</span>
@@ -958,8 +965,8 @@
     })
 }
 
-<span class='doccomment'>/// The main Replay type, contains all currently parsed replay data. Can be serialized to JSON for</span>
-<span class='doccomment'>/// output using rustc_serialize.</span>
+<span class='doccomment'>/// The main `Replay` type, contains all currently parsed replay data. Can be serialized to JSON</span>
+<span class='doccomment'>/// for output using `rustc_serialize`.</span>
 
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>RustcEncodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Replay</span> {
@@ -979,7 +986,7 @@
 
 <span class='kw'>impl</span> <span class='ident'>Replay</span> {
 
-    <span class='doccomment'>/// Constructs a new Replay and loads the file specified by path into memory.</span>
+    <span class='doccomment'>/// Constructs a new `Replay` and loads the file specified by path into memory.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Examples</span>
     <span class='doccomment'>///</span>
@@ -987,10 +994,12 @@
     <span class='doccomment'>/// extern crate vault;</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// use vault::Replay;</span>
+    <span class='doccomment'>/// use vault::Config;</span>
     <span class='doccomment'>/// use std::path::Path;</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// let path = Path::new(&quot;/path/to/replay.rec&quot;);</span>
-    <span class='doccomment'>/// let replay = Replay::new(&amp;path).unwrap();</span>
+    <span class='doccomment'>/// let config = Config::default();</span>
+    <span class='doccomment'>/// let replay = Replay::new(&amp;path, config).unwrap();</span>
     <span class='doccomment'>/// ```</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span> {
@@ -1010,8 +1019,8 @@
         })
     }
 
-    <span class='doccomment'>/// Constructs a junk Replay type with empty data and an error value set. Used to return a</span>
-    <span class='doccomment'>/// Replay and its error information out of a thread without panicking if an error was</span>
+    <span class='doccomment'>/// Constructs a junk `Replay` type with empty data and an error value set. Used to return a</span>
+    <span class='doccomment'>/// `Replay` and its error information out of a thread without panicking if an error was</span>
     <span class='doccomment'>/// encountered during creation.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Examples</span>
@@ -1044,7 +1053,7 @@
         }
     }
 
-    <span class='doccomment'>/// Constructs a new Replay and loads the byte vector given as the file data.</span>
+    <span class='doccomment'>/// Constructs a new `Replay` and loads the byte vector given as the file data.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// # Examples</span>
     <span class='doccomment'>///</span>
@@ -1053,11 +1062,13 @@
     <span class='doccomment'>/// extern crate zip;</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// use vault::Replay;</span>
+    <span class='doccomment'>/// use vault::Config;</span>
     <span class='doccomment'>/// use std::ops::Deref;</span>
     <span class='doccomment'>/// use std::path::Path;</span>
     <span class='doccomment'>/// use zip::read::{ZipArchive, ZipFile};</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// let path = Path::new(&quot;/path/to/archive.zip&quot;);</span>
+    <span class='doccomment'>/// let config = Config::default();</span>
     <span class='doccomment'>/// let name = path.to_string_lossy();</span>
     <span class='doccomment'>/// let name = name.deref();</span>
     <span class='doccomment'>/// let file = File::open(&amp;path).unwrap();</span>
@@ -1066,7 +1077,7 @@
     <span class='doccomment'>/// let mut replay_file = archive.by_index(0).unwrap();</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// replay_file.read_to_end(&amp;mut buff).unwrap();</span>
-    <span class='doccomment'>/// let mut replay = Replay::from_bytes(&amp;name, buff).unwrap();</span>
+    <span class='doccomment'>/// let mut replay = Replay::from_bytes(&amp;name, buff, config).unwrap();</span>
     <span class='doccomment'>/// replay.parse();</span>
     <span class='doccomment'>/// ```</span>
 
@@ -1087,7 +1098,7 @@
         })
     }
 
-    <span class='doccomment'>/// Parses the loaded replay and populates the Replay type with the return data.</span>
+    <span class='doccomment'>/// Parses the loaded replay and populates the `Replay` type with the return data.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// When the replay has finished being parsed, the vector of byte data loaded into memory from</span>
     <span class='doccomment'>/// file is dropped. This is done to clean up the resulting type in order to make working with</span>
@@ -1099,11 +1110,13 @@
     <span class='doccomment'>/// ```ignore</span>
     <span class='doccomment'>/// extern crate vault;</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// use vault::replay::Replay;</span>
+    <span class='doccomment'>/// use vault::Replay;</span>
+    <span class='doccomment'>/// use vault::Config;</span>
     <span class='doccomment'>/// use std::path::Path;</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// let path = Path::new(&quot;/path/to/replay.rec&quot;);</span>
-    <span class='doccomment'>/// let replay = Replay::new(&amp;path).unwrap();</span>
+    <span class='doccomment'>/// let config = Config::default();</span>
+    <span class='doccomment'>/// let replay = Replay::new(&amp;path, config).unwrap();</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// replay.parse();</span>
     <span class='doccomment'>/// </span>
@@ -1138,7 +1151,7 @@
         <span class='self'>self</span>.<span class='ident'>cleanup</span>(<span class='prelude-val'>None</span>);
     }
 
-    <span class='doccomment'>/// Parses a Chunky file segment at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses a Chunky file segment at the current `Stream` cursor.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// A Chunky segment is a container of replay data that houses one or more Chunks.</span>
 
@@ -1156,12 +1169,12 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses a Chunk file segment at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses a Chunk file segment at the current `Stream` cursor.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// A Chunk segment is a block of replay data inside a Chunky segment that contains one or more</span>
     <span class='doccomment'>/// pieces of information that we want to parse out. Depending on the Chunk type and Chunk</span>
     <span class='doccomment'>/// version, different parsing rules apply and different information is pulled from the file</span>
-    <span class='doccomment'>/// into the Replay.</span>
+    <span class='doccomment'>/// into the `Replay`.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_chunk</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>bool</span><span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_chunk&quot;</span>);
@@ -1214,7 +1227,7 @@
         <span class='prelude-val'>Ok</span>(<span class='boolval'>true</span>)
     }
 
-    <span class='doccomment'>/// Parses the Data section of a Replay. This section comes after all Chunky and Chunk</span>
+    <span class='doccomment'>/// Parses the `Data` section of a Replay. This section comes after all Chunky and Chunk</span>
     <span class='doccomment'>/// segments, and encodes all actions and chat messages.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_data</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
@@ -1223,10 +1236,10 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses a Tick at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses a Tick at the current `Stream` cursor.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// A Tick is a block of data in the Data section of a Replay that stores information about</span>
-    <span class='doccomment'>/// player actions and chat messages that occurred at that moment in time in the Replay. One</span>
+    <span class='doccomment'>/// A Tick is a block of data in the Data section of a `Replay` that stores information about</span>
+    <span class='doccomment'>/// player actions and chat messages that occurred at that moment in time in the `Replay`. One</span>
     <span class='doccomment'>/// Tick represents 1/8 seconds of real-world time, and can contain Action information (player</span>
     <span class='doccomment'>/// commands) or Special information (chat messages).</span>
 
@@ -1346,7 +1359,7 @@
     }
 
     <span class='doccomment'>/// Parses a segment of an Action type Tick and extracts the details of the contained action,</span>
-    <span class='doccomment'>/// depending on the type of Command encoded in the action.</span>
+    <span class='doccomment'>/// depending on the type of `Command` encoded in the action.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_action</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>tick</span>: <span class='ident'>u32</span>, <span class='ident'>len</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_action&quot;</span>);
@@ -1439,7 +1452,7 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses the Replay version at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses the `Replay` version at the current `Stream` cursor.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_version</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_version&quot;</span>);
@@ -1452,7 +1465,7 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses the Replay game type at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses the `Replay` game type at the current `Stream` cursor.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_game_type</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_game_type&quot;</span>);
@@ -1460,7 +1473,7 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses the Replay timestamp at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses the `Replay` timestamp at the current `Stream` cursor.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_date_time</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_date_time&quot;</span>);
@@ -1490,8 +1503,8 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses the Replay map information at the current Stream cursor and stores the parsed</span>
-    <span class='doccomment'>/// information in a Map type associated with the Replay.</span>
+    <span class='doccomment'>/// Parses the `Replay` map information at the current `Stream` cursor and stores the parsed</span>
+    <span class='doccomment'>/// information in a `Map` type associated with the `Replay`.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_map_info</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>version</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_map_info&quot;</span>);
@@ -1538,7 +1551,7 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses the Replay opponent information at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses the `Replay` opponent information at the current `Stream` cursor.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_opponent_info</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_opponent_info&quot;</span>);
@@ -1546,7 +1559,7 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses the Replay RNG seed at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses the `Replay` RNG seed at the current `Stream` cursor.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_rng_seed</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_rng_seed&quot;</span>);
@@ -1580,7 +1593,8 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses all Player entities in the given Replay, starting at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses all `Player` entities in the given `Replay`, starting at the current `Stream`</span>
+    <span class='doccomment'>/// cursor.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_players</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_players&quot;</span>);
@@ -1596,8 +1610,8 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Parses a Player entity at the current Stream cursor, including all Items equipped by that</span>
-    <span class='doccomment'>/// player.</span>
+    <span class='doccomment'>/// Parses a `Player` entity at the current `Stream` cursor, including all `Items` equipped by</span>
+    <span class='doccomment'>/// that player.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_player</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>id</span>: <span class='ident'>u8</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Player</span><span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Replay::parse_player&quot;</span>);
@@ -1659,8 +1673,8 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>player</span>)
     }
 
-    <span class='doccomment'>/// Parses an Item belonging to a Player at the current Stream cursor, depending on the type</span>
-    <span class='doccomment'>/// of Item being parsed, and returns that Item to the caller.</span>
+    <span class='doccomment'>/// Parses an `Item` belonging to a `Player` at the current `Stream` cursor, depending on the</span>
+    <span class='doccomment'>/// type of `Item` being parsed, and returns that `Item` to the caller.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_item</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>type_label</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u16</span>());
@@ -1673,7 +1687,7 @@
         }
     }
 
-    <span class='doccomment'>/// Parses an encoded Item whose pattern matches that of most human Player Items.</span>
+    <span class='doccomment'>/// Parses an encoded `Item` whose pattern matches that of most human `Player` `Items`.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_player_item</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>primary</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>());
@@ -1687,8 +1701,8 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>with_split_id</span>(<span class='ident'>primary</span>, <span class='ident'>secondary</span>, <span class='ident'>item_type</span>))
     }
 
-    <span class='doccomment'>/// Parses an encoded Item whose pattern matches that of a special case of human Player Item,</span>
-    <span class='doccomment'>/// usually a special type of Decal.</span>
+    <span class='doccomment'>/// Parses an encoded `Item` whose pattern matches that of a special case of human `Player`</span>
+    <span class='doccomment'>/// `Item`, usually a special type of Decal.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_player_item_special</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span> {
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>16</span>)); <span class='comment'>// lots of data, no idea what it is</span>
@@ -1698,7 +1712,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>with_whole_id</span>(<span class='ident'>id</span>, <span class='ident'>item_type</span>))
     }
 
-    <span class='doccomment'>/// Parses an encoded Item whose pattern matches that of most CPU Player Items.</span>
+    <span class='doccomment'>/// Parses an encoded `Item` whose pattern matches that of most CPU `Player` `Items`.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_cpu_item</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span> {
         <span class='macro'>test_eq</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u8</span>(), <span class='number'>0x1</span>);
@@ -1707,7 +1721,7 @@
         <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>with_whole_id</span>(<span class='ident'>id</span>, <span class='ident'>item_type</span>))
     }
 
-    <span class='doccomment'>/// Parses a Player Steam ID at the current Stream cursor.</span>
+    <span class='doccomment'>/// Parses a `Player` Steam ID at the current `Stream` cursor.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_steam_id</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>u64</span><span class='op'>&gt;</span> {
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>8</span>)); <span class='comment'>// u64::MAX if cpu and no steam id, but it will return</span>
@@ -1722,7 +1736,7 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Adds a command to the list for the given player.</span>
+    <span class='doccomment'>/// Adds a `Command` to the list for the given `Player`.</span>
 
     <span class='kw'>fn</span> <span class='ident'>add_command</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>player_id</span>: <span class='ident'>u8</span>, <span class='ident'>command</span>: <span class='ident'>Command</span>) {
         <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>player</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>players</span>.<span class='ident'>get_mut</span>(<span class='kw-2'>&amp;</span><span class='ident'>player_id</span>) {
@@ -1730,13 +1744,13 @@
         }
     }
 
-    <span class='doccomment'>/// Updates the Replay error string to indicate a failure during parsing.</span>
+    <span class='doccomment'>/// Updates the `Replay` error string to indicate a failure during parsing.</span>
 
     <span class='kw'>fn</span> <span class='ident'>update_error</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>err</span>: <span class='ident'>Error</span>) {
         <span class='self'>self</span>.<span class='ident'>error</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>err</span>.<span class='ident'>description</span>().<span class='ident'>to_owned</span>());
     }
 
-    <span class='doccomment'>/// Performs maintenance on the data structures of the Replay type to clean up unneeded</span>
+    <span class='doccomment'>/// Performs maintenance on the data structures of the `Replay` type to clean up unneeded</span>
     <span class='doccomment'>/// elements once parsing is complete, in order to simplify the resulting information.</span>
 
     <span class='kw'>fn</span> <span class='ident'>cleanup</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>err</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Error</span><span class='op'>&gt;</span>) {
@@ -1754,13 +1768,13 @@
         <span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>cleanup</span>();
     }
 
-    <span class='doccomment'>/// Serializes Replay as JSON String.</span>
+    <span class='doccomment'>/// Serializes `Replay` as JSON String.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_json</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>json</span>::<span class='ident'>encode</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>)))
     }
 
-    <span class='doccomment'>/// Writes the contents of the Replay to stdout.</span>
+    <span class='doccomment'>/// Writes the contents of the `Replay` to `stdout`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>display</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;version: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>version</span>);

@@ -436,7 +436,7 @@
 
 <span class='kw'>impl</span> <span class='ident'>Stream</span> {
 
-    <span class='doccomment'>/// Constructs an empty Stream.</span>
+    <span class='doccomment'>/// Constructs an empty `Stream`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Stream</span> {
         <span class='ident'>Stream</span> {
@@ -446,7 +446,7 @@
         }
     }
 
-    <span class='doccomment'>/// Constructs a new Stream using the file specified in path.</span>
+    <span class='doccomment'>/// Constructs a new `Stream` using the file specified in path.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_file</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Stream</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>meta</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>fs</span>::<span class='ident'>metadata</span>(<span class='ident'>path</span>));
@@ -475,7 +475,7 @@
         })
     }
 
-    <span class='doccomment'>/// Constructs a new Stream from the given byte vector.</span>
+    <span class='doccomment'>/// Constructs a new `Stream` from the given byte vector.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_bytes</span>(<span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>, <span class='ident'>bytes</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Stream</span><span class='op'>&gt;</span> {
         <span class='kw'>if</span> <span class='ident'>bytes</span>.<span class='ident'>len</span>() <span class='op'>&gt;=</span> <span class='ident'>u32</span>::<span class='ident'>MAX</span> <span class='kw'>as</span> <span class='ident'>usize</span> {
@@ -489,7 +489,7 @@
         })
     }
 
-    <span class='doccomment'>/// Moves the file cursor pos positions forward.</span>
+    <span class='doccomment'>/// Moves the file cursor `pos` positions forward.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>skip_ahead</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>pos</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::skip_ahead - skipping {} bytes&quot;</span>, <span class='ident'>pos</span>);
@@ -508,7 +508,7 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Moves the file cursor pos positions backward.</span>
+    <span class='doccomment'>/// Moves the file cursor `pos` positions backward.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>skip_back</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>pos</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::skip_back - skipping {} bytes&quot;</span>, <span class='ident'>pos</span>);
@@ -527,7 +527,7 @@
         <span class='prelude-val'>Ok</span>(())
     }
 
-    <span class='doccomment'>/// Moves the file cursor to the position given in pos.</span>
+    <span class='doccomment'>/// Moves the file cursor to the position given in `pos`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>seek</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>pos</span>: <span class='ident'>u32</span>) {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::seek - seeking to {}&quot;</span>, <span class='ident'>pos</span>);
@@ -558,8 +558,8 @@
     <span class='doccomment'>/// Reads a 16-bit (2-byte) unsigned integer at the current cursor position, then moves the</span>
     <span class='doccomment'>/// cursor ahead 2 positions.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This method reads a little endian integer. When called on the byte stream 01 00 the return</span>
-    <span class='doccomment'>/// value will be 1.</span>
+    <span class='doccomment'>/// This method reads a little endian integer. When called on the byte stream `01 00` the</span>
+    <span class='doccomment'>/// return value will be `1`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_u16</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>u16</span><span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::read_u16 - at cursor {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>);
@@ -581,8 +581,8 @@
     <span class='doccomment'>/// Reads a 32-bit (4-byte) unsigned integer at the current cursor position, then moves the</span>
     <span class='doccomment'>/// cursor ahead 4 positions.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This method reads a little endian integer. When called on the byte stream 01 00 00 00 the</span>
-    <span class='doccomment'>/// return value will be 1.</span>
+    <span class='doccomment'>/// This method reads a little endian integer. When called on the byte stream `01 00 00 00` the</span>
+    <span class='doccomment'>/// return value will be `1`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_u32</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::read_u32 - at cursor {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>);
@@ -608,7 +608,7 @@
     <span class='doccomment'>/// cursor ahead 8 positions.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This method reads a little endian integer. When called on the byte stream</span>
-    <span class='doccomment'>/// 01 00 00 00 00 00 00 00 the return value will be 1.</span>
+    <span class='doccomment'>/// `01 00 00 00 00 00 00 00` the return value will be `1`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_u64</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>u64</span><span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::read_u64 - at cursor {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>);
@@ -637,8 +637,8 @@
     <span class='doccomment'>/// Reads a 32-bit (8-byte) float at the current cursor position, then moves the cursor ahead 4</span>
     <span class='doccomment'>/// positions.</span>
     <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This method reads a little endian float by reading a u32 and then unsafely transmuting it</span>
-    <span class='doccomment'>/// into an f32.</span>
+    <span class='doccomment'>/// This method reads a little endian float by reading a `u32` and then unsafely transmuting it</span>
+    <span class='doccomment'>/// into an `f32`.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_f32</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>result_u32</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>read_u32</span>());
@@ -646,7 +646,7 @@
     }
 
     <span class='doccomment'>/// Reads a sequence of 16-bit unsigned integers that represent 16-bit Unicode characters, then</span>
-    <span class='doccomment'>/// moves the cursor ahead len * 2 positions.</span>
+    <span class='doccomment'>/// moves the cursor ahead `len * 2` positions.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_utf16</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>len</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::read_utf16 - at cursor {} with len {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>, <span class='ident'>len</span>);
@@ -714,7 +714,7 @@
     }
 
     <span class='doccomment'>/// Reads a sequence of 8-bit unsigned integers that represent 8-bit Unicode characters, then</span>
-    <span class='doccomment'>/// moves the cursor ahead len positions.</span>
+    <span class='doccomment'>/// moves the cursor ahead `len` positions.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>read_utf8</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>len</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
         <span class='macro'>trace</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::read_utf8 - at cursor {} with len {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>, <span class='ident'>len</span>);
@@ -770,7 +770,7 @@
     <span class='doccomment'>/// file.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This is generally done at the end of parsing because we no longer have any use for the raw</span>
-    <span class='doccomment'>/// byte stream, and keeping it makes serializing the Replay type messy.</span>
+    <span class='doccomment'>/// byte stream, and keeping it makes serializing the `Replay` type messy.</span>
 
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>cleanup</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
         <span class='self'>self</span>.<span class='ident'>cursor</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>data</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>u32</span>;

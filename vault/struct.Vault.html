@@ -48,17 +48,17 @@
         </span><a id='src-22589' class='srclink' href='../src/vault/lib.rs.html#61-63' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Vault {
     pub replays: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../vault/struct.Replay.html' title='vault::Replay'>Replay</a>&gt;,
-}</pre><div class='docblock'><p>This type is the main entry point for the vault replay parser and provides the cleanest
+}</pre><div class='docblock'><p>This type is the main entry point for the <code>vault</code> replay parser and provides the cleanest
 interface for use by external code.</p>
 </div><h2 class='fields'>Fields</h2>
 <table><tr class='stab '>
                                   <td id='structfield.replays'><code>replays</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Vault.html' title='vault::Vault'>Vault</a></code></h3><div class='impl-items'><h4 id='method.parse' class='method'><code>fn <a href='#method.parse' class='fnname'>parse</a>(path: &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/std/path/struct.Path.html' title='std::path::Path'>Path</a>) -&gt; <a class='type' href='../vault/type.Result.html' title='vault::Result'>Result</a>&lt;<a class='struct' href='../vault/struct.Vault.html' title='vault::Vault'>Vault</a>&gt;</code></h4>
-<div class='docblock'><p>Attempts to parse the given file, returning a Vault type populated with the Replay(s) if
-successful.</p>
+<div class='docblock'><p>Attempts to parse the given file, returning a <code>Vault</code> type populated with the <code>Replay</code>(s)
+if successful.</p>
 
-<p>Currently .rec and .zip (archives) are supported filetypes. When an archive is provided,
-all .rec files in the archive will be parsed. All resulting Replays have their raw byte
-data cleaned automatically after parse completes.</p>
+<p>Currently <code>.rec</code> and <code>.zip</code> (archives) are supported filetypes. When an archive is
+provided, all <code>.rec</code> files in the archive will be parsed. All resulting <code>Replay</code>s have
+their raw byte data cleaned automatically after parse completes.</p>
 
 <p>This function uses the following default configuration:</p>
 
@@ -99,7 +99,7 @@ command_bytes = false
     <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>replay</span>.<span class='ident'>to_json</span>());
 }</pre>
 </div><h4 id='method.to_json' class='method'><code>fn <a href='#method.to_json' class='fnname'>to_json</a>(&amp;self) -&gt; <a class='type' href='../vault/type.Result.html' title='vault::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</code></h4>
-<div class='docblock'><p>Serializes Vault as JSON String.</p>
+<div class='docblock'><p>Serializes <code>Vault</code> as JSON String.</p>
 </div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../vault/struct.Vault.html' title='vault::Vault'>Vault</a></code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
 </div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../vault/struct.Vault.html' title='vault::Vault'>Vault</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 </div></section>

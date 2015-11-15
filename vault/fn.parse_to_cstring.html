@@ -49,11 +49,11 @@
 <pre class='rust fn'>pub extern fn parse_to_cstring(path: <a href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='type' href='../libc/unix/notbsd/linux/other/b64/x86_64/type.c_char.html' title='libc::unix::notbsd::linux::other::b64::x86_64::c_char'>c_char</a></a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../libc/unix/notbsd/linux/other/b64/x86_64/type.c_char.html' title='libc::unix::notbsd::linux::other::b64::x86_64::c_char'>c_char</a></a></pre><div class='docblock'><p>Extern function for invoking a parse operation across FFI. Returns a Vault type serialized to
 JSON.</p>
 
-<p>Note that the return type is a pointer to a c_char array. The function passes ownership of the
-CString to the FFI caller and does not deallocate memory when the CString goes out of this
-function&#39;s scope. It is the responsibility of the FFI caller to pass back the *c_char to this
-library via free_cstring so that it can be deallocated. Failure to pass back to free_cstring
-will result in a memory leak.</p>
+<p>Note that the return type is a pointer to a <code>c_char</code> array. The function passes ownership of
+the <code>CString</code> to the FFI caller and does not deallocate memory when the <code>CString</code> goes out of
+this function&#39;s scope. It is the responsibility of the FFI caller to pass back the <code>*c_char</code> to
+this library via <code>free_cstring</code> so that it can be deallocated. Failure to pass back to
+<code>free_cstring</code> will result in a memory leak.</p>
 
 <h1 id="examples" class='section-header'><a
                            href="#examples">Examples</a></h1>
