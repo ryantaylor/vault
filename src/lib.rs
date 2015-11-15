@@ -45,6 +45,8 @@ mod map;
 mod player;
 mod replay;
 mod stream;
+#[cfg(test)]
+mod tests;
 
 /// Custom Result wrapper for vault, used to return vault::Error from every result.
 
