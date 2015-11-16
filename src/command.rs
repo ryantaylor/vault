@@ -52,8 +52,8 @@ impl Command {
     }
 }
 
-/// This type contains a numerical u8 representation of every command/action possible in a CoH2 command
-/// sequence. Contents of this enum provided by Relic Entertainment.
+/// This type contains a numerical `u8` representation of every command/action possible in a CoH2
+/// command sequence. Contents of this enum provided by Relic Entertainment.
 
 #[derive(Debug, Copy, Clone, PartialEq, RustcEncodable)]
 #[repr(u8)]

@@ -1,8 +1,8 @@
-//! vault is a fully-featured Company of Heroes 2 replay parser valid for replays created on or
+//! `vault` is a fully-featured Company of Heroes 2 replay parser valid for replays created on or
 //! after the release of the British forces (version 19545).
 //!
 //! This library contains representations of all replay, map, and player information, including
-//! chat and equipped items. Command parsing is also being actively integrated.
+//! chat, equipped items, and player commands.
 
 #![cfg_attr(feature = "dev", feature(plugin))]
 #![cfg_attr(feature = "dev", plugin(clippy))]
