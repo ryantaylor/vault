@@ -27,9 +27,10 @@ macro_rules! test_eq {
         use std::result::Result;
         let exp = try!($a);
         let (a, b) = (&exp, &$b);
-        match *a == *b {
-            true => true,
-            false => return Result::Err(Error::UnexpectedValue)
+        if *a == *b {
+            true
+        } else {
+            return Result::Err(Error::UnexpectedValue);
         }
     })
 }

@@ -1,10 +1,17 @@
-//! vault library unit tests
+//! `vault` library unit tests.
+
+#[cfg(feature = "dev")]
+use test::Bencher;
 
 use command::*;
+#[cfg(feature = "dev")]
+use config::*;
 use error::*;
 use item::*;
 use stream::*;
 use std::{u32, u64};
+#[cfg(feature = "dev")]
+use std::path::Path;
 
 // mod command
 
@@ -229,4 +236,36 @@ fn stream_cleanup() {
     stream.cleanup();
 
     assert_eq!(stream.get_cursor_position(), 6);
+}
+
+#[cfg(feature = "dev")]
+#[bench]
+fn bench_config_bare(b: &mut Bencher) {
+    b.iter(|| {
+        let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
+        let config = Config::new(false, false, false);
+        let path = Path::new(&path_str);
+        ::Vault::parse_with_config(&path, config).unwrap();
+    });
+}
+
+#[cfg(feature = "dev")]
+#[bench]
+fn bench_config_default(b: &mut Bencher) {
+    b.iter(|| {
+        let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
+        let path = Path::new(&path_str);
+        ::Vault::parse(&path).unwrap();
+    });
+}
+
+#[cfg(feature = "dev")]
+#[bench]
+fn bench_config_all(b: &mut Bencher) {
+    b.iter(|| {
+        let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
+        let config = Config::new(true, true, true);
+        let path = Path::new(&path_str);
+        ::Vault::parse_with_config(&path, config).unwrap();
+    });
 }

@@ -4,9 +4,12 @@
 //! This library contains representations of all replay, map, and player information, including
 //! chat, equipped items, and player commands.
 
+#![cfg_attr(feature = "dev", feature(test))]
 #![cfg_attr(feature = "dev", feature(plugin))]
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
+#[cfg(feature = "dev")]
+extern crate test;
 #[cfg(feature = "ffi")]
 extern crate libc;
 #[macro_use]
