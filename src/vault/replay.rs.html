@@ -917,6 +917,7 @@
 <span id="875">875</span>
 <span id="876">876</span>
 <span id="877">877</span>
+<span id="878">878</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representative state of a Company of Heroes 2 replay file.</span>
 
@@ -1654,6 +1655,7 @@
         <span class='macro'>test_eq</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u16</span>(), <span class='number'>0x1</span>); <span class='comment'>// not sure what this is yet</span>
 
         <span class='ident'>player</span>.<span class='ident'>steam_id</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>parse_steam_id</span>());
+        <span class='ident'>player</span>.<span class='ident'>steam_id_str</span> <span class='op'>=</span> <span class='ident'>player</span>.<span class='ident'>steam_id</span>.<span class='ident'>to_string</span>();
 
         <span class='ident'>player</span>.<span class='ident'>items</span>.<span class='ident'>push</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>parse_item</span>(<span class='ident'>ItemType</span>::<span class='ident'>FacePlate</span>)));
         <span class='ident'>player</span>.<span class='ident'>items</span>.<span class='ident'>push</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>parse_item</span>(<span class='ident'>ItemType</span>::<span class='ident'>VictoryStrike</span>)));
