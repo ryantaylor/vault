@@ -734,6 +734,7 @@ impl Replay {
         test_eq!(self.file.read_u16(), 0x1); // not sure what this is yet
 
         player.steam_id = try!(self.parse_steam_id());
+        player.steam_id_str = player.steam_id.to_string();
 
         player.items.push(try!(self.parse_item(ItemType::FacePlate)));
         player.items.push(try!(self.parse_item(ItemType::VictoryStrike)));

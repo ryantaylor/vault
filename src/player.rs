@@ -12,6 +12,7 @@ pub struct Player {
     pub id: u8,
     pub name: String,
     pub steam_id: u64,
+    pub steam_id_str: String,
     pub team: u32,
     pub faction: String,
     pub items: Vec<Item>,
@@ -28,6 +29,7 @@ impl Player {
             id: id,
             name: String::new(),
             steam_id: 0,
+            steam_id_str: "0".to_owned(),
             team: 0,
             faction: String::new(),
             items: Vec::with_capacity(12), // cmdr x3, intel x3, skin x3, decal, strike, faceplate
