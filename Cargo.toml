@@ -10,6 +10,8 @@ readme = "README.md"
 keywords = ["coh", "coh2", "company", "heroes", "replay"]
 license = "MIT"
 
+exclude = ["replays/*"]
+
 [lib]
 name = "vault"
 crate-type = ["dylib", "rlib"]
