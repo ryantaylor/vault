@@ -260,7 +260,19 @@ impl Replay {
 
     fn parse_chunk(&mut self) -> Result<bool> {
         trace!("Replay::parse_chunk");
-        let chunk_type = try!(self.file.read_utf8(8));
+        
+        // a Utf8Error here is acceptable because the last read here will always consume random
+        // data that could be invalid UTF-8.
+        let chunk_type: String = match self.file.read_utf8(8) {
+            Ok(val) => val,
+            Err(err) => {
+                match err {
+                    Error::Utf8Error(_) => "invalid".to_owned(),
+                    _ => return Err(err)
+                }
+            }
+        };
+
         if !chunk_type.starts_with("FOLD") && !chunk_type.starts_with("DATA") {
             error!("Replay::parse_chunk - invalid chunk type {} at cursor {}", 
                    chunk_type, 

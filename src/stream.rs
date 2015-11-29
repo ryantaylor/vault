@@ -124,9 +124,9 @@ impl Stream {
             warn!("cursor {} beyond max {}", pos, self.data.len() - 1);
         }
 
-        debug!("Stream::skip_ahead - start cursor: {}", self.cursor);
+        debug!("Stream::seek - start cursor: {}", self.cursor);
         self.cursor = pos;
-        debug!("Stream::skip_ahead - end cursor: {}", self.cursor);
+        debug!("Stream::seek - end cursor: {}", self.cursor);
     }
 
     /// Reads an 8-bit (1-byte) unsigned integer at the current cursor position, then moves the
@@ -319,9 +319,12 @@ impl Stream {
         let mut stream_vec = Vec::with_capacity(len as usize);
         stream_vec.extend(stream.iter().cloned());
 
-        let result = try!(String::from_utf8(stream_vec));
-
+        // this should be before the actual conversion attempt because we want to continue past the
+        // bytes even if the conversion fails, since failure only indicates the bytes are not valid
+        // UTF-8 and the caller should decide if that result is acceptable or not.
         self.cursor += len;
+
+        let result = try!(String::from_utf8(stream_vec));
 
         debug!("Stream::read_utf8 - result: {}", result);
         Ok(result)
