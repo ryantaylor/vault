@@ -408,6 +408,9 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module that encloses the contents of the replay file in memory and performs various functions</span>
 <span class='doccomment'>//! on the resultant bytestream.</span>
@@ -535,9 +538,9 @@
             <span class='macro'>warn</span><span class='macro'>!</span>(<span class='string'>&quot;cursor {} beyond max {}&quot;</span>, <span class='ident'>pos</span>, <span class='self'>self</span>.<span class='ident'>data</span>.<span class='ident'>len</span>() <span class='op'>-</span> <span class='number'>1</span>);
         }
 
-        <span class='macro'>debug</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::skip_ahead - start cursor: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>);
+        <span class='macro'>debug</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::seek - start cursor: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>);
         <span class='self'>self</span>.<span class='ident'>cursor</span> <span class='op'>=</span> <span class='ident'>pos</span>;
-        <span class='macro'>debug</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::skip_ahead - end cursor: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>);
+        <span class='macro'>debug</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::seek - end cursor: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cursor</span>);
     }
 
     <span class='doccomment'>/// Reads an 8-bit (1-byte) unsigned integer at the current cursor position, then moves the</span>
@@ -730,9 +733,12 @@
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>stream_vec</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='ident'>len</span> <span class='kw'>as</span> <span class='ident'>usize</span>);
         <span class='ident'>stream_vec</span>.<span class='ident'>extend</span>(<span class='ident'>stream</span>.<span class='ident'>iter</span>().<span class='ident'>cloned</span>());
 
-        <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>String</span>::<span class='ident'>from_utf8</span>(<span class='ident'>stream_vec</span>));
-
+        <span class='comment'>// this should be before the actual conversion attempt because we want to continue past the</span>
+        <span class='comment'>// bytes even if the conversion fails, since failure only indicates the bytes are not valid</span>
+        <span class='comment'>// UTF-8 and the caller should decide if that result is acceptable or not.</span>
         <span class='self'>self</span>.<span class='ident'>cursor</span> <span class='op'>+=</span> <span class='ident'>len</span>;
+
+        <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>String</span>::<span class='ident'>from_utf8</span>(<span class='ident'>stream_vec</span>));
 
         <span class='macro'>debug</span><span class='macro'>!</span>(<span class='string'>&quot;Stream::read_utf8 - result: {}&quot;</span>, <span class='ident'>result</span>);
         <span class='prelude-val'>Ok</span>(<span class='ident'>result</span>)
