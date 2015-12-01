@@ -930,6 +930,32 @@
 <span id="888">888</span>
 <span id="889">889</span>
 <span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representative state of a Company of Heroes 2 replay file.</span>
 
@@ -1470,6 +1496,29 @@
                     <span class='ident'>command</span>.<span class='ident'>entity_id</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>());
                 }
             },
+            <span class='ident'>CmdType</span>::<span class='ident'>PCMD_SetCommander</span> <span class='op'>=&gt;</span> {
+                <span class='kw'>if</span> <span class='ident'>command_sub_id</span> <span class='op'>==</span> <span class='number'>0x16</span> {
+                    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>1</span>)); <span class='comment'>// inner data length</span>
+                    <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>2</span>)); <span class='comment'>// usually 0x109, part of commander def</span>
+                    <span class='kw'>let</span> <span class='ident'>selection_id</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>());
+                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>player</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>players</span>.<span class='ident'>get_mut</span>(<span class='kw-2'>&amp;</span><span class='ident'>command</span>.<span class='ident'>player_id</span>) {
+                        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>server_id</span> <span class='op'>=</span> <span class='number'>0</span>;
+                        <span class='kw'>for</span> <span class='ident'>item</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='ident'>player</span>.<span class='ident'>items</span> {
+                            <span class='kw'>match</span> <span class='ident'>item</span>.<span class='ident'>item_type</span> {
+                                <span class='ident'>ItemType</span>::<span class='ident'>Commander</span> <span class='op'>=&gt;</span> {
+                                    <span class='kw'>if</span> <span class='ident'>item</span>.<span class='ident'>selection_id</span> <span class='op'>==</span> <span class='ident'>selection_id</span> {
+                                        <span class='ident'>server_id</span> <span class='op'>=</span> <span class='ident'>item</span>.<span class='ident'>server_id</span>;
+                                        <span class='kw'>break</span>;
+                                    }
+                                }, _ <span class='op'>=&gt;</span> {}
+                            }
+                        }
+
+                        <span class='ident'>player</span>.<span class='ident'>commander</span> <span class='op'>=</span> <span class='ident'>server_id</span>;
+                        <span class='ident'>command</span>.<span class='ident'>entity_id</span> <span class='op'>=</span> <span class='ident'>server_id</span>;
+                    }
+                }
+            },
             <span class='ident'>CmdType</span>::<span class='ident'>DCMD_DataCommand1</span> <span class='op'>|</span>
             <span class='ident'>CmdType</span>::<span class='ident'>DCMD_DataCommand2</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(()), <span class='comment'>// don&#39;t want to add these</span>
             _ <span class='op'>=&gt;</span> {}
@@ -1718,15 +1767,16 @@
     <span class='doccomment'>/// Parses an encoded `Item` whose pattern matches that of most human `Player` `Items`.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_player_item</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>primary</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>());
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>item</span> <span class='op'>=</span> <span class='ident'>Item</span>::<span class='ident'>new</span>(<span class='ident'>item_type</span>);
+        <span class='ident'>item</span>.<span class='ident'>selection_id</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>());
         <span class='macro'>test_eq</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>(), <span class='number'>0x0</span>);
-        <span class='kw'>let</span> <span class='ident'>secondary</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>());
+        <span class='ident'>item</span>.<span class='ident'>server_id</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>());
         <span class='macro'>test_eq</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>(), <span class='number'>0x0</span>);
 
         <span class='kw'>let</span> <span class='ident'>size</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u16</span>());
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='ident'>size</span> <span class='kw'>as</span> <span class='ident'>u32</span>));
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>with_split_id</span>(<span class='ident'>primary</span>, <span class='ident'>secondary</span>, <span class='ident'>item_type</span>))
+        <span class='prelude-val'>Ok</span>(<span class='ident'>item</span>)
     }
 
     <span class='doccomment'>/// Parses an encoded `Item` whose pattern matches that of a special case of human `Player`</span>
@@ -1734,26 +1784,28 @@
 
     <span class='kw'>fn</span> <span class='ident'>parse_player_item_special</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span> {
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>16</span>)); <span class='comment'>// lots of data, no idea what it is</span>
-        <span class='kw'>let</span> <span class='ident'>id</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>()) <span class='kw'>as</span> <span class='ident'>u64</span>; <span class='comment'>// might not be id</span>
+        <span class='comment'>//let id = try!(self.file.read_u32()) as u64; // might not be id</span>
+        <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>8</span>)); <span class='comment'>// something to do with custom decals</span>
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>1</span>)); <span class='comment'>// not sure, was 0x40 in test replay</span>
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>with_whole_id</span>(<span class='ident'>id</span>, <span class='ident'>item_type</span>))
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>new</span>(<span class='ident'>item_type</span>))
     }
 
     <span class='doccomment'>/// Parses an encoded `Item` whose pattern matches that of most CPU `Player` `Items`.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_cpu_item</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span> {
         <span class='macro'>test_eq</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u8</span>(), <span class='number'>0x1</span>);
-        <span class='kw'>let</span> <span class='ident'>id</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u32</span>()) <span class='kw'>as</span> <span class='ident'>u64</span>;
+        <span class='comment'>//let id = try!(self.file.read_u32()) as u64;</span>
+        <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>4</span>)); <span class='comment'>// gotta figure out what this is</span>
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>with_whole_id</span>(<span class='ident'>id</span>, <span class='ident'>item_type</span>))
+        <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>new</span>(<span class='ident'>item_type</span>))
     }
 
     <span class='doccomment'>/// Parses a `Player` Steam ID at the current `Stream` cursor.</span>
 
     <span class='kw'>fn</span> <span class='ident'>parse_steam_id</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>u64</span><span class='op'>&gt;</span> {
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>8</span>)); <span class='comment'>// u64::MAX if cpu and no steam id, but it will return</span>
-                                          <span class='comment'>// 0 in this case so just read anyways</span>
+                                       <span class='comment'>// 0 in this case so just read anyways</span>
         <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>read_u64</span>()))
     }
 

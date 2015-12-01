@@ -95,6 +95,9 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representation of a player entity in CoH2 replays.</span>
 
@@ -113,6 +116,7 @@
     <span class='kw'>pub</span> <span class='ident'>steam_id_str</span>: <span class='ident'>String</span>,
     <span class='kw'>pub</span> <span class='ident'>team</span>: <span class='ident'>u32</span>,
     <span class='kw'>pub</span> <span class='ident'>faction</span>: <span class='ident'>String</span>,
+    <span class='kw'>pub</span> <span class='ident'>commander</span>: <span class='ident'>u32</span>,
     <span class='kw'>pub</span> <span class='ident'>items</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span>,
     <span class='kw'>pub</span> <span class='ident'>commands</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Command</span><span class='op'>&gt;</span>,
     <span class='kw'>pub</span> <span class='ident'>cpm</span>: <span class='ident'>f64</span>,
@@ -130,6 +134,7 @@
             <span class='ident'>steam_id_str</span>: <span class='string'>&quot;0&quot;</span>.<span class='ident'>to_owned</span>(),
             <span class='ident'>team</span>: <span class='number'>0</span>,
             <span class='ident'>faction</span>: <span class='ident'>String</span>::<span class='ident'>new</span>(),
+            <span class='ident'>commander</span>: <span class='number'>0</span>,
             <span class='ident'>items</span>: <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>12</span>), <span class='comment'>// cmdr x3, intel x3, skin x3, decal, strike, faceplate</span>
             <span class='ident'>commands</span>: <span class='ident'>Vec</span>::<span class='ident'>new</span>(),
             <span class='ident'>cpm</span>: <span class='number'>0.0</span>,
@@ -144,10 +149,11 @@
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;steam_id: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>steam_id</span>);
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;team: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>team</span>);
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;faction: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>faction</span>);
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;commander: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>commander</span>);
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;cpm: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cpm</span>);
 
         <span class='kw'>for</span> <span class='ident'>item</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>items</span> {
-            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{:?}: {}&quot;</span>, <span class='ident'>item</span>.<span class='ident'>item_type</span>, <span class='ident'>item</span>.<span class='ident'>id</span>);
+            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{:?}: {}&quot;</span>, <span class='ident'>item</span>.<span class='ident'>item_type</span>, <span class='ident'>item</span>.<span class='ident'>server_id</span>);
         }
     }
 }</pre>

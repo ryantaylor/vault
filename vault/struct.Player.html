@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-9224' class='srclink' href='../src/vault/player.rs.html#11-21' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-9190' class='srclink' href='../src/vault/player.rs.html#11-22' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Player {
     pub id: <a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>,
     pub name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
@@ -53,6 +53,7 @@
     pub steam_id_str: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
     pub team: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
     pub faction: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+    pub commander: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
     pub items: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a>&gt;,
     pub commands: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../vault/struct.Command.html' title='vault::Command'>Command</a>&gt;,
     pub cpm: <a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,
@@ -65,6 +66,7 @@
                                   <td id='structfield.steam_id_str'><code>steam_id_str</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.team'><code>team</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.faction'><code>faction</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.commander'><code>commander</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.items'><code>items</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.commands'><code>commands</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.cpm'><code>cpm</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(id: <a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h4>
