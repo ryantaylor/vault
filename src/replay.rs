@@ -826,7 +826,7 @@ impl Replay {
     fn parse_player_item_special(&mut self, item_type: ItemType) -> Result<Item> {
         try!(self.file.skip_ahead(16)); // lots of data, no idea what it is
         //let id = try!(self.file.read_u32()) as u64; // might not be id
-        try!(self.file.skip_ahead(8)); // something to do with custom decals
+        try!(self.file.skip_ahead(4)); // something to do with custom decals
         try!(self.file.skip_ahead(1)); // not sure, was 0x40 in test replay
 
         Ok(Item::new(item_type))
