@@ -1785,7 +1785,7 @@
     <span class='kw'>fn</span> <span class='ident'>parse_player_item_special</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span> {
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>16</span>)); <span class='comment'>// lots of data, no idea what it is</span>
         <span class='comment'>//let id = try!(self.file.read_u32()) as u64; // might not be id</span>
-        <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>8</span>)); <span class='comment'>// something to do with custom decals</span>
+        <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>4</span>)); <span class='comment'>// something to do with custom decals</span>
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>file</span>.<span class='ident'>skip_ahead</span>(<span class='number'>1</span>)); <span class='comment'>// not sure, was 0x40 in test replay</span>
 
         <span class='prelude-val'>Ok</span>(<span class='ident'>Item</span>::<span class='ident'>new</span>(<span class='ident'>item_type</span>))
