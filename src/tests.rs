@@ -24,18 +24,18 @@ fn cmdtype_bounds() {
 
 // mod item
 
-#[test]
-fn item_update_id() {
-    let mut item = Item::new(ItemType::Commander);
-    item.update_id(0, 0);
-    assert_eq!(item.id, 0);                     // lower
-    item.update_id(u32::MAX, u32::MAX);
-    assert_eq!(item.id, u64::MAX);              // upper
-    item.update_id(0x23578654, 0x82123245);
-    assert_eq!(item.id, 0x2357865482123245);    // middle
-    item.update_id(0x82123245, 0x23578654);
-    assert_eq!(item.id, 0x8212324523578654);    // middle reverse
-}
+// #[test]
+// fn item_update_id() {
+//     let mut item = Item::new(ItemType::Commander);
+//     item.update_id(0, 0);
+//     assert_eq!(item.id, 0);                     // lower
+//     item.update_id(u32::MAX, u32::MAX);
+//     assert_eq!(item.id, u64::MAX);              // upper
+//     item.update_id(0x23578654, 0x82123245);
+//     assert_eq!(item.id, 0x2357865482123245);    // middle
+//     item.update_id(0x82123245, 0x23578654);
+//     assert_eq!(item.id, 0x8212324523578654);    // middle reverse
+// }
 
 // mod stream
 
