@@ -18,7 +18,8 @@ pub enum ItemType {
 
 #[derive(Debug, RustcEncodable)]
 pub struct Item {
-    pub id: u64,
+    pub selection_id: u32,
+    pub server_id: u32,
     pub item_type: ItemType
 }
 
@@ -28,41 +29,9 @@ impl Item {
 
     pub fn new(item_type: ItemType) -> Item {
         Item {
-            id: 0,
+            selection_id: 0,
+            server_id: 0,
             item_type: item_type,
         }
-    }
-
-    /// Constructs a new `Item` by combining the give `u32` primary and secondary IDs into a single
-    /// unique `u64` ID, and passing through the given `ItemType`.
-
-    pub fn with_split_id(primary: u32, secondary: u32, item_type: ItemType) -> Item {
-        let mut item = Item {
-            id: 0,
-            item_type: item_type
-        };
-
-        item.update_id(primary, secondary);
-        item
-    }
-
-    /// Constructs a new `Item` with the given ID and `ItemType`. This function simply passes
-    /// through the given ID to the `Item` without any transformation.
-
-    pub fn with_whole_id(id: u64, item_type: ItemType) -> Item {
-        Item {
-            id: id,
-            item_type: item_type,
-        }
-    }
-
-    /// Combines `u32` primary and secondary IDs into a single unique `u64` ID by shifting the
-    /// primary ID 32 bits to the left and then adding the two IDs together.
-
-    pub fn update_id(&mut self, primary: u32, secondary: u32) {
-        let primary_64 = primary as u64;
-        let secondary_64 = secondary as u64;
-
-        self.id = (primary_64 << 32) + secondary_64;
     }
 }

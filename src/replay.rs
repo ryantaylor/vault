@@ -537,6 +537,29 @@ impl Replay {
                     command.entity_id = try!(self.file.read_u32());
                 }
             },
+            CmdType::PCMD_SetCommander => {
+                if command_sub_id == 0x16 {
+                    try!(self.file.skip_ahead(1)); // inner data length
+                    try!(self.file.skip_ahead(2)); // usually 0x109, part of commander def
+                    let selection_id = try!(self.file.read_u32());
+                    if let Some(player) = self.players.get_mut(&command.player_id) {
+                        let mut server_id = 0;
+                        for item in &player.items {
+                            match item.item_type {
+                                ItemType::Commander => {
+                                    if item.selection_id == selection_id {
+                                        server_id = item.server_id;
+                                        break;
+                                    }
+                                }, _ => {}
+                            }
+                        }
+
+                        player.commander = server_id;
+                        command.entity_id = server_id;
+                    }
+                }
+            },
             CmdType::DCMD_DataCommand1 |
             CmdType::DCMD_DataCommand2 => return Ok(()), // don't want to add these
             _ => {}
@@ -785,15 +808,16 @@ impl Replay {
     /// Parses an encoded `Item` whose pattern matches that of most human `Player` `Items`.
 
     fn parse_player_item(&mut self, item_type: ItemType) -> Result<Item> {
-        let primary = try!(self.file.read_u32());
+        let mut item = Item::new(item_type);
+        item.selection_id = try!(self.file.read_u32());
         test_eq!(self.file.read_u32(), 0x0);
-        let secondary = try!(self.file.read_u32());
+        item.server_id = try!(self.file.read_u32());
         test_eq!(self.file.read_u32(), 0x0);
 
         let size = try!(self.file.read_u16());
         try!(self.file.skip_ahead(size as u32));
 
-        Ok(Item::with_split_id(primary, secondary, item_type))
+        Ok(item)
     }
 
     /// Parses an encoded `Item` whose pattern matches that of a special case of human `Player`
@@ -801,26 +825,28 @@ impl Replay {
 
     fn parse_player_item_special(&mut self, item_type: ItemType) -> Result<Item> {
         try!(self.file.skip_ahead(16)); // lots of data, no idea what it is
-        let id = try!(self.file.read_u32()) as u64; // might not be id
+        //let id = try!(self.file.read_u32()) as u64; // might not be id
+        try!(self.file.skip_ahead(8)); // something to do with custom decals
         try!(self.file.skip_ahead(1)); // not sure, was 0x40 in test replay
 
-        Ok(Item::with_whole_id(id, item_type))
+        Ok(Item::new(item_type))
     }
 
     /// Parses an encoded `Item` whose pattern matches that of most CPU `Player` `Items`.
 
     fn parse_cpu_item(&mut self, item_type: ItemType) -> Result<Item> {
         test_eq!(self.file.read_u8(), 0x1);
-        let id = try!(self.file.read_u32()) as u64;
+        //let id = try!(self.file.read_u32()) as u64;
+        try!(self.file.skip_ahead(4)); // gotta figure out what this is
 
-        Ok(Item::with_whole_id(id, item_type))
+        Ok(Item::new(item_type))
     }
 
     /// Parses a `Player` Steam ID at the current `Stream` cursor.
 
     fn parse_steam_id(&mut self) -> Result<u64> {
         try!(self.file.skip_ahead(8)); // u64::MAX if cpu and no steam id, but it will return
-                                          // 0 in this case so just read anyways
+                                       // 0 in this case so just read anyways
         Ok(try!(self.file.read_u64()))
     }
 
