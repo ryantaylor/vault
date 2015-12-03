@@ -24,7 +24,7 @@ If you are writing a Rust application, you can use `vault` from [crates.io](http
 
 ```toml
 [dependencies]
-vault = "0.3"
+vault = "0.4"
 ```
 
 `src/main.rs`:
