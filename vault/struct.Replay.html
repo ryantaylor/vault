@@ -45,14 +45,15 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-9963' class='srclink' href='../src/vault/replay.rs.html#54-67' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-10115' class='srclink' href='../src/vault/replay.rs.html#54-68' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Replay {
     pub error: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;,
     pub version: <a href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>,
     pub game_type: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
     pub date_time: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
     pub map: <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a>,
-    pub players: <a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a>&gt;,
+    pub players: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a>&gt;,
+    pub commands: <a class='struct' href='https://doc.rust-lang.org/nightly/std/collections/hash/map/struct.HashMap.html' title='std::collections::hash::map::HashMap'>HashMap</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../vault/struct.Command.html' title='vault::Command'>Command</a>&gt;&gt;,
     pub duration: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
     pub rng_seed: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
     pub opponent_type: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
@@ -68,6 +69,7 @@ for output using <code>rustc_serialize</code>.</p>
                                   <td id='structfield.date_time'><code>date_time</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.map'><code>map</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.players'><code>players</code></td><td></td></tr><tr class='stab '>
+                                  <td id='structfield.commands'><code>commands</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.duration'><code>duration</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.rng_seed'><code>rng_seed</code></td><td></td></tr><tr class='stab '>
                                   <td id='structfield.opponent_type'><code>opponent_type</code></td><td></td></tr><tr class='stab '>

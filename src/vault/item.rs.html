@@ -84,7 +84,7 @@
 <span class='doccomment'>/// This type contains the types of all potentially equipped items that can be parsed out of CoH2</span>
 <span class='doccomment'>/// replays.</span>
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>RustcEncodable</span>)]</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>, <span class='ident'>RustcEncodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>ItemType</span> {
     <span class='ident'>Commander</span>,
     <span class='ident'>Bulletin</span>,
