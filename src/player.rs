@@ -2,7 +2,6 @@
 
 use std::string::String;
 
-use command::Command;
 use item::Item;
 
 /// This type represents a Company of Heroes 2 player entity as it appears in a CoH2 replay file.
@@ -17,7 +16,6 @@ pub struct Player {
     pub faction: String,
     pub commander: u32,
     pub items: Vec<Item>,
-    pub commands: Vec<Command>,
     pub cpm: f64,
 }
 
@@ -25,9 +23,9 @@ impl Player {
 
     /// Constructs a new `Player` with empty initial data.
 
-    pub fn new(id: u8) -> Player {
+    pub fn new() -> Player {
         Player {
-            id: id,
+            id: 0xF,
             name: String::new(),
             steam_id: 0,
             steam_id_str: "0".to_owned(),
@@ -35,7 +33,6 @@ impl Player {
             faction: String::new(),
             commander: 0,
             items: Vec::with_capacity(12), // cmdr x3, intel x3, skin x3, decal, strike, faceplate
-            commands: Vec::new(),
             cpm: 0.0,
         }
     }

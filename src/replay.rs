@@ -58,7 +58,8 @@ pub struct Replay {
     pub game_type: String,
     pub date_time: String,
     pub map: Map,
-    pub players: HashMap<u8, Player>,
+    pub players: Vec<Player>,
+    pub commands: HashMap<u8, Vec<Command>>,
     pub duration: u32,              // seconds
     pub rng_seed: u32,
     pub opponent_type: u32,         // 1 = human, 2 = cpu
@@ -92,7 +93,8 @@ impl Replay {
             game_type: String::new(),
             date_time: String::new(),
             map: Map::new(),
-            players: HashMap::with_capacity(8),
+            players: Vec::with_capacity(8),
+            commands: HashMap::new(),
             duration: 0,
             rng_seed: 0,
             opponent_type: 0,
@@ -126,7 +128,8 @@ impl Replay {
             game_type: String::new(),
             date_time: String::new(),
             map: Map::new(),
-            players: HashMap::with_capacity(8),
+            players: Vec::with_capacity(8),
+            commands: HashMap::new(),
             duration: 0,
             rng_seed: 0,
             opponent_type: 0,
@@ -171,7 +174,8 @@ impl Replay {
             game_type: String::new(),
             date_time: String::new(),
             map: Map::new(),
-            players: HashMap::with_capacity(8),
+            players: Vec::with_capacity(8),
+            commands: HashMap::new(),
             duration: 0,
             rng_seed: 0,
             opponent_type: 0,
@@ -542,22 +546,7 @@ impl Replay {
                     try!(self.file.skip_ahead(1)); // inner data length
                     try!(self.file.skip_ahead(2)); // usually 0x109, part of commander def
                     let selection_id = try!(self.file.read_u32());
-                    if let Some(player) = self.players.get_mut(&command.player_id) {
-                        let mut server_id = 0;
-                        for item in &player.items {
-                            match item.item_type {
-                                ItemType::Commander => {
-                                    if item.selection_id == selection_id {
-                                        server_id = item.server_id;
-                                        break;
-                                    }
-                                }, _ => {}
-                            }
-                        }
-
-                        player.commander = server_id;
-                        command.entity_id = server_id;
-                    }
+                    try!(self.set_commander(command.player_id, selection_id));
                 }
             },
             CmdType::DCMD_DataCommand1 |
@@ -719,9 +708,9 @@ impl Replay {
         debug!("Replay::parse_players - {} players found", num_players);
 
         let mut player: Player;
-        for id in 0..num_players {
-            player = try!(self.parse_player(id));
-            self.players.insert(id, player);
+        for _ in 0..num_players {
+            player = try!(self.parse_player());
+            self.players.push(player);
         }
 
         Ok(())
@@ -730,9 +719,9 @@ impl Replay {
     /// Parses a `Player` entity at the current `Stream` cursor, including all `Items` equipped by
     /// that player.
 
-    fn parse_player(&mut self, id: u8) -> Result<Player> {
+    fn parse_player(&mut self) -> Result<Player> {
         trace!("Replay::parse_player");
-        let mut player = Player::new(id);
+        let mut player = Player::new();
 
         try!(self.file.skip_ahead(1)); // could be 1 = human player, 0 = cpu player?
 
@@ -850,6 +839,9 @@ impl Replay {
         Ok(try!(self.file.read_u64()))
     }
 
+    /// Parses x y z coordinates at the current `Stream` cursor and adds them to the given
+    /// `Command`.
+
     fn parse_coordinates(&mut self, command: &mut Command) -> Result<()> {
         command.x = try!(self.file.read_f32());
         command.y = try!(self.file.read_f32());
@@ -860,9 +852,33 @@ impl Replay {
     /// Adds a `Command` to the list for the given `Player`.
 
     fn add_command(&mut self, player_id: u8, command: Command) {
-        if let Some(player) = self.players.get_mut(&player_id) {
-            player.commands.push(command);
+        let mut commands = self.commands.entry(player_id).or_insert(Vec::new());
+        commands.push(command);
+    }
+
+    /// Sets the given player's commander based on the commander's `selection_id`. This function
+    /// also links the player to its commands via `player_id`, which is set to the player who has a
+    /// commander with the given `selection_id` value. Therefore in order for all players to have
+    /// their commands link correctly, at least all but one of them must select commanders before
+    /// the game completes.
+
+    fn set_commander(&mut self, player_id: u8, selection_id: u32) -> Result<()> {
+        for player in &mut self.players {
+            for item in &player.items {
+                if item.item_type == ItemType::Commander && item.selection_id == selection_id {
+                    if player.id != 0xF { // default id, shouldn't be set yet
+                        return Err(Error::UnexpectedValue);
+                    }
+
+                    player.id = player_id;
+                    player.commander = item.server_id;
+                    return Ok(());
+                }
+            }
         }
+
+        // if we can't find the commander we probably have an AI player, should handle this
+        Ok(())
     }
 
     /// Updates the `Replay` error string to indicate a failure during parsing.
@@ -872,17 +888,45 @@ impl Replay {
     }
 
     /// Performs maintenance on the data structures of the `Replay` type to clean up unneeded
-    /// elements once parsing is complete, in order to simplify the resulting information.
+    /// elements once parsing is complete, in order to simplify the resulting information. Also
+    /// performs some final transformations to the data, such as calculating CPM and attempting to
+    /// link orphaned players to their commands.
 
     fn cleanup(&mut self, err: Option<Error>) {
         if let Some(val) = err {
             self.update_error(val);
-            for (_, player) in &mut self.players {
-                player.commands = Vec::new();
-            }
+            self.commands = HashMap::new();
         } else {
-            for (_, player) in &mut self.players {
-                player.cpm = player.commands.len() as f64 / ( self.duration as f64 / 480.0f64 ); // 8 ticks/s x 60s = 480 ticks/min
+            let mut unclaimed_player_ids = Vec::new();
+
+            // calculate cpm and check for any players that didn't have an id set during parsing.
+            for (player_id, commands) in &self.commands {
+                let mut found = false;
+                for player in &mut self.players {
+                    if player.id == *player_id {
+                        player.cpm = commands.len() as f64 / ( self.duration as f64 / 480.0f64 ); // 8 ticks/s x 60s = 480 ticks/min
+                        found = true;
+                        break;
+                    }
+                }
+
+                if !found {
+                    unclaimed_player_ids.push(player_id);
+                }
+            }
+
+            // if we have one unclaimed id, we can match it to the only player without a valid id
+            // set.
+            if unclaimed_player_ids.len() == 1 {
+                for player in &mut self.players {
+                    if player.id == 0xF { // default junk player id
+                        player.id = *unclaimed_player_ids[0];
+                        if let Some(commands) = self.commands.get(&player.id) {
+                            player.cpm = commands.len() as f64 / ( self.duration as f64 / 480.0f64 ); // 8 ticks/s x 60s = 480 ticks/min
+                        }
+                        break;
+                    }
+                }
             }
         }
 
@@ -905,7 +949,7 @@ impl Replay {
         println!("duration: {}", self.duration);
         println!("num players: {}", self.players.len());
 
-        for (_, player) in &self.players {
+        for player in &self.players {
             player.display();
         }
 

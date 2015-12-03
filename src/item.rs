@@ -4,7 +4,7 @@
 /// This type contains the types of all potentially equipped items that can be parsed out of CoH2
 /// replays.
 
-#[derive(Debug, Copy, Clone, RustcEncodable)]
+#[derive(Debug, Copy, Clone, PartialEq, RustcEncodable)]
 pub enum ItemType {
     Commander,
     Bulletin,
