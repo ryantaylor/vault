@@ -245,7 +245,7 @@ fn bench_config_bare(b: &mut Bencher) {
         let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
         let config = Config::new(false, false, false);
         let path = Path::new(&path_str);
-        ::parse_replay(&path, config).unwrap();
+        ::parse_replay(&path, Some(config)).unwrap();
     });
 }
 
@@ -266,6 +266,6 @@ fn bench_config_all(b: &mut Bencher) {
         let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
         let config = Config::new(true, true, true);
         let path = Path::new(&path_str);
-        ::parse_replay(&path, config).unwrap();
+        ::parse_replay(&path, Some(config)).unwrap();
     });
 }
