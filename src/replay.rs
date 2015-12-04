@@ -5,8 +5,6 @@ use std::error::Error as StdError;
 use std::path::Path;
 use std::string::String;
 
-use rustc_serialize::json;
-
 use chat_line::ChatLine;
 use command::{CmdType, Command};
 use config::Config;
@@ -930,13 +928,9 @@ impl Replay {
             }
         }
 
-        self.file.cleanup();
-    }
-
-    /// Serializes `Replay` as JSON String.
-
-    pub fn to_json(&self) -> Result<String> {
-        Ok(try!(json::encode(&self)))
+        if self.config.clean_file {
+            self.file.cleanup();
+        }
     }
 
     /// Writes the contents of the `Replay` to `stdout`.

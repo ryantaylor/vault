@@ -7,7 +7,7 @@ use std::fmt::Result as FmtResult;
 use std::io::Error as IoError;
 use std::string::{FromUtf8Error, FromUtf16Error};
 
-use rustc_serialize::json::EncoderError;
+#[cfg(feature = "parse-archive")]
 use zip::result::ZipError;
 
 /// This type contains the various error messages that can be returned from the library.
@@ -25,8 +25,8 @@ pub enum Error {
     IoError(IoError),
     Utf8Error(FromUtf8Error),
     Utf16Error(FromUtf16Error),
+    #[cfg(feature = "parse-archive")]
     ZipError(ZipError),
-    EncoderError(EncoderError),
 }
 
 impl From<IoError> for Error {
@@ -47,15 +47,10 @@ impl From<FromUtf16Error> for Error {
     }
 }
 
+#[cfg(feature = "parse-archive")]
 impl From<ZipError> for Error {
     fn from(err: ZipError) -> Error {
         Error::ZipError(err)
-    }
-}
-
-impl From<EncoderError> for Error {
-    fn from(err: EncoderError) -> Error {
-        Error::EncoderError(err)
     }
 }
 
@@ -73,8 +68,8 @@ impl StdError for Error {
             Error::IoError(ref err) => err.description(),
             Error::Utf8Error(ref err) => err.description(),
             Error::Utf16Error(ref err) => err.description(),
+            #[cfg(feature = "parse-archive")]
             Error::ZipError(ref err) => err.description(),
-            Error::EncoderError(ref err) => err.description(),
         }
     }
 
@@ -83,8 +78,8 @@ impl StdError for Error {
             Error::IoError(ref err) => err as &StdError,
             Error::Utf8Error(ref err) => err as &StdError,
             Error::Utf16Error(ref err) => err as &StdError,
+            #[cfg(feature = "parse-archive")]
             Error::ZipError(ref err) => err as &StdError,
-            Error::EncoderError(ref err) => err as &StdError,
             _ => self as &StdError,
         })
     }
@@ -104,8 +99,8 @@ impl Display for Error {
             Error::IoError(ref err) => Display::fmt(err, fmt),
             Error::Utf8Error(ref err) => Display::fmt(err, fmt),
             Error::Utf16Error(ref err) => Display::fmt(err, fmt),
+            #[cfg(feature = "parse-archive")]
             Error::ZipError(ref err) => Display::fmt(err, fmt),
-            Error::EncoderError(ref err) => Display::fmt(err, fmt),
         }
     }
 }

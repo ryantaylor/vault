@@ -9,17 +9,19 @@ pub struct Config {
     pub strict: bool,
     pub commands: bool,
     pub command_bytes: bool,
+    pub clean_file: bool,
 }
 
 impl Config {
 
     /// Constructs a new `Config` structure with the given options set.
 
-    pub fn new(strict: bool, commands: bool, command_bytes: bool) -> Config {
+    pub fn new(strict: bool, commands: bool, command_bytes: bool, clean_file: bool) -> Config {
         Config {
             strict: strict,
             commands: commands,
             command_bytes: command_bytes,
+            clean_file: clean_file,
         }
     }
 }
@@ -33,6 +35,7 @@ impl Default for Config {
             strict: false,
             commands: true,
             command_bytes: false,
+            clean_file: true,
         }
     }
 }

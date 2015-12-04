@@ -15,21 +15,28 @@ extern crate libc;
 #[macro_use]
 extern crate log;
 extern crate rustc_serialize;
+#[cfg(feature = "parse-archive")]
 extern crate zip;
 
 #[cfg(feature = "ffi")]
 use std::ffi::{CStr, CString};
+#[cfg(feature = "parse-all")]
 use std::fs;
+#[cfg(feature = "parse-archive")]
 use std::fs::File;
+#[cfg(feature = "parse-archive")]
 use std::io::Read;
 use std::ops::Deref;
 use std::path::Path;
 use std::result;
+#[cfg(feature = "parse-archive")]
 use std::thread;
 
 #[cfg(feature = "ffi")]
 use libc::c_char;
+#[cfg(feature = "ffi")]
 use rustc_serialize::json;
+#[cfg(feature = "parse-archive")]
 use zip::ZipArchive;
 
 pub use self::chat_line::ChatLine;
@@ -57,269 +64,331 @@ mod tests;
 
 pub type Result<T> = result::Result<T, Error>;
 
-/// This type is the main entry point for the `vault` replay parser and provides the cleanest
-/// interface for use by external code.
+/// Parses a single replay (`.rec`) file.
+///
+/// If `None` is passed to `config`, the following default configuration is used:
+///
+/// ```text
+/// strict = false
+/// commands = true
+/// command_bytes = false
+/// clean_file = true
+/// ```
+///
+/// # Examples
+///
+/// ```ignore
+/// extern crate vault;
+///
+/// use std::path::Path;
+///
+/// let path = Path::new("/path/to/file");
+/// let replay = vault::parse_replay(&path, None).unwrap();
+/// ```
 
-#[derive(Debug, RustcEncodable)]
-pub struct Vault {
-    pub replays: Vec<Replay>
+pub fn parse_replay(path: &Path, config: Option<Config>) -> Result<Replay> {
+    let cfg = match config {
+        Some(val) => val,
+        None => Config::default()
+    };
+
+    if cfg.strict {
+        match path.extension() {
+            Some(ext) => match ext.to_string_lossy().deref() {
+                "rec" => {
+                    let mut replay = try!(Replay::new(path, cfg));
+                    replay.parse();
+                    Ok(replay)
+                },
+                _ => Err(Error::InvalidFileExtension),
+            },
+            None => Err(Error::InvalidFileExtension),
+        }
+    } else {
+        let mut replay = try!(Replay::new(path, cfg));
+        replay.parse();
+        Ok(replay)
+    }
 }
 
-impl Vault {
+/// Parses all replay (`.rec`) files in a `.zip` archive.
+///
+/// If `None` is passed to `config`, the following default configuration is used:
+///
+/// ```text
+/// strict = false
+/// commands = true
+/// command_bytes = false
+/// clean_file = true
+/// ```
+///
+/// # Note
+///
+/// The `strict` `Config` parameter is not checked in this function; only files with the `.rec`
+/// extension in the archive will be parsed, and only archives with the `.zip` extension will be
+/// accepted.
+///
+/// # Examples
+///
+/// ```ignore
+/// extern crate vault;
+///
+/// use std::path::Path;
+///
+/// let path = Path::new("/path/to/archive.zip");
+/// let replays = vault::parse_archive(&path, None).unwrap();
+/// ```
 
-    /// Attempts to parse the given file, returning a `Vault` type populated with the `Replay`(s)
-    /// if successful.
-    ///
-    /// Currently `.rec` and `.zip` (archives) are supported filetypes. When an archive is
-    /// provided, all `.rec` files in the archive will be parsed. All resulting `Replay`s have
-    /// their raw byte data cleaned automatically after parse completes.
-    ///
-    /// This function uses the following default configuration:
-    ///
-    /// ```text
-    /// strict = false
-    /// commands = true
-    /// command_bytes = false
-    /// ```
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// extern crate vault;
-    ///
-    /// use vault::Vault;
-    /// use std::path::Path;
-    ///
-    /// let path = Path::new("/path/to/file");
-    /// let results = Vault::parse(&path).unwrap();
-    ///
-    /// for replay in results.replays().iter() {
-    ///     println!("{}", replay.to_json());
-    /// }
-    /// ```
+#[cfg(feature = "parse-archive")]
+pub fn parse_archive(path: &Path, config: Option<Config>) -> Result<Vec<Replay>> {
+    let archive_file = try!(File::open(path));
+    let mut archive = try!(ZipArchive::new(archive_file));
+    let mut handles: Vec<_> = Vec::new();
+    let mut replays: Vec<Replay> = Vec::new();
+    let cfg = match config {
+        Some(val) => val,
+        None => Config::default()
+    };
 
-    pub fn parse(path: &Path) -> Result<Vault> {
-        let config = Config::default();
-        Ok(try!(Vault::parse_with_config(path, config)))
+    let size = archive.len();
+    for idx in 0..size {
+        let mut replay_file = match archive.by_index(idx) {
+            Ok(file) => file,
+            Err(_) => {
+                error!("cannot read file at index {}", idx);
+                continue;
+            }
+        };
+        let name = replay_file.name().to_owned();
+        let inner_path = Path::new(&name);
+        match inner_path.extension() {
+            Some(ext) => match ext.to_string_lossy().deref() {
+                "rec" => {
+                    let base_name = path.to_string_lossy();
+                    let base_name = base_name.deref();
+                    let mut combo_name = String::from(base_name);
+                    combo_name.push_str(":");
+                    combo_name.push_str(&name);
+
+                    let mut buff: Vec<u8> = Vec::with_capacity(replay_file.size() as usize);
+                    match replay_file.read_to_end(&mut buff) {
+                        Ok(_) => (),
+                        Err(err) => {
+                            replays.push(Replay::new_with_error(&combo_name, Error::IoError(err)));
+                            continue;
+                        }
+                    }
+
+                    let config = cfg.clone();
+                    let handle = thread::spawn(move || {
+                        match Replay::from_bytes(&combo_name, buff, config) {
+                            Ok(replay) => {
+                                let mut replay = replay;
+                                replay.parse();
+                                replay
+                            },
+                            Err(err) => Replay::new_with_error(&combo_name, err),
+                        }
+                    });
+                    handles.push(handle);
+                },
+                _ => info!("skipping {}, not a replay", path.display()),
+            },
+            None => info!("skipping {}, not a replay", path.display())
+        }
     }
 
-    /// Functions the same as `parse`, but lets you specify non-default configuration options.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// extern crate vault;
-    ///
-    /// use vault::Vault;
-    /// use vault::Config;
-    /// use std::path::Path;
-    ///
-    /// let path = Path::new("/path/to/file");
-    /// let config = Config::new(true, false, false);
-    /// let results = Vault::parse_with_config(&path, config).unwrap();
-    ///
-    /// for replay in results.replays().iter() {
-    ///     println!("{}", replay.to_json());
-    /// }
-    /// ```
-
-    pub fn parse_with_config(path: &Path, config: Config) -> Result<Vault> {
-        let meta = try!(fs::metadata(path));
-
-        let replays = if meta.is_dir() {
-            try!(Vault::parse_dir(path, config))
+    for handle in handles {
+        match handle.join() {
+            Ok(replay) => replays.push(replay),
+            Err(_) => error!("parse failed"),
         }
-        else if meta.is_file() {
-            match path.extension() {
-                Some(ext) => match ext.to_string_lossy().deref() {
-                    "rec" => try!(Vault::parse_rec(path, config)),
-                    "zip" => try!(Vault::parse_zip(path, config)),
-                    _ => return Err(Error::InvalidFileExtension),
-                },
-                None => {
-                    if config.strict {
-                        return Err(Error::InvalidFileExtension);
-                    }
-                    else {
-                        try!(Vault::parse_rec(path, config))
-                    }
+    }
+    let replays = replays;
+
+    Ok(replays)
+}
+
+/// Parses the given filepath based on its metadata. Accepted are directories, replay files (with or
+/// without `.rec` based on the value of `strict`), and archives (`.zip`). The return value is always
+/// a `Vec`, even if a single replay file is given as input.
+///
+/// If `None` is passed to `config`, the following default configuration is used:
+///
+/// ```text
+/// strict = false
+/// commands = true
+/// command_bytes = false
+/// clean_file = true
+/// ```
+///
+/// # Examples
+///
+/// ```ignore
+/// extern crate vault;
+///
+/// use std::path::Path;
+///
+/// let path = Path::new("/path/to/replay.rec");
+/// let replays = vault::parse_any(&path, None).unwrap();
+///
+/// let path = Path::new("/path/to/archive.zip");
+/// let replays = vault::parse_any(&path, None).unwrap();
+///
+/// let path = Path::new("/path/to/directory");
+/// let replays = vault::parse_any(&path, None).unwrap();
+/// ```
+
+#[cfg(feature = "parse-all")]
+pub fn parse_any(path: &Path, config: Option<Config>) -> Result<Vec<Replay>> {
+    let meta = try!(fs::metadata(path));
+    let cfg = match config {
+        Some(val) => val,
+        None => Config::default()
+    };
+
+    if meta.is_dir() {
+        Ok(try!(parse_directory(path, config)))
+    }
+    else if meta.is_file() {
+        match path.extension() {
+            Some(ext) => match ext.to_string_lossy().deref() {
+                "rec" => Ok(try!(parse_rec(path, cfg))),
+                "zip" => Ok(try!(parse_archive(path, config))),
+                _ => Err(Error::InvalidFileExtension),
+            },
+            None => {
+                if cfg.strict {
+                    Err(Error::InvalidFileExtension)
+                }
+                else {
+                    Ok(try!(parse_rec(path, cfg)))
                 }
             }
         }
-        else {
-            return Err(Error::InvalidFileExtension);
+    }
+    else {
+        Err(Error::InvalidFileExtension)
+    }
+}
+
+/// Helper method to parse a `.rec` file in a directory and return it as a `Vec`.
+
+#[cfg(feature = "parse-all")]
+fn parse_rec(path: &Path, config: Config) -> Result<Vec<Replay>> {
+    let mut replay = try!(Replay::new(&path, config));
+    replay.parse();
+    let replay = replay;
+
+    let mut replays: Vec<Replay> = Vec::with_capacity(1);
+    replays.push(replay);
+    let replays = replays;
+
+    Ok(replays)
+}
+
+/// Parses all replay and archive (`.zip`) files in the first level of the given directory.
+///
+/// If `None` is passed to `config`, the following default configuration is used:
+///
+/// ```text
+/// strict = false
+/// commands = true
+/// command_bytes = false
+/// clean_file = true
+/// ```
+///
+/// # Examples
+///
+/// ```ignore
+/// extern crate vault;
+///
+/// use std::path::Path;
+///
+/// let path = Path::new("/path/to/directory");
+/// let replays = vault::parse_directory(&path, None).unwrap();
+/// ```
+
+#[cfg(feature = "parse-all")]
+pub fn parse_directory(path: &Path, config: Option<Config>) -> Result<Vec<Replay>> {
+    let dir = try!(fs::read_dir(path));
+    let mut replays: Vec<Replay> = Vec::new();
+    let mut handles: Vec<_> = Vec::new();
+    let cfg = match config {
+        Some(val) => val,
+        None => Config::default()
+    };
+
+    for item in dir {
+        let item = match item {
+            Ok(val) => val,
+            Err(_) => {
+                error!("error reading file in directory");
+                continue;
+            }
         };
 
-        Ok(Vault {
-            replays: replays
-        })
-    }
+        let path = item.path();
+        let meta = match fs::metadata(&path) {
+            Ok(val) => val,
+            Err(_) => {
+                error!("error reading file in directory");
+                continue;
+            }
+        };
 
-    /// Parses a `.rec` file.
-
-    fn parse_rec(path: &Path, config: Config) -> Result<Vec<Replay>> {
-        let mut replay = try!(Replay::new(&path, config));
-        replay.parse();
-        let replay = replay;
-
-        let mut replays: Vec<Replay> = Vec::with_capacity(1);
-        replays.push(replay);
-        let replays = replays;
-
-        Ok(replays)
-    }
-
-    /// Parses `.rec` files in a `.zip` archive.
-
-    fn parse_zip(path: &Path, config: Config) -> Result<Vec<Replay>> {
-        let archive_file = try!(File::open(path));
-        let mut archive = try!(ZipArchive::new(archive_file));
-        let mut handles: Vec<_> = Vec::new();
-        let mut replays: Vec<Replay> = Vec::new();
-
-        let size = archive.len();
-        for idx in 0..size {
-            let mut replay_file = match archive.by_index(idx) {
-                Ok(file) => file,
-                Err(_) => {
-                    error!("cannot read file at index {}", idx);
-                    continue;
-                }
-            };
-            let name = replay_file.name().to_owned();
-            let inner_path = Path::new(&name);
-            match inner_path.extension() {
+        if meta.is_file() {
+            match path.extension() {
                 Some(ext) => match ext.to_string_lossy().deref() {
                     "rec" => {
-                        let base_name = path.to_string_lossy();
-                        let base_name = base_name.deref();
-                        let mut combo_name = String::from(base_name);
-                        combo_name.push_str(":");
-                        combo_name.push_str(&name);
-
-                        let mut buff: Vec<u8> = Vec::with_capacity(replay_file.size() as usize);
-                        match replay_file.read_to_end(&mut buff) {
-                            Ok(_) => (),
-                            Err(err) => {
-                                replays.push(Replay::new_with_error(&combo_name, Error::IoError(err)));
-                                continue;
-                            }
-                        }
-
-                        let config = config.clone();
+                        let path = path.to_owned();
+                        let config = cfg.clone();
                         let handle = thread::spawn(move || {
-                            match Replay::from_bytes(&combo_name, buff, config) {
-                                Ok(replay) => {
-                                    let mut replay = replay;
-                                    replay.parse();
-                                    replay
-                                },
-                                Err(err) => Replay::new_with_error(&combo_name, err),
+                            match parse_rec(&path, config) {
+                                Ok(results) => results,
+                                Err(err) => {
+                                    let mut result = Vec::with_capacity(1);
+                                    let long_name = path.to_string_lossy();
+                                    let long_name = long_name.deref();
+                                    result.push(Replay::new_with_error(long_name, err));
+                                    result
+                                }
                             }
                         });
                         handles.push(handle);
                     },
-                    _ => info!("skipping {}, not a replay", path.display()),
-                },
-                None => info!("skipping {}, not a replay", path.display())
-            }
-        }
-
-        for handle in handles {
-            match handle.join() {
-                Ok(replay) => replays.push(replay),
-                Err(_) => error!("parse failed"),
-            }
-        }
-        let replays = replays;
-
-        Ok(replays)
-    }
-
-    /// Parses all `.rec` and `.zip` files in the given directory.
-
-    fn parse_dir(path: &Path, config: Config) -> Result<Vec<Replay>> {
-        let dir = try!(fs::read_dir(path));
-        let mut replays: Vec<Replay> = Vec::new();
-        let mut handles: Vec<_> = Vec::new();
-
-        for item in dir {
-            let item = match item {
-                Ok(val) => val,
-                Err(_) => {
-                    error!("error reading file in directory");
-                    continue;
-                }
-            };
-
-            let path = item.path();
-            let meta = match fs::metadata(&path) {
-                Ok(val) => val,
-                Err(_) => {
-                    error!("error reading file in directory");
-                    continue;
-                }
-            };
-
-            if meta.is_file() {
-                match path.extension() {
-                    Some(ext) => match ext.to_string_lossy().deref() {
-                        "rec" => {
-                            let path = path.to_owned();
-                            let config = config.clone();
-                            let handle = thread::spawn(move || {
-                                match Vault::parse_rec(&path, config) {
-                                    Ok(results) => results,
-                                    Err(err) => {
-                                        let mut result = Vec::with_capacity(1);
-                                        let long_name = path.to_string_lossy();
-                                        let long_name = long_name.deref();
-                                        result.push(Replay::new_with_error(long_name, err));
-                                        result
-                                    }
+                    "zip" => {
+                        let path = path.to_owned();
+                        let config = cfg.clone();
+                        let handle = thread::spawn(move || {
+                            match parse_archive(&path, Some(config)) {
+                                Ok(results) => results,
+                                Err(err) => {
+                                    let mut result = Vec::with_capacity(1);
+                                    let long_name = path.to_string_lossy();
+                                    let long_name = long_name.deref();
+                                    result.push(Replay::new_with_error(long_name, err));
+                                    result
                                 }
-                            });
-                            handles.push(handle);
-                        },
-                        "zip" => {
-                            let path = path.to_owned();
-                            let config = config.clone();
-                            let handle = thread::spawn(move || {
-                                match Vault::parse_zip(&path, config) {
-                                    Ok(results) => results,
-                                    Err(err) => {
-                                        let mut result = Vec::with_capacity(1);
-                                        let long_name = path.to_string_lossy();
-                                        let long_name = long_name.deref();
-                                        result.push(Replay::new_with_error(long_name, err));
-                                        result
-                                    }
-                                }
-                            });
-                            handles.push(handle);
-                        },
-                        _ => info!("skipping {}, not a replay or archive", path.display()),
+                            }
+                        });
+                        handles.push(handle);
                     },
-                    None => info!("skipping {}, not a replay or archive", path.display())
-                }
+                    _ => info!("skipping {}, not a replay or archive", path.display()),
+                },
+                None => info!("skipping {}, not a replay or archive", path.display())
             }
         }
+    }
 
-        for handle in handles {
-            match handle.join() {
-                Ok(result) => replays.extend(result.into_iter()),
-                Err(_) => error!("parse failed"),
-            }
+    for handle in handles {
+        match handle.join() {
+            Ok(result) => replays.extend(result.into_iter()),
+            Err(_) => error!("parse failed"),
         }
-
-        Ok(replays)
     }
 
-    /// Serializes `Vault` as JSON String.
-
-    pub fn to_json(&self) -> Result<String> {
-        Ok(try!(json::encode(&self)))
-    }
+    Ok(replays)
 }
 
 /// Prints out the current vault version and compatible CoH2 game versions.
@@ -367,8 +436,8 @@ pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
     let cow = cstr.to_string_lossy();
     let path_str = cow.deref();
     let path = Path::new(&path_str);
-    let vault = Vault::parse(&path).unwrap();
-    let result = vault.to_json().unwrap();
+    let replay = parse_replay(&path, None).unwrap();
+    let result = json::encode(&replay).unwrap();
     let val = CString::new(result.into_bytes()).unwrap();
     val.into_raw()
 }
