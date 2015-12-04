@@ -36,20 +36,4 @@ impl Player {
             cpm: 0.0,
         }
     }
-
-    /// Writes the contents of the `Player` to `stdout`.
-
-    pub fn display(&self) {
-        println!("id: {}", self.id);
-        println!("name: {}", self.name);
-        println!("steam_id: {}", self.steam_id);
-        println!("team: {}", self.team);
-        println!("faction: {}", self.faction);
-        println!("commander: {}", self.commander);
-        println!("cpm: {}", self.cpm);
-
-        for item in &self.items {
-            println!("{:?}: {}", item.item_type, item.server_id);
-        }
-    }
 }

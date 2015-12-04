@@ -22,10 +22,4 @@ impl ChatLine {
             message: message.into(),
         }
     }
-
-    /// Writes the contents of the `ChatLine` to stdout.
-
-    pub fn display(&self) {
-        println!("{} - {}: {}", self.tick, self.name, self.message);
-    }
 }

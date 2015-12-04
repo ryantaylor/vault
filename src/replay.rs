@@ -932,23 +932,4 @@ impl Replay {
             self.file.cleanup();
         }
     }
-
-    /// Writes the contents of the `Replay` to `stdout`.
-
-    pub fn display(&self) {
-        println!("version: {}", self.version);
-        println!("game_type: {}", self.game_type);
-        println!("date_time: {}", self.date_time);
-        self.map.display();
-        println!("duration: {}", self.duration);
-        println!("num players: {}", self.players.len());
-
-        for player in &self.players {
-            player.display();
-        }
-
-        for line in &self.chat {
-            line.display();
-        }
-    }
 }

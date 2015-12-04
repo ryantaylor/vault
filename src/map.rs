@@ -50,16 +50,4 @@ impl Map {
             players: players
         }
     }
-
-    /// Writes the contents of the `Map` to `stdout`.
-
-    pub fn display(&self) {
-        println!("map_file: {}", self.file);
-        println!("map_name: {}", self.name);
-        println!("map_description: {}", self.description);
-        println!("map_description_long: {}", self.description_long);
-        println!("map_width: {}", self.width);
-        println!("map_height: {}", self.height);
-        println!("map_players: {}", self.players);
-    }
 }
