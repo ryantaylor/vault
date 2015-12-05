@@ -544,7 +544,8 @@ impl Replay {
                     try!(self.file.skip_ahead(1)); // inner data length
                     try!(self.file.skip_ahead(2)); // usually 0x109, part of commander def
                     let selection_id = try!(self.file.read_u32());
-                    try!(self.set_commander(command.player_id, selection_id));
+                    let server_id = try!(self.set_commander(command.player_id, selection_id));
+                    command.entity_id = server_id;
                 }
             },
             CmdType::DCMD_DataCommand1 |
@@ -860,7 +861,7 @@ impl Replay {
     /// their commands link correctly, at least all but one of them must select commanders before
     /// the game completes.
 
-    fn set_commander(&mut self, player_id: u8, selection_id: u32) -> Result<()> {
+    fn set_commander(&mut self, player_id: u8, selection_id: u32) -> Result<u32> {
         for player in &mut self.players {
             for item in &player.items {
                 if item.item_type == ItemType::Commander && item.selection_id == selection_id {
@@ -870,13 +871,13 @@ impl Replay {
 
                     player.id = player_id;
                     player.commander = item.server_id;
-                    return Ok(());
+                    return Ok(item.server_id);
                 }
             }
         }
 
         // if we can't find the commander we probably have an AI player, should handle this
-        Ok(())
+        Ok(0)
     }
 
     /// Updates the `Replay` error string to indicate a failure during parsing.

@@ -1,6 +1,6 @@
 [package]
 name = "vault"
-version = "0.4.0"
+version = "1.0.0"
 authors = ["Ryan Taylor <ryan@ryantaylordev.ca>"]
 
 description = "A parser for Company of Heroes 2 replay files. Valid for replays generated since UKF release (version 19545)."
@@ -19,7 +19,6 @@ crate-type = ["dylib", "rlib"]
 [dependencies]
 log = "0.3"
 rustc-serialize = "0.3"
-
 
 [dependencies.clippy]
 version = "*"
