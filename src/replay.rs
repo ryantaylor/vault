@@ -502,6 +502,13 @@ impl Replay {
                     try!(self.file.skip_ahead(3)); // usually 0 I think
                 }
             },
+            CmdType::SCMD_Upgrade => {
+                if command_sub_id == 0x13 {
+                    try!(self.file.skip_ahead(1)); // inner data length
+                    test_eq!(self.file.read_u8(), 0x1);
+                    command.entity_id = try!(self.file.read_u32());
+                }
+            },
             CmdType::CMD_RallyPoint |
             CmdType::SCMD_Move |
             CmdType::SCMD_AttackMove |
