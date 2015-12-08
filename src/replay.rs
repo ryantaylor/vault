@@ -555,6 +555,52 @@ impl Replay {
                     command.entity_id = server_id;
                 }
             },
+            CmdType::CMD_Ability => {
+                match command_sub_id {
+                    0x22 => {
+                        try!(self.file.skip_ahead(1)); // inner data length
+                        try!(self.file.skip_ahead(1)); // usually 0x1
+                        command.entity_id = try!(self.file.read_u32());
+                        try!(self.file.skip_ahead(1)); // usually 0x0
+                    },
+                    _ => {}
+                }
+            },
+            CmdType::SCMD_Ability => {
+                match command_sub_id {
+                    0x22 => {
+                        try!(self.file.skip_ahead(1)); // inner data length
+                        try!(self.file.skip_ahead(1)); // usually 0x1
+                        command.entity_id = try!(self.file.read_u32());
+                        try!(self.file.skip_ahead(1)); // usually 0x0
+                    },
+                    0x23 => {
+                        try!(self.file.skip_ahead(1)); // inner data length
+                        try!(self.file.skip_ahead(1)); // usually 0x1
+                        command.entity_id = try!(self.file.read_u32());
+                        try!(self.file.skip_ahead(1)); // usually 0x0
+                        if try!(self.file.read_u8()) == 0x2 {
+                            try!(self.parse_coordinates(&mut command));
+                        }
+                    },
+                    _ => {}
+                }
+            },
+            CmdType::PCMD_Ability => {
+                match command_sub_id {
+                    0x23 |
+                    0x28 => {
+                        try!(self.file.skip_ahead(1)); // inner data length
+                        try!(self.file.skip_ahead(1)); // usually 0x1
+                        command.entity_id = try!(self.file.read_u32());
+                        try!(self.file.skip_ahead(1)); // usually 0x0
+                        if try!(self.file.read_u8()) == 0x2 {
+                            try!(self.parse_coordinates(&mut command));
+                        }
+                    },
+                    _ => {}
+                }
+            },
             CmdType::DCMD_DataCommand1 |
             CmdType::DCMD_DataCommand2 => return Ok(()), // don't want to add these
             _ => {}
