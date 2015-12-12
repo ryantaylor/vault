@@ -510,6 +510,7 @@ impl Replay {
                 }
             },
             CmdType::CMD_RallyPoint |
+            CmdType::CMD_Move |
             CmdType::SCMD_Move |
             CmdType::SCMD_AttackMove |
             CmdType::SCMD_Unload => {
@@ -541,6 +542,14 @@ impl Replay {
             CmdType::PCMD_ConstructFence => {
                 // there are coordinates in here too
                 if command_sub_id == 0x1A {
+                    try!(self.file.skip_ahead(1)); // inner data length
+                    test_eq!(self.file.read_u8(), 0x1);
+                    command.entity_id = try!(self.file.read_u32());
+                }
+            },
+            CmdType::PCMD_ConstructField => {
+                // there are coordinates in here too
+                if command_sub_id == 0x1B {
                     try!(self.file.skip_ahead(1)); // inner data length
                     test_eq!(self.file.read_u8(), 0x1);
                     command.entity_id = try!(self.file.read_u32());
