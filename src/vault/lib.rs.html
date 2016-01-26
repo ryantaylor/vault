@@ -9,6 +9,7 @@
 
     <title>lib.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
@@ -427,6 +428,79 @@
 <span id="385">385</span>
 <span id="386">386</span>
 <span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! `vault` is a fully-featured Company of Heroes 2 replay parser valid for replays created on or</span>
 <span class='doccomment'>//! after the release of the British forces (version 19545).</span>
@@ -445,21 +519,28 @@
 <span class='attribute'>#[<span class='ident'>macro_use</span>]</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>log</span>;
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>rustc_serialize</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-archive&quot;</span>)]</span>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>zip</span>;
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ffi&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ffi</span>::{<span class='ident'>CStr</span>, <span class='ident'>CString</span>};
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-all&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fs</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-archive&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fs</span>::<span class='ident'>File</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-archive&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::<span class='ident'>Read</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Deref</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>path</span>::<span class='ident'>Path</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>result</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-archive&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>thread</span>;
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ffi&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>libc</span>::<span class='ident'>c_char</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;ffi&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>rustc_serialize</span>::<span class='ident'>json</span>;
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-archive&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>zip</span>::<span class='ident'>ZipArchive</span>;
 
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>chat_line</span>::<span class='ident'>ChatLine</span>;
@@ -487,269 +568,335 @@
 
 <span class='kw'>pub</span> <span class='kw'>type</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>result</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>Error</span><span class='op'>&gt;</span>;
 
-<span class='doccomment'>/// This type is the main entry point for the `vault` replay parser and provides the cleanest</span>
-<span class='doccomment'>/// interface for use by external code.</span>
+<span class='doccomment'>/// Parses a single replay (`.rec`) file.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// If `None` is passed to `config`, the following default configuration is used:</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```text</span>
+<span class='doccomment'>/// strict = false</span>
+<span class='doccomment'>/// commands = true</span>
+<span class='doccomment'>/// command_bytes = false</span>
+<span class='doccomment'>/// clean_file = true</span>
+<span class='doccomment'>/// ```</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Examples</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```ignore</span>
+<span class='doccomment'>/// extern crate vault;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// use std::path::Path;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// let path = Path::new(&quot;/path/to/file&quot;);</span>
+<span class='doccomment'>/// let replay = vault::parse_replay(&amp;path, None).unwrap();</span>
+<span class='doccomment'>/// ```</span>
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>RustcEncodable</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Vault</span> {
-    <span class='kw'>pub</span> <span class='ident'>replays</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>parse_replay</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Config</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span> {
+    <span class='kw'>let</span> <span class='ident'>cfg</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>config</span> {
+        <span class='prelude-val'>Some</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
+        <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='ident'>Config</span>::<span class='ident'>default</span>()
+    };
+
+    <span class='kw'>if</span> <span class='ident'>cfg</span>.<span class='ident'>strict</span> {
+        <span class='kw'>match</span> <span class='ident'>path</span>.<span class='ident'>extension</span>() {
+            <span class='prelude-val'>Some</span>(<span class='ident'>ext</span>) <span class='op'>=&gt;</span> <span class='kw'>match</span> <span class='ident'>ext</span>.<span class='ident'>to_string_lossy</span>().<span class='ident'>deref</span>() {
+                <span class='string'>&quot;rec&quot;</span> <span class='op'>=&gt;</span> {
+                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Replay</span>::<span class='ident'>new</span>(<span class='ident'>path</span>, <span class='ident'>cfg</span>));
+                    <span class='ident'>replay</span>.<span class='ident'>parse</span>();
+                    <span class='prelude-val'>Ok</span>(<span class='ident'>replay</span>)
+                },
+                _ <span class='op'>=&gt;</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidFileExtension</span>),
+            },
+            <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidFileExtension</span>),
+        }
+    } <span class='kw'>else</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Replay</span>::<span class='ident'>new</span>(<span class='ident'>path</span>, <span class='ident'>cfg</span>));
+        <span class='ident'>replay</span>.<span class='ident'>parse</span>();
+        <span class='prelude-val'>Ok</span>(<span class='ident'>replay</span>)
+    }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Vault</span> {
+<span class='doccomment'>/// Parses all replay (`.rec`) files in a `.zip` archive. This function can be enabled with the</span>
+<span class='doccomment'>/// `parse-archive` feature.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// If `None` is passed to `config`, the following default configuration is used:</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```text</span>
+<span class='doccomment'>/// strict = false</span>
+<span class='doccomment'>/// commands = true</span>
+<span class='doccomment'>/// command_bytes = false</span>
+<span class='doccomment'>/// clean_file = true</span>
+<span class='doccomment'>/// ```</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Note</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// The `strict` `Config` parameter is not checked in this function; only files with the `.rec`</span>
+<span class='doccomment'>/// extension in the archive will be parsed, and only archives with the `.zip` extension will be</span>
+<span class='doccomment'>/// accepted.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Examples</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```ignore</span>
+<span class='doccomment'>/// extern crate vault;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// use std::path::Path;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// let path = Path::new(&quot;/path/to/archive.zip&quot;);</span>
+<span class='doccomment'>/// let replays = vault::parse_archive(&amp;path, None).unwrap();</span>
+<span class='doccomment'>/// ```</span>
 
-    <span class='doccomment'>/// Attempts to parse the given file, returning a `Vault` type populated with the `Replay`(s)</span>
-    <span class='doccomment'>/// if successful.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Currently `.rec` and `.zip` (archives) are supported filetypes. When an archive is</span>
-    <span class='doccomment'>/// provided, all `.rec` files in the archive will be parsed. All resulting `Replay`s have</span>
-    <span class='doccomment'>/// their raw byte data cleaned automatically after parse completes.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This function uses the following default configuration:</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```text</span>
-    <span class='doccomment'>/// strict = false</span>
-    <span class='doccomment'>/// commands = true</span>
-    <span class='doccomment'>/// command_bytes = false</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Examples</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```ignore</span>
-    <span class='doccomment'>/// extern crate vault;</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// use vault::Vault;</span>
-    <span class='doccomment'>/// use std::path::Path;</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// let path = Path::new(&quot;/path/to/file&quot;);</span>
-    <span class='doccomment'>/// let results = Vault::parse(&amp;path).unwrap();</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// for replay in results.replays().iter() {</span>
-    <span class='doccomment'>///     println!(&quot;{}&quot;, replay.to_json());</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-archive&quot;</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>parse_archive</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Config</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>let</span> <span class='ident'>archive_file</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>File</span>::<span class='ident'>open</span>(<span class='ident'>path</span>));
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>archive</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>ZipArchive</span>::<span class='ident'>new</span>(<span class='ident'>archive_file</span>));
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>handles</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replays</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+    <span class='kw'>let</span> <span class='ident'>cfg</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>config</span> {
+        <span class='prelude-val'>Some</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
+        <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='ident'>Config</span>::<span class='ident'>default</span>()
+    };
 
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vault</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>Config</span>::<span class='ident'>default</span>();
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Vault</span>::<span class='ident'>parse_with_config</span>(<span class='ident'>path</span>, <span class='ident'>config</span>)))
+    <span class='kw'>let</span> <span class='ident'>size</span> <span class='op'>=</span> <span class='ident'>archive</span>.<span class='ident'>len</span>();
+    <span class='kw'>for</span> <span class='ident'>idx</span> <span class='kw'>in</span> <span class='number'>0</span>..<span class='ident'>size</span> {
+        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay_file</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>archive</span>.<span class='ident'>by_index</span>(<span class='ident'>idx</span>) {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>file</span>) <span class='op'>=&gt;</span> <span class='ident'>file</span>,
+            <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> {
+                <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;cannot read file at index {}&quot;</span>, <span class='ident'>idx</span>);
+                <span class='kw'>continue</span>;
+            }
+        };
+        <span class='kw'>let</span> <span class='ident'>name</span> <span class='op'>=</span> <span class='ident'>replay_file</span>.<span class='ident'>name</span>().<span class='ident'>to_owned</span>();
+        <span class='kw'>let</span> <span class='ident'>inner_path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>name</span>);
+        <span class='kw'>match</span> <span class='ident'>inner_path</span>.<span class='ident'>extension</span>() {
+            <span class='prelude-val'>Some</span>(<span class='ident'>ext</span>) <span class='op'>=&gt;</span> <span class='kw'>match</span> <span class='ident'>ext</span>.<span class='ident'>to_string_lossy</span>().<span class='ident'>deref</span>() {
+                <span class='string'>&quot;rec&quot;</span> <span class='op'>=&gt;</span> {
+                    <span class='kw'>let</span> <span class='ident'>base_name</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_string_lossy</span>();
+                    <span class='kw'>let</span> <span class='ident'>base_name</span> <span class='op'>=</span> <span class='ident'>base_name</span>.<span class='ident'>deref</span>();
+                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>combo_name</span> <span class='op'>=</span> <span class='ident'>String</span>::<span class='ident'>from</span>(<span class='ident'>base_name</span>);
+                    <span class='ident'>combo_name</span>.<span class='ident'>push_str</span>(<span class='string'>&quot;:&quot;</span>);
+                    <span class='ident'>combo_name</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='ident'>name</span>);
+
+                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buff</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='ident'>replay_file</span>.<span class='ident'>size</span>() <span class='kw'>as</span> <span class='ident'>usize</span>);
+                    <span class='kw'>match</span> <span class='ident'>replay_file</span>.<span class='ident'>read_to_end</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>buff</span>) {
+                        <span class='prelude-val'>Ok</span>(_) <span class='op'>=&gt;</span> (),
+                        <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> {
+                            <span class='ident'>replays</span>.<span class='ident'>push</span>(<span class='ident'>Replay</span>::<span class='ident'>new_with_error</span>(<span class='kw-2'>&amp;</span><span class='ident'>combo_name</span>, <span class='ident'>Error</span>::<span class='ident'>IoError</span>(<span class='ident'>err</span>)));
+                            <span class='kw'>continue</span>;
+                        }
+                    }
+
+                    <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>cfg</span>.<span class='ident'>clone</span>();
+                    <span class='kw'>let</span> <span class='ident'>handle</span> <span class='op'>=</span> <span class='ident'>thread</span>::<span class='ident'>spawn</span>(<span class='kw'>move</span> <span class='op'>||</span> {
+                        <span class='kw'>match</span> <span class='ident'>Replay</span>::<span class='ident'>from_bytes</span>(<span class='kw-2'>&amp;</span><span class='ident'>combo_name</span>, <span class='ident'>buff</span>, <span class='ident'>config</span>) {
+                            <span class='prelude-val'>Ok</span>(<span class='ident'>replay</span>) <span class='op'>=&gt;</span> {
+                                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='ident'>replay</span>;
+                                <span class='ident'>replay</span>.<span class='ident'>parse</span>();
+                                <span class='ident'>replay</span>
+                            },
+                            <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> <span class='ident'>Replay</span>::<span class='ident'>new_with_error</span>(<span class='kw-2'>&amp;</span><span class='ident'>combo_name</span>, <span class='ident'>err</span>),
+                        }
+                    });
+                    <span class='ident'>handles</span>.<span class='ident'>push</span>(<span class='ident'>handle</span>);
+                },
+                _ <span class='op'>=&gt;</span> <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;skipping {}, not a replay&quot;</span>, <span class='ident'>path</span>.<span class='ident'>display</span>()),
+            },
+            <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;skipping {}, not a replay&quot;</span>, <span class='ident'>path</span>.<span class='ident'>display</span>())
+        }
     }
 
-    <span class='doccomment'>/// Functions the same as `parse`, but lets you specify non-default configuration options.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Examples</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```ignore</span>
-    <span class='doccomment'>/// extern crate vault;</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// use vault::Vault;</span>
-    <span class='doccomment'>/// use vault::Config;</span>
-    <span class='doccomment'>/// use std::path::Path;</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// let path = Path::new(&quot;/path/to/file&quot;);</span>
-    <span class='doccomment'>/// let config = Config::new(true, false, false);</span>
-    <span class='doccomment'>/// let results = Vault::parse_with_config(&amp;path, config).unwrap();</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// for replay in results.replays().iter() {</span>
-    <span class='doccomment'>///     println!(&quot;{}&quot;, replay.to_json());</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>parse_with_config</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vault</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>meta</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>fs</span>::<span class='ident'>metadata</span>(<span class='ident'>path</span>));
-
-        <span class='kw'>let</span> <span class='ident'>replays</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>meta</span>.<span class='ident'>is_dir</span>() {
-            <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Vault</span>::<span class='ident'>parse_dir</span>(<span class='ident'>path</span>, <span class='ident'>config</span>))
+    <span class='kw'>for</span> <span class='ident'>handle</span> <span class='kw'>in</span> <span class='ident'>handles</span> {
+        <span class='kw'>match</span> <span class='ident'>handle</span>.<span class='ident'>join</span>() {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>replay</span>) <span class='op'>=&gt;</span> <span class='ident'>replays</span>.<span class='ident'>push</span>(<span class='ident'>replay</span>),
+            <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;parse failed&quot;</span>),
         }
-        <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>meta</span>.<span class='ident'>is_file</span>() {
-            <span class='kw'>match</span> <span class='ident'>path</span>.<span class='ident'>extension</span>() {
-                <span class='prelude-val'>Some</span>(<span class='ident'>ext</span>) <span class='op'>=&gt;</span> <span class='kw'>match</span> <span class='ident'>ext</span>.<span class='ident'>to_string_lossy</span>().<span class='ident'>deref</span>() {
-                    <span class='string'>&quot;rec&quot;</span> <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Vault</span>::<span class='ident'>parse_rec</span>(<span class='ident'>path</span>, <span class='ident'>config</span>)),
-                    <span class='string'>&quot;zip&quot;</span> <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Vault</span>::<span class='ident'>parse_zip</span>(<span class='ident'>path</span>, <span class='ident'>config</span>)),
-                    _ <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidFileExtension</span>),
-                },
-                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> {
-                    <span class='kw'>if</span> <span class='ident'>config</span>.<span class='ident'>strict</span> {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidFileExtension</span>);
-                    }
-                    <span class='kw'>else</span> {
-                        <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Vault</span>::<span class='ident'>parse_rec</span>(<span class='ident'>path</span>, <span class='ident'>config</span>))
-                    }
+    }
+    <span class='kw'>let</span> <span class='ident'>replays</span> <span class='op'>=</span> <span class='ident'>replays</span>;
+
+    <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
+}
+
+<span class='doccomment'>/// Parses the given filepath based on its metadata. Accepted are directories, replay files (with or</span>
+<span class='doccomment'>/// without `.rec` based on the value of `strict`), and archives (`.zip`). The return value is always</span>
+<span class='doccomment'>/// a `Vec`, even if a single replay file is given as input. This function can be enabled with the</span>
+<span class='doccomment'>/// `parse-all` feature.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// If `None` is passed to `config`, the following default configuration is used:</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```text</span>
+<span class='doccomment'>/// strict = false</span>
+<span class='doccomment'>/// commands = true</span>
+<span class='doccomment'>/// command_bytes = false</span>
+<span class='doccomment'>/// clean_file = true</span>
+<span class='doccomment'>/// ```</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Examples</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```ignore</span>
+<span class='doccomment'>/// extern crate vault;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// use std::path::Path;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// let path = Path::new(&quot;/path/to/replay.rec&quot;);</span>
+<span class='doccomment'>/// let replays = vault::parse_any(&amp;path, None).unwrap();</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// let path = Path::new(&quot;/path/to/archive.zip&quot;);</span>
+<span class='doccomment'>/// let replays = vault::parse_any(&amp;path, None).unwrap();</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// let path = Path::new(&quot;/path/to/directory&quot;);</span>
+<span class='doccomment'>/// let replays = vault::parse_any(&amp;path, None).unwrap();</span>
+<span class='doccomment'>/// ```</span>
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-all&quot;</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>parse_any</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Config</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>let</span> <span class='ident'>meta</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>fs</span>::<span class='ident'>metadata</span>(<span class='ident'>path</span>));
+    <span class='kw'>let</span> <span class='ident'>cfg</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>config</span> {
+        <span class='prelude-val'>Some</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
+        <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='ident'>Config</span>::<span class='ident'>default</span>()
+    };
+
+    <span class='kw'>if</span> <span class='ident'>meta</span>.<span class='ident'>is_dir</span>() {
+        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>parse_directory</span>(<span class='ident'>path</span>, <span class='ident'>config</span>)))
+    }
+    <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>meta</span>.<span class='ident'>is_file</span>() {
+        <span class='kw'>match</span> <span class='ident'>path</span>.<span class='ident'>extension</span>() {
+            <span class='prelude-val'>Some</span>(<span class='ident'>ext</span>) <span class='op'>=&gt;</span> <span class='kw'>match</span> <span class='ident'>ext</span>.<span class='ident'>to_string_lossy</span>().<span class='ident'>deref</span>() {
+                <span class='string'>&quot;rec&quot;</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>parse_rec</span>(<span class='ident'>path</span>, <span class='ident'>cfg</span>))),
+                <span class='string'>&quot;zip&quot;</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>parse_archive</span>(<span class='ident'>path</span>, <span class='ident'>config</span>))),
+                _ <span class='op'>=&gt;</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidFileExtension</span>),
+            },
+            <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> {
+                <span class='kw'>if</span> <span class='ident'>cfg</span>.<span class='ident'>strict</span> {
+                    <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidFileExtension</span>)
+                }
+                <span class='kw'>else</span> {
+                    <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>parse_rec</span>(<span class='ident'>path</span>, <span class='ident'>cfg</span>)))
                 }
             }
         }
-        <span class='kw'>else</span> {
-            <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidFileExtension</span>);
+    }
+    <span class='kw'>else</span> {
+        <span class='prelude-val'>Err</span>(<span class='ident'>Error</span>::<span class='ident'>InvalidFileExtension</span>)
+    }
+}
+
+<span class='doccomment'>/// Helper method to parse a `.rec` file in a directory and return it as a `Vec`. This</span>
+<span class='doccomment'>/// function can be enabled with the `parse-all` feature.</span>
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-all&quot;</span>)]</span>
+<span class='kw'>fn</span> <span class='ident'>parse_rec</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Replay</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='ident'>config</span>));
+    <span class='ident'>replay</span>.<span class='ident'>parse</span>();
+    <span class='kw'>let</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='ident'>replay</span>;
+
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replays</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>1</span>);
+    <span class='ident'>replays</span>.<span class='ident'>push</span>(<span class='ident'>replay</span>);
+    <span class='kw'>let</span> <span class='ident'>replays</span> <span class='op'>=</span> <span class='ident'>replays</span>;
+
+    <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
+}
+
+<span class='doccomment'>/// Parses all replay and archive (`.zip`) files in the first level of the given directory.</span>
+<span class='doccomment'>/// This function can be enabled with the `parse-all` feature.</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// If `None` is passed to `config`, the following default configuration is used:</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```text</span>
+<span class='doccomment'>/// strict = false</span>
+<span class='doccomment'>/// commands = true</span>
+<span class='doccomment'>/// command_bytes = false</span>
+<span class='doccomment'>/// clean_file = true</span>
+<span class='doccomment'>/// ```</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// # Examples</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// ```ignore</span>
+<span class='doccomment'>/// extern crate vault;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// use std::path::Path;</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// let path = Path::new(&quot;/path/to/directory&quot;);</span>
+<span class='doccomment'>/// let replays = vault::parse_directory(&amp;path, None).unwrap();</span>
+<span class='doccomment'>/// ```</span>
+
+<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;parse-all&quot;</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>parse_directory</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Config</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
+    <span class='kw'>let</span> <span class='ident'>dir</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>fs</span>::<span class='ident'>read_dir</span>(<span class='ident'>path</span>));
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replays</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>handles</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
+    <span class='kw'>let</span> <span class='ident'>cfg</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>config</span> {
+        <span class='prelude-val'>Some</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
+        <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='ident'>Config</span>::<span class='ident'>default</span>()
+    };
+
+    <span class='kw'>for</span> <span class='ident'>item</span> <span class='kw'>in</span> <span class='ident'>dir</span> {
+        <span class='kw'>let</span> <span class='ident'>item</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>item</span> {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
+            <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> {
+                <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;error reading file in directory&quot;</span>);
+                <span class='kw'>continue</span>;
+            }
         };
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Vault</span> {
-            <span class='ident'>replays</span>: <span class='ident'>replays</span>
-        })
-    }
+        <span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>item</span>.<span class='ident'>path</span>();
+        <span class='kw'>let</span> <span class='ident'>meta</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>fs</span>::<span class='ident'>metadata</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>) {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
+            <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> {
+                <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;error reading file in directory&quot;</span>);
+                <span class='kw'>continue</span>;
+            }
+        };
 
-    <span class='doccomment'>/// Parses a `.rec` file.</span>
-
-    <span class='kw'>fn</span> <span class='ident'>parse_rec</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Replay</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='ident'>config</span>));
-        <span class='ident'>replay</span>.<span class='ident'>parse</span>();
-        <span class='kw'>let</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='ident'>replay</span>;
-
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replays</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>1</span>);
-        <span class='ident'>replays</span>.<span class='ident'>push</span>(<span class='ident'>replay</span>);
-        <span class='kw'>let</span> <span class='ident'>replays</span> <span class='op'>=</span> <span class='ident'>replays</span>;
-
-        <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
-    }
-
-    <span class='doccomment'>/// Parses `.rec` files in a `.zip` archive.</span>
-
-    <span class='kw'>fn</span> <span class='ident'>parse_zip</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>archive_file</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>File</span>::<span class='ident'>open</span>(<span class='ident'>path</span>));
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>archive</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>ZipArchive</span>::<span class='ident'>new</span>(<span class='ident'>archive_file</span>));
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>handles</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replays</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-
-        <span class='kw'>let</span> <span class='ident'>size</span> <span class='op'>=</span> <span class='ident'>archive</span>.<span class='ident'>len</span>();
-        <span class='kw'>for</span> <span class='ident'>idx</span> <span class='kw'>in</span> <span class='number'>0</span>..<span class='ident'>size</span> {
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay_file</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>archive</span>.<span class='ident'>by_index</span>(<span class='ident'>idx</span>) {
-                <span class='prelude-val'>Ok</span>(<span class='ident'>file</span>) <span class='op'>=&gt;</span> <span class='ident'>file</span>,
-                <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> {
-                    <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;cannot read file at index {}&quot;</span>, <span class='ident'>idx</span>);
-                    <span class='kw'>continue</span>;
-                }
-            };
-            <span class='kw'>let</span> <span class='ident'>name</span> <span class='op'>=</span> <span class='ident'>replay_file</span>.<span class='ident'>name</span>().<span class='ident'>to_owned</span>();
-            <span class='kw'>let</span> <span class='ident'>inner_path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>name</span>);
-            <span class='kw'>match</span> <span class='ident'>inner_path</span>.<span class='ident'>extension</span>() {
+        <span class='kw'>if</span> <span class='ident'>meta</span>.<span class='ident'>is_file</span>() {
+            <span class='kw'>match</span> <span class='ident'>path</span>.<span class='ident'>extension</span>() {
                 <span class='prelude-val'>Some</span>(<span class='ident'>ext</span>) <span class='op'>=&gt;</span> <span class='kw'>match</span> <span class='ident'>ext</span>.<span class='ident'>to_string_lossy</span>().<span class='ident'>deref</span>() {
                     <span class='string'>&quot;rec&quot;</span> <span class='op'>=&gt;</span> {
-                        <span class='kw'>let</span> <span class='ident'>base_name</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_string_lossy</span>();
-                        <span class='kw'>let</span> <span class='ident'>base_name</span> <span class='op'>=</span> <span class='ident'>base_name</span>.<span class='ident'>deref</span>();
-                        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>combo_name</span> <span class='op'>=</span> <span class='ident'>String</span>::<span class='ident'>from</span>(<span class='ident'>base_name</span>);
-                        <span class='ident'>combo_name</span>.<span class='ident'>push_str</span>(<span class='string'>&quot;:&quot;</span>);
-                        <span class='ident'>combo_name</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='ident'>name</span>);
-
-                        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>buff</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='ident'>replay_file</span>.<span class='ident'>size</span>() <span class='kw'>as</span> <span class='ident'>usize</span>);
-                        <span class='kw'>match</span> <span class='ident'>replay_file</span>.<span class='ident'>read_to_end</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>buff</span>) {
-                            <span class='prelude-val'>Ok</span>(_) <span class='op'>=&gt;</span> (),
-                            <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> {
-                                <span class='ident'>replays</span>.<span class='ident'>push</span>(<span class='ident'>Replay</span>::<span class='ident'>new_with_error</span>(<span class='kw-2'>&amp;</span><span class='ident'>combo_name</span>, <span class='ident'>Error</span>::<span class='ident'>IoError</span>(<span class='ident'>err</span>)));
-                                <span class='kw'>continue</span>;
-                            }
-                        }
-
-                        <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>clone</span>();
+                        <span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_owned</span>();
+                        <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>cfg</span>.<span class='ident'>clone</span>();
                         <span class='kw'>let</span> <span class='ident'>handle</span> <span class='op'>=</span> <span class='ident'>thread</span>::<span class='ident'>spawn</span>(<span class='kw'>move</span> <span class='op'>||</span> {
-                            <span class='kw'>match</span> <span class='ident'>Replay</span>::<span class='ident'>from_bytes</span>(<span class='kw-2'>&amp;</span><span class='ident'>combo_name</span>, <span class='ident'>buff</span>, <span class='ident'>config</span>) {
-                                <span class='prelude-val'>Ok</span>(<span class='ident'>replay</span>) <span class='op'>=&gt;</span> {
-                                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='ident'>replay</span>;
-                                    <span class='ident'>replay</span>.<span class='ident'>parse</span>();
-                                    <span class='ident'>replay</span>
-                                },
-                                <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> <span class='ident'>Replay</span>::<span class='ident'>new_with_error</span>(<span class='kw-2'>&amp;</span><span class='ident'>combo_name</span>, <span class='ident'>err</span>),
+                            <span class='kw'>match</span> <span class='ident'>parse_rec</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='ident'>config</span>) {
+                                <span class='prelude-val'>Ok</span>(<span class='ident'>results</span>) <span class='op'>=&gt;</span> <span class='ident'>results</span>,
+                                <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> {
+                                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>1</span>);
+                                    <span class='kw'>let</span> <span class='ident'>long_name</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_string_lossy</span>();
+                                    <span class='kw'>let</span> <span class='ident'>long_name</span> <span class='op'>=</span> <span class='ident'>long_name</span>.<span class='ident'>deref</span>();
+                                    <span class='ident'>result</span>.<span class='ident'>push</span>(<span class='ident'>Replay</span>::<span class='ident'>new_with_error</span>(<span class='ident'>long_name</span>, <span class='ident'>err</span>));
+                                    <span class='ident'>result</span>
+                                }
                             }
                         });
                         <span class='ident'>handles</span>.<span class='ident'>push</span>(<span class='ident'>handle</span>);
                     },
-                    _ <span class='op'>=&gt;</span> <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;skipping {}, not a replay&quot;</span>, <span class='ident'>path</span>.<span class='ident'>display</span>()),
-                },
-                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;skipping {}, not a replay&quot;</span>, <span class='ident'>path</span>.<span class='ident'>display</span>())
-            }
-        }
-
-        <span class='kw'>for</span> <span class='ident'>handle</span> <span class='kw'>in</span> <span class='ident'>handles</span> {
-            <span class='kw'>match</span> <span class='ident'>handle</span>.<span class='ident'>join</span>() {
-                <span class='prelude-val'>Ok</span>(<span class='ident'>replay</span>) <span class='op'>=&gt;</span> <span class='ident'>replays</span>.<span class='ident'>push</span>(<span class='ident'>replay</span>),
-                <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;parse failed&quot;</span>),
-            }
-        }
-        <span class='kw'>let</span> <span class='ident'>replays</span> <span class='op'>=</span> <span class='ident'>replays</span>;
-
-        <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
-    }
-
-    <span class='doccomment'>/// Parses all `.rec` and `.zip` files in the given directory.</span>
-
-    <span class='kw'>fn</span> <span class='ident'>parse_dir</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span><span class='ident'>Path</span>, <span class='ident'>config</span>: <span class='ident'>Config</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>dir</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>fs</span>::<span class='ident'>read_dir</span>(<span class='ident'>path</span>));
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>replays</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Replay</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>handles</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-
-        <span class='kw'>for</span> <span class='ident'>item</span> <span class='kw'>in</span> <span class='ident'>dir</span> {
-            <span class='kw'>let</span> <span class='ident'>item</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>item</span> {
-                <span class='prelude-val'>Ok</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
-                <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> {
-                    <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;error reading file in directory&quot;</span>);
-                    <span class='kw'>continue</span>;
-                }
-            };
-
-            <span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>item</span>.<span class='ident'>path</span>();
-            <span class='kw'>let</span> <span class='ident'>meta</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>fs</span>::<span class='ident'>metadata</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>) {
-                <span class='prelude-val'>Ok</span>(<span class='ident'>val</span>) <span class='op'>=&gt;</span> <span class='ident'>val</span>,
-                <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> {
-                    <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;error reading file in directory&quot;</span>);
-                    <span class='kw'>continue</span>;
-                }
-            };
-
-            <span class='kw'>if</span> <span class='ident'>meta</span>.<span class='ident'>is_file</span>() {
-                <span class='kw'>match</span> <span class='ident'>path</span>.<span class='ident'>extension</span>() {
-                    <span class='prelude-val'>Some</span>(<span class='ident'>ext</span>) <span class='op'>=&gt;</span> <span class='kw'>match</span> <span class='ident'>ext</span>.<span class='ident'>to_string_lossy</span>().<span class='ident'>deref</span>() {
-                        <span class='string'>&quot;rec&quot;</span> <span class='op'>=&gt;</span> {
-                            <span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_owned</span>();
-                            <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>clone</span>();
-                            <span class='kw'>let</span> <span class='ident'>handle</span> <span class='op'>=</span> <span class='ident'>thread</span>::<span class='ident'>spawn</span>(<span class='kw'>move</span> <span class='op'>||</span> {
-                                <span class='kw'>match</span> <span class='ident'>Vault</span>::<span class='ident'>parse_rec</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='ident'>config</span>) {
-                                    <span class='prelude-val'>Ok</span>(<span class='ident'>results</span>) <span class='op'>=&gt;</span> <span class='ident'>results</span>,
-                                    <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> {
-                                        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>1</span>);
-                                        <span class='kw'>let</span> <span class='ident'>long_name</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_string_lossy</span>();
-                                        <span class='kw'>let</span> <span class='ident'>long_name</span> <span class='op'>=</span> <span class='ident'>long_name</span>.<span class='ident'>deref</span>();
-                                        <span class='ident'>result</span>.<span class='ident'>push</span>(<span class='ident'>Replay</span>::<span class='ident'>new_with_error</span>(<span class='ident'>long_name</span>, <span class='ident'>err</span>));
-                                        <span class='ident'>result</span>
-                                    }
+                    <span class='string'>&quot;zip&quot;</span> <span class='op'>=&gt;</span> {
+                        <span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_owned</span>();
+                        <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>cfg</span>.<span class='ident'>clone</span>();
+                        <span class='kw'>let</span> <span class='ident'>handle</span> <span class='op'>=</span> <span class='ident'>thread</span>::<span class='ident'>spawn</span>(<span class='kw'>move</span> <span class='op'>||</span> {
+                            <span class='kw'>match</span> <span class='ident'>parse_archive</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='prelude-val'>Some</span>(<span class='ident'>config</span>)) {
+                                <span class='prelude-val'>Ok</span>(<span class='ident'>results</span>) <span class='op'>=&gt;</span> <span class='ident'>results</span>,
+                                <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> {
+                                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>1</span>);
+                                    <span class='kw'>let</span> <span class='ident'>long_name</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_string_lossy</span>();
+                                    <span class='kw'>let</span> <span class='ident'>long_name</span> <span class='op'>=</span> <span class='ident'>long_name</span>.<span class='ident'>deref</span>();
+                                    <span class='ident'>result</span>.<span class='ident'>push</span>(<span class='ident'>Replay</span>::<span class='ident'>new_with_error</span>(<span class='ident'>long_name</span>, <span class='ident'>err</span>));
+                                    <span class='ident'>result</span>
                                 }
-                            });
-                            <span class='ident'>handles</span>.<span class='ident'>push</span>(<span class='ident'>handle</span>);
-                        },
-                        <span class='string'>&quot;zip&quot;</span> <span class='op'>=&gt;</span> {
-                            <span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_owned</span>();
-                            <span class='kw'>let</span> <span class='ident'>config</span> <span class='op'>=</span> <span class='ident'>config</span>.<span class='ident'>clone</span>();
-                            <span class='kw'>let</span> <span class='ident'>handle</span> <span class='op'>=</span> <span class='ident'>thread</span>::<span class='ident'>spawn</span>(<span class='kw'>move</span> <span class='op'>||</span> {
-                                <span class='kw'>match</span> <span class='ident'>Vault</span>::<span class='ident'>parse_zip</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='ident'>config</span>) {
-                                    <span class='prelude-val'>Ok</span>(<span class='ident'>results</span>) <span class='op'>=&gt;</span> <span class='ident'>results</span>,
-                                    <span class='prelude-val'>Err</span>(<span class='ident'>err</span>) <span class='op'>=&gt;</span> {
-                                        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>1</span>);
-                                        <span class='kw'>let</span> <span class='ident'>long_name</span> <span class='op'>=</span> <span class='ident'>path</span>.<span class='ident'>to_string_lossy</span>();
-                                        <span class='kw'>let</span> <span class='ident'>long_name</span> <span class='op'>=</span> <span class='ident'>long_name</span>.<span class='ident'>deref</span>();
-                                        <span class='ident'>result</span>.<span class='ident'>push</span>(<span class='ident'>Replay</span>::<span class='ident'>new_with_error</span>(<span class='ident'>long_name</span>, <span class='ident'>err</span>));
-                                        <span class='ident'>result</span>
-                                    }
-                                }
-                            });
-                            <span class='ident'>handles</span>.<span class='ident'>push</span>(<span class='ident'>handle</span>);
-                        },
-                        _ <span class='op'>=&gt;</span> <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;skipping {}, not a replay or archive&quot;</span>, <span class='ident'>path</span>.<span class='ident'>display</span>()),
+                            }
+                        });
+                        <span class='ident'>handles</span>.<span class='ident'>push</span>(<span class='ident'>handle</span>);
                     },
-                    <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;skipping {}, not a replay or archive&quot;</span>, <span class='ident'>path</span>.<span class='ident'>display</span>())
-                }
+                    _ <span class='op'>=&gt;</span> <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;skipping {}, not a replay or archive&quot;</span>, <span class='ident'>path</span>.<span class='ident'>display</span>()),
+                },
+                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='macro'>info</span><span class='macro'>!</span>(<span class='string'>&quot;skipping {}, not a replay or archive&quot;</span>, <span class='ident'>path</span>.<span class='ident'>display</span>())
             }
         }
+    }
 
-        <span class='kw'>for</span> <span class='ident'>handle</span> <span class='kw'>in</span> <span class='ident'>handles</span> {
-            <span class='kw'>match</span> <span class='ident'>handle</span>.<span class='ident'>join</span>() {
-                <span class='prelude-val'>Ok</span>(<span class='ident'>result</span>) <span class='op'>=&gt;</span> <span class='ident'>replays</span>.<span class='ident'>extend</span>(<span class='ident'>result</span>.<span class='ident'>into_iter</span>()),
-                <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;parse failed&quot;</span>),
-            }
+    <span class='kw'>for</span> <span class='ident'>handle</span> <span class='kw'>in</span> <span class='ident'>handles</span> {
+        <span class='kw'>match</span> <span class='ident'>handle</span>.<span class='ident'>join</span>() {
+            <span class='prelude-val'>Ok</span>(<span class='ident'>result</span>) <span class='op'>=&gt;</span> <span class='ident'>replays</span>.<span class='ident'>extend</span>(<span class='ident'>result</span>.<span class='ident'>into_iter</span>()),
+            <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='macro'>error</span><span class='macro'>!</span>(<span class='string'>&quot;parse failed&quot;</span>),
         }
-
-        <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
     }
 
-    <span class='doccomment'>/// Serializes `Vault` as JSON String.</span>
-
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>to_json</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>Ok</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>json</span>::<span class='ident'>encode</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>)))
-    }
+    <span class='prelude-val'>Ok</span>(<span class='ident'>replays</span>)
 }
 
 <span class='doccomment'>/// Prints out the current vault version and compatible CoH2 game versions.</span>
@@ -797,8 +944,8 @@
     <span class='kw'>let</span> <span class='ident'>cow</span> <span class='op'>=</span> <span class='ident'>cstr</span>.<span class='ident'>to_string_lossy</span>();
     <span class='kw'>let</span> <span class='ident'>path_str</span> <span class='op'>=</span> <span class='ident'>cow</span>.<span class='ident'>deref</span>();
     <span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> <span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>path_str</span>);
-    <span class='kw'>let</span> <span class='ident'>vault</span> <span class='op'>=</span> <span class='ident'>Vault</span>::<span class='ident'>parse</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>).<span class='ident'>unwrap</span>();
-    <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='ident'>vault</span>.<span class='ident'>to_json</span>().<span class='ident'>unwrap</span>();
+    <span class='kw'>let</span> <span class='ident'>replay</span> <span class='op'>=</span> <span class='ident'>parse_replay</span>(<span class='kw-2'>&amp;</span><span class='ident'>path</span>, <span class='prelude-val'>None</span>).<span class='ident'>unwrap</span>();
+    <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='ident'>json</span>::<span class='ident'>encode</span>(<span class='kw-2'>&amp;</span><span class='ident'>replay</span>).<span class='ident'>unwrap</span>();
     <span class='kw'>let</span> <span class='ident'>val</span> <span class='op'>=</span> <span class='ident'>CString</span>::<span class='ident'>new</span>(<span class='ident'>result</span>.<span class='ident'>into_bytes</span>()).<span class='ident'>unwrap</span>();
     <span class='ident'>val</span>.<span class='ident'>into_raw</span>()
 }
@@ -874,6 +1021,6 @@
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     
-    <script async src="../../search-index.js"></script>
+    <script defer src="../../search-index.js"></script>
 </body>
 </html>

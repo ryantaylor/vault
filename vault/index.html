@@ -9,6 +9,7 @@
 
     <title>vault - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -45,7 +46,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-0' class='srclink' href='../src/vault/lib.rs.html#1-387' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-0' class='srclink' href='../src/vault/lib.rs.html#1-460' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p><code>vault</code> is a fully-featured Company of Heroes 2 replay parser valid for replays created on or
 after the release of the British forces (version 19545).</p>
 
@@ -75,7 +76,8 @@ chat, equipped items, and player commands.</p>
                         <td><a class='struct' href='struct.Config.html'
                                title='vault::Config'>Config</a></td>
                         <td class='docblock short'>
-                             <p>This type contains option and configuration information for the associated <code>Vault</code> instance.</p>
+                             <p>This type contains option and configuration information for a call to one of <code>vault</code>&#39;s
+parsing functions.</p>
 
                         </td>
                     </tr>
@@ -116,16 +118,6 @@ for output using <code>rustc_serialize</code>.</p>
 
                         </td>
                     </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.Vault.html'
-                               title='vault::Vault'>Vault</a></td>
-                        <td class='docblock short'>
-                             <p>This type is the main entry point for the <code>vault</code> replay parser and provides the cleanest
-interface for use by external code.</p>
-
-                        </td>
-                    </tr>
                 </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
                     <tr class=' module-item'>
@@ -153,6 +145,47 @@ command sequence. Contents of this enum provided by Relic Entertainment.</p>
                                title='vault::free_cstring'>free_cstring</a></td>
                         <td class='docblock short'>
                              <p>Extern function for deallocating a <code>CString</code> returned by <code>parse_to_cstring</code>.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.parse_any.html'
+                               title='vault::parse_any'>parse_any</a></td>
+                        <td class='docblock short'>
+                             <p>Parses the given filepath based on its metadata. Accepted are directories, replay files (with or
+without <code>.rec</code> based on the value of <code>strict</code>), and archives (<code>.zip</code>). The return value is always
+a <code>Vec</code>, even if a single replay file is given as input. This function can be enabled with the
+<code>parse-all</code> feature.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.parse_archive.html'
+                               title='vault::parse_archive'>parse_archive</a></td>
+                        <td class='docblock short'>
+                             <p>Parses all replay (<code>.rec</code>) files in a <code>.zip</code> archive. This function can be enabled with the
+<code>parse-archive</code> feature.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.parse_directory.html'
+                               title='vault::parse_directory'>parse_directory</a></td>
+                        <td class='docblock short'>
+                             <p>Parses all replay and archive (<code>.zip</code>) files in the first level of the given directory.
+This function can be enabled with the <code>parse-all</code> feature.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.parse_replay.html'
+                               title='vault::parse_replay'>parse_replay</a></td>
+                        <td class='docblock short'>
+                             <p>Parses a single replay (<code>.rec</code>) file.</p>
 
                         </td>
                     </tr>
@@ -244,6 +277,6 @@ JSON.</p>
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

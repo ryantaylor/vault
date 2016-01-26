@@ -9,6 +9,7 @@
 
     <title>stream.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
@@ -411,6 +412,9 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module that encloses the contents of the replay file in memory and performs various functions</span>
 <span class='doccomment'>//! on the resultant bytestream.</span>
@@ -432,8 +436,11 @@
 
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>RustcEncodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Stream</span> {
+    <span class='doccomment'>/// Name and path to the actual replay file</span>
     <span class='ident'>name</span>: <span class='ident'>String</span>,
+    <span class='doccomment'>/// Vector of raw replay file byte data</span>
     <span class='ident'>data</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>,
+    <span class='doccomment'>/// Current location in the replay&#39;s raw byte data</span>
     <span class='ident'>cursor</span>: <span class='ident'>u32</span>,
 }
 
@@ -842,6 +849,6 @@
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     
-    <script async src="../../search-index.js"></script>
+    <script defer src="../../search-index.js"></script>
 </body>
 </html>

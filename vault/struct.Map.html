@@ -9,6 +9,7 @@
 
     <title>vault::Map - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -45,31 +46,36 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-8784' class='srclink' href='../src/vault/map.rs.html#8-16' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-1163' class='srclink' href='../src/vault/map.rs.html#8-23' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Map {
     pub file: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
     pub name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
     pub description: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
     pub description_long: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
-    pub width: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
-    pub height: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
-    pub players: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub players: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
 }</pre><div class='docblock'><p>This type represents a Company of Heroes 2 map as presented in a CoH2 replay file.</p>
 </div><h2 class='fields'>Fields</h2>
 <table><tr class='stab '>
-                                  <td id='structfield.file'><code>file</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.name'><code>name</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.description'><code>description</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.description_long'><code>description_long</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.width'><code>width</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.height'><code>height</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.players'><code>players</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h4>
+                                  <td id='structfield.file'><code>file</code></td><td><div class='docblock'><p>Internal Relic map file path</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.name'><code>name</code></td><td><div class='docblock'><p>Locale string representation of map name</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.description'><code>description</code></td><td><div class='docblock'><p>Locale string representation of map description</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.description_long'><code>description_long</code></td><td><div class='docblock'><p>If applicable, alternate text map description</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.width'><code>width</code></td><td><div class='docblock'><p>Map width in game units</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.height'><code>height</code></td><td><div class='docblock'><p>Map height in game units</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.players'><code>players</code></td><td><div class='docblock'><p>Number of players supported by the map</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h4>
 <div class='docblock'><p>Constructs a new <code>Map</code> with empty initial data.</p>
-</div><h4 id='method.with_data' class='method'><code>fn <a href='#method.with_data' class='fnname'>with_data</a>(file: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, description: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, description_long: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, width: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, height: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, players: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h4>
+</div><h4 id='method.with_data' class='method'><code>fn <a href='#method.with_data' class='fnname'>with_data</a>(file: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, description: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, description_long: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, width: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, height: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, players: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>) -&gt; <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h4>
 <div class='docblock'><p>Constructs a new <code>Map</code> initialized with the data given.</p>
-</div><h4 id='method.display' class='method'><code>fn <a href='#method.display' class='fnname'>display</a>(&amp;self)</code></h4>
-<div class='docblock'><p>Writes the contents of the <code>Map</code> to <code>stdout</code>.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
 </div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../vault/struct.Map.html' title='vault::Map'>Map</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -130,6 +136,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

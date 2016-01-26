@@ -9,6 +9,7 @@
 
     <title>command.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
@@ -225,13 +226,6 @@
 <span id="183">183</span>
 <span id="184">184</span>
 <span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representation of all possible commands and actions in CoH2 replays.</span>
 <span class='doccomment'>//!</span>
@@ -244,13 +238,21 @@
 
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>RustcEncodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Command</span> {
+    <span class='doccomment'>/// Internal ID of the player who issused the command</span>
     <span class='kw'>pub</span> <span class='ident'>player_id</span>: <span class='ident'>u8</span>,
+    <span class='doccomment'>/// Tick count where the command occurred</span>
     <span class='kw'>pub</span> <span class='ident'>tick</span>: <span class='ident'>u32</span>,
+    <span class='doccomment'>/// Type of command issued</span>
     <span class='kw'>pub</span> <span class='ident'>command_type</span>: <span class='ident'>CmdType</span>,
+    <span class='doccomment'>/// If applicable, refers to the `pbgid` of an entity in Relic&#39;s attribute files</span>
     <span class='kw'>pub</span> <span class='ident'>entity_id</span>: <span class='ident'>u32</span>,
+    <span class='doccomment'>/// If applicable, x coordinate of command</span>
     <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>f32</span>,
+    <span class='doccomment'>/// If applicable, y coordinate of command</span>
     <span class='kw'>pub</span> <span class='ident'>y</span>: <span class='ident'>f32</span>,
+    <span class='doccomment'>/// If applicable, z coordinate of command</span>
     <span class='kw'>pub</span> <span class='ident'>z</span>: <span class='ident'>f32</span>,
+    <span class='doccomment'>/// If `command_bytes = true`, the byte sequence of the command</span>
     <span class='kw'>pub</span> <span class='ident'>bytes</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;&gt;</span>,
 }
 
@@ -269,21 +271,6 @@
             <span class='ident'>z</span>: <span class='number'>0.0</span>,
             <span class='ident'>bytes</span>: <span class='prelude-val'>None</span>,
         }
-    }
-
-    <span class='doccomment'>/// Writes the contents of the `Command` to stdout.</span>
-
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>display</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>output</span> <span class='op'>=</span> <span class='ident'>String</span>::<span class='ident'>new</span>();
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>bytes</span>) <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>bytes</span> {
-            <span class='ident'>output</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;P{}: &quot;</span>, <span class='self'>self</span>.<span class='ident'>player_id</span>));
-            <span class='kw'>for</span> <span class='ident'>byte</span> <span class='kw'>in</span> <span class='ident'>bytes</span> {
-                <span class='ident'>output</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{:02X} &quot;</span>, <span class='ident'>byte</span>));
-            }
-        };
-
-        <span class='ident'>output</span>.<span class='ident'>push_str</span>(<span class='kw-2'>&amp;</span><span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;{:?} {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>command_type</span>, <span class='self'>self</span>.<span class='ident'>entity_id</span>));
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>output</span>);
     }
 }
 
@@ -484,6 +471,6 @@
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     
-    <script async src="../../search-index.js"></script>
+    <script defer src="../../search-index.js"></script>
 </body>
 </html>

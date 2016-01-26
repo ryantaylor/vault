@@ -9,6 +9,7 @@
 
     <title>vault::Item - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -45,19 +46,22 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-8607' class='srclink' href='../src/vault/item.rs.html#20-24' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-1125' class='srclink' href='../src/vault/item.rs.html#20-27' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Item {
-    pub selection_id: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
-    pub server_id: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub selection_id: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub server_id: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
     pub item_type: ItemType,
 }</pre><div class='docblock'><p>This type contains a parsed representation of an item that can be equipped in a CoH2 replay.</p>
 </div><h2 class='fields'>Fields</h2>
 <table><tr class='stab '>
-                                  <td id='structfield.selection_id'><code>selection_id</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.server_id'><code>server_id</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.item_type'><code>item_type</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(item_type: ItemType) -&gt; <a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a></code></h4>
+                                  <td id='structfield.selection_id'><code>selection_id</code></td><td><div class='docblock'><p>Used in a <code>PCMD_SetCommander</code> command to refer to the commander selected by a player</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.server_id'><code>server_id</code></td><td><div class='docblock'><p>Corresponds to a <code>server_id</code> in Relic&#39;s attribute files</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.item_type'><code>item_type</code></td><td><div class='docblock'><p>Internally used to organize different item types</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(item_type: ItemType) -&gt; <a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a></code></h4>
 <div class='docblock'><p>Constructs a new <code>Item</code> with an empty ID and the given <code>ItemType</code>.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a></code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a></code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
 </div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -118,6 +122,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

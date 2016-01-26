@@ -9,6 +9,7 @@
 
     <title>vault::Player - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -45,33 +46,40 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-9385' class='srclink' href='../src/vault/player.rs.html#10-20' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-1237' class='srclink' href='../src/vault/player.rs.html#10-29' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Player {
-    pub id: <a href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>,
+    pub id: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>,
     pub name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
-    pub steam_id: <a href='https://doc.rust-lang.org/nightly/std/primitive.u64.html'>u64</a>,
+    pub steam_id: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u64.html'>u64</a>,
     pub steam_id_str: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
-    pub team: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub team: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
     pub faction: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
-    pub commander: <a href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
+    pub commander: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
     pub items: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../vault/struct.Item.html' title='vault::Item'>Item</a>&gt;,
-    pub cpm: <a href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,
+    pub cpm: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>,
 }</pre><div class='docblock'><p>This type represents a Company of Heroes 2 player entity as it appears in a CoH2 replay file.</p>
 </div><h2 class='fields'>Fields</h2>
 <table><tr class='stab '>
-                                  <td id='structfield.id'><code>id</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.name'><code>name</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.steam_id'><code>steam_id</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.steam_id_str'><code>steam_id_str</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.team'><code>team</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.faction'><code>faction</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.commander'><code>commander</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.items'><code>items</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.cpm'><code>cpm</code></td><td></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h4>
+                                  <td id='structfield.id'><code>id</code></td><td><div class='docblock'><p>Internal ID of player</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.name'><code>name</code></td><td><div class='docblock'><p>Unicode name of player</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.steam_id'><code>steam_id</code></td><td><div class='docblock'><p>64-bit Steam ID</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.steam_id_str'><code>steam_id_str</code></td><td><div class='docblock'><p>Steam ID as string because JS has trouble with true 64-bit ints</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.team'><code>team</code></td><td><div class='docblock'><p>Team the player belongs to</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.faction'><code>faction</code></td><td><div class='docblock'><p>String representation of the player&#39;s faction</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.commander'><code>commander</code></td><td><div class='docblock'><p>If it can be found, the <code>server_id</code> of the player&#39;s commander</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.items'><code>items</code></td><td><div class='docblock'><p>A collection of the player&#39;s equipped items</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.cpm'><code>cpm</code></td><td><div class='docblock'><p>If it can be calculated, the player&#39;s commands per minute</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h4>
 <div class='docblock'><p>Constructs a new <code>Player</code> with empty initial data.</p>
-</div><h4 id='method.display' class='method'><code>fn <a href='#method.display' class='fnname'>display</a>(&amp;self)</code></h4>
-<div class='docblock'><p>Writes the contents of the <code>Player</code> to <code>stdout</code>.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
+</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='../rustc_serialize/serialize/trait.Encodable.html' title='rustc_serialize::serialize::Encodable'>Encodable</a> for <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h3><div class='impl-items'><h4 id='method.encode' class='method'><code>fn <a href='../rustc_serialize/serialize/trait.Encodable.html#method.encode' class='fnname'>encode</a>&lt;__S: <a class='trait' href='../rustc_serialize/serialize/trait.Encoder.html' title='rustc_serialize::serialize::Encoder'>Encoder</a>&gt;(&amp;self, __arg_0: &amp;mut __S) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, __S::Error&gt;</code></h4>
 </div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../vault/struct.Player.html' title='vault::Player'>Player</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -132,6 +140,6 @@
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

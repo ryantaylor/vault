@@ -9,6 +9,7 @@
 
     <title>podio - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -51,14 +52,11 @@
 <p>The additional methods implemented allow reading and writing integers and floats
 in the specified endianness.</p>
 
-<h1 id="usage" class='section-header'><a
-                           href="#usage">Usage</a></h1>
+<h1 id='usage' class='section-header'><a href='#usage'>Usage</a></h1>
 <p>Basically, you need to <code>use</code> the trait WritePodExt or ReadPodExt.</p>
 
-<h1 id="examples" class='section-header'><a
-                           href="#examples">Examples</a></h1>
-<h2 id="reading" class='section-header'><a
-                           href="#reading">Reading</a></h2>
+<h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1>
+<h2 id='reading' class='section-header'><a href='#reading'>Reading</a></h2>
 <p>To read some value from a reader, import ReadPodExt and the needed endianness.</p>
 <pre class='rust rust-example-rendered'>
 <span class='kw'>use</span> <span class='ident'>podio</span>::{<span class='ident'>ReadPodExt</span>, <span class='ident'>BigEndian</span>};
@@ -70,8 +68,7 @@ in the specified endianness.</p>
 
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>value</span>, <span class='number'>0x10203040</span>);</pre>
 
-<h2 id="writing" class='section-header'><a
-                           href="#writing">Writing</a></h2>
+<h2 id='writing' class='section-header'><a href='#writing'>Writing</a></h2>
 <p>For writing, you need to import the trait WritePodExt.</p>
 <pre class='rust rust-example-rendered'>
 <span class='kw'>use</span> <span class='ident'>podio</span>::{<span class='ident'>WritePodExt</span>, <span class='ident'>LittleEndian</span>};
@@ -83,8 +80,7 @@ in the specified endianness.</p>
 
 <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>writer</span>.<span class='ident'>into_inner</span>(), <span class='kw-2'>&amp;</span>[<span class='number'>0x02</span>, <span class='number'>0x88</span>]);</pre>
 
-<h2 id="read-exact" class='section-header'><a
-                           href="#read-exact">Read exact</a></h2>
+<h2 id='read-exact' class='section-header'><a href='#read-exact'>Read exact</a></h2>
 <p>One additional method, not really dealing with POD, is <code>read_exact</code>.</p>
 <pre class='rust rust-example-rendered'>
 <span class='kw'>use</span> <span class='ident'>podio</span>::<span class='ident'>ReadPodExt</span>;
@@ -212,6 +208,6 @@ in the specified endianness.</p>
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

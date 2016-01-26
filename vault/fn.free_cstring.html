@@ -9,6 +9,7 @@
 
     <title>vault::free_cstring - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
 
     
@@ -45,8 +46,8 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-24711' class='srclink' href='../src/vault/lib.rs.html#385-387' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub extern fn free_cstring(ptr: <a href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../libc/unix/notbsd/linux/other/b64/x86_64/type.c_char.html' title='libc::unix::notbsd::linux::other::b64::x86_64::c_char'>c_char</a></a>)</pre><div class='docblock'><p>Extern function for deallocating a <code>CString</code> returned by <code>parse_to_cstring</code>.</p>
+        </span><a id='src-2737' class='srclink' href='../src/vault/lib.rs.html#458-460' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub extern fn free_cstring(ptr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../libc/unix/notbsd/linux/other/b64/x86_64/type.c_char.html' title='libc::unix::notbsd::linux::other::b64::x86_64::c_char'>c_char</a></a>)</pre><div class='docblock'><p>Extern function for deallocating a <code>CString</code> returned by <code>parse_to_cstring</code>.</p>
 
 <p>Must only be passed a pointer created by <code>parse_to_cstring</code>; passing other pointers is
 undefined behaviour, and will likely cause a seg fault or double free. Every call to
@@ -111,6 +112,6 @@ string has been used. Failure to call this function will result in a memory leak
     <script src="../jquery.js"></script>
     <script src="../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script defer src="../search-index.js"></script>
 </body>
 </html>

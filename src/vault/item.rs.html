@@ -9,6 +9,7 @@
 
     <title>item.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
@@ -77,6 +78,9 @@
 <span id="35">35</span>
 <span id="36">36</span>
 <span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representation of items in CoH2 that can be equipped, as represented in</span>
 <span class='doccomment'>//! CoH2 replay files.</span>
@@ -98,9 +102,12 @@
 
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>RustcEncodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Item</span> {
+    <span class='doccomment'>/// Used in a `PCMD_SetCommander` command to refer to the commander selected by a player</span>
     <span class='kw'>pub</span> <span class='ident'>selection_id</span>: <span class='ident'>u32</span>,
+    <span class='doccomment'>/// Corresponds to a `server_id` in Relic&#39;s attribute files</span>
     <span class='kw'>pub</span> <span class='ident'>server_id</span>: <span class='ident'>u32</span>,
-    <span class='kw'>pub</span> <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>
+    <span class='doccomment'>/// Internally used to organize different item types</span>
+    <span class='kw'>pub</span> <span class='ident'>item_type</span>: <span class='ident'>ItemType</span>,
 }
 
 <span class='kw'>impl</span> <span class='ident'>Item</span> {
@@ -174,6 +181,6 @@
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     
-    <script async src="../../search-index.js"></script>
+    <script defer src="../../search-index.js"></script>
 </body>
 </html>

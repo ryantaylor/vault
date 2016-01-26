@@ -9,6 +9,7 @@
 
     <title>player.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
@@ -88,13 +89,6 @@
 <span id="46">46</span>
 <span id="47">47</span>
 <span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! A module containing a representation of a player entity in CoH2 replays.</span>
 
@@ -106,14 +100,23 @@
 
 <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>RustcEncodable</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Player</span> {
+    <span class='doccomment'>/// Internal ID of player</span>
     <span class='kw'>pub</span> <span class='ident'>id</span>: <span class='ident'>u8</span>,
+    <span class='doccomment'>/// Unicode name of player</span>
     <span class='kw'>pub</span> <span class='ident'>name</span>: <span class='ident'>String</span>,
+    <span class='doccomment'>/// 64-bit Steam ID</span>
     <span class='kw'>pub</span> <span class='ident'>steam_id</span>: <span class='ident'>u64</span>,
+    <span class='doccomment'>/// Steam ID as string because JS has trouble with true 64-bit ints</span>
     <span class='kw'>pub</span> <span class='ident'>steam_id_str</span>: <span class='ident'>String</span>,
+    <span class='doccomment'>/// Team the player belongs to</span>
     <span class='kw'>pub</span> <span class='ident'>team</span>: <span class='ident'>u32</span>,
+    <span class='doccomment'>/// String representation of the player&#39;s faction</span>
     <span class='kw'>pub</span> <span class='ident'>faction</span>: <span class='ident'>String</span>,
+    <span class='doccomment'>/// If it can be found, the `server_id` of the player&#39;s commander</span>
     <span class='kw'>pub</span> <span class='ident'>commander</span>: <span class='ident'>u32</span>,
+    <span class='doccomment'>/// A collection of the player&#39;s equipped items</span>
     <span class='kw'>pub</span> <span class='ident'>items</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>Item</span><span class='op'>&gt;</span>,
+    <span class='doccomment'>/// If it can be calculated, the player&#39;s commands per minute</span>
     <span class='kw'>pub</span> <span class='ident'>cpm</span>: <span class='ident'>f64</span>,
 }
 
@@ -132,22 +135,6 @@
             <span class='ident'>commander</span>: <span class='number'>0</span>,
             <span class='ident'>items</span>: <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='number'>12</span>), <span class='comment'>// cmdr x3, intel x3, skin x3, decal, strike, faceplate</span>
             <span class='ident'>cpm</span>: <span class='number'>0.0</span>,
-        }
-    }
-
-    <span class='doccomment'>/// Writes the contents of the `Player` to `stdout`.</span>
-
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>display</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;id: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>id</span>);
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;name: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>name</span>);
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;steam_id: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>steam_id</span>);
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;team: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>team</span>);
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;faction: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>faction</span>);
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;commander: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>commander</span>);
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;cpm: {}&quot;</span>, <span class='self'>self</span>.<span class='ident'>cpm</span>);
-
-        <span class='kw'>for</span> <span class='ident'>item</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>items</span> {
-            <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{:?}: {}&quot;</span>, <span class='ident'>item</span>.<span class='ident'>item_type</span>, <span class='ident'>item</span>.<span class='ident'>server_id</span>);
         }
     }
 }</pre>
@@ -210,6 +197,6 @@
     <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
     
-    <script async src="../../search-index.js"></script>
+    <script defer src="../../search-index.js"></script>
 </body>
 </html>
