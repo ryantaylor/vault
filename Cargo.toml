@@ -10,7 +10,7 @@ readme = "README.md"
 keywords = ["coh", "coh2", "company", "heroes", "replay"]
 license = "MIT"
 
-exclude = ["replays/*"]
+exclude = ["replays/*", "build-doc.sh", ".travis.yml"]
 
 [lib]
 name = "vault"
