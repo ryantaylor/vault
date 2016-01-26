@@ -41,7 +41,7 @@ fn main() {
 }
 ```
 
-`vault`'s `Replay` type can also be serialized to JSON using `rustc_encodable`.
+`vault`'s `Replay` type can also be serialized to JSON using `rustc_serialize`.
 
 ### Configuration
 
