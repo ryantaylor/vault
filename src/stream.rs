@@ -18,8 +18,11 @@ use Result;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Stream {
+    /// Name and path to the actual replay file
     name: String,
+    /// Vector of raw replay file byte data
     data: Vec<u8>,
+    /// Current location in the replay's raw byte data
     cursor: u32,
 }
 

@@ -8,14 +8,23 @@ use item::Item;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Player {
+    /// Internal ID of player
     pub id: u8,
+    /// Unicode name of player
     pub name: String,
+    /// 64-bit Steam ID
     pub steam_id: u64,
+    /// Steam ID as string because JS has trouble with true 64-bit ints
     pub steam_id_str: String,
+    /// Team the player belongs to
     pub team: u32,
+    /// String representation of the player's faction
     pub faction: String,
+    /// If it can be found, the `server_id` of the player's commander
     pub commander: u32,
+    /// A collection of the player's equipped items
     pub items: Vec<Item>,
+    /// If it can be calculated, the player's commands per minute
     pub cpm: f64,
 }
 

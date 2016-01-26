@@ -5,7 +5,7 @@ if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ] && [ 
   # TODO: Custom stylings
 
   # Doc the crate and its dependencies
-  cargo doc --features=ffi
+  cargo doc --features="ffi parse-all"
   # Update the docs
   cp -Rf target/doc/* docs
 

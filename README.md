@@ -24,7 +24,7 @@ If you are writing a Rust application, you can use `vault` from [crates.io](http
 
 ```toml
 [dependencies]
-vault = "0.4"
+vault = "1"
 ```
 
 `src/main.rs`:
@@ -33,25 +33,60 @@ vault = "0.4"
 extern crate vault;
 
 use std::path::Path;
-use vault::Vault;
 
 fn main() {
     let path = Path::new("/path/to/replay.rec");
-    let vault = Vault::parse(&path).unwrap();
-    println!("{}", vault.to_json().unwrap());
+    let replay = vault::parse_replay(&path, None).unwrap();
+    println!("{}", replay.version);
 }
 ```
+
+`vault`'s `Replay` type can also be serialized to JSON using `rustc_encodable`.
+
+### Configuration
+
+Each of `vault`'s `parse` functions can be passed an `Option<Config>`, which controls the behaviour of the replay parser during parsing. If `None` is passed, the default configuration shown below is used. See documentation for a more detailed look at what each configuration setting does.
+
+```text
+strict = false          // If true, only .rec files will be parsed
+commands = true         // If true, commands will be parsed; if false, commands will be skipped
+command_bytes = false   // If true, the byte sequence of all commands will be stored for debugging
+clean_file = true       // If true, the replay byte stream will be emptied after parsing for cleaner JSON
+```
+
+### Features
+
+`vault`'s core library is only able to parse single replay files. However, it includes reference implementations for multithreaded parsing of `.zip` archives as well as directories. These can be used in lieu of a custom implementation by enabling the appropriate feature flags.
+
+In order to build with features enabled, run
+
+```bash
+$ cargo build --release --features="feature1 feature2"
+```
+
+Available features include:
+
+`parse-archive`
+
+Enables `.zip` archive parsing. This feature adds the `parse_archive` function which takes a `.zip` archive and parses every `.rec` file it finds inside.
+
+`parse-all`
+
+Enables the `parse-archive` feature and extends it by adding `parse_directory` and `parse_any` functions. `parse_directory` takes a directory path and parses all `.rec` and `.zip` files at the first level of that path. `parse_any` takes a path to any file or directory and parses it based on the file extension.
+
+`dev`
+
+Enables `clippy` linting on build. Useful only for development, and requires a nightly Rust compiler.
+
+`ffi`
+
+Enables FFI functionality. See below for details.
 
 ## FFI
 
 `vault` can be called into from foreign code as easily as a C library. This can be used to parse replays with `vault` from a higher-level language such as Python or Javascript.
 
-First, build `vault` from source with the `ffi` feature enabled. You're going to need the latest version of stable Rust:
-
-```
-$ rustc -V
-rustc 1.4.0 (...)
-```
+First, build `vault` from source with the `ffi` feature enabled. You're going to need the latest version of stable Rust.
 
 ```bash
 $ git clone https://github.com/ryantaylor/vault.git && cd vault
@@ -106,13 +141,13 @@ Documentation for `vault` [can be viewed online](http://ryantaylor.github.io/vau
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
 ```
-$ cargo doc
+$ cargo doc --features=parse-all
 ```
 
 For documentation that includes the FFI functions available with the `ffi` feature, run:
 
 ```
-$ cargo doc --features=ffi
+$ cargo doc --features="parse-all ffi"
 ```
 
 The resulting documentation can then be found at `vault/target/doc`.

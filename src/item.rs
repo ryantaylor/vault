@@ -18,9 +18,12 @@ pub enum ItemType {
 
 #[derive(Debug, RustcEncodable)]
 pub struct Item {
+    /// Used in a `PCMD_SetCommander` command to refer to the commander selected by a player
     pub selection_id: u32,
+    /// Corresponds to a `server_id` in Relic's attribute files
     pub server_id: u32,
-    pub item_type: ItemType
+    /// Internally used to organize different item types
+    pub item_type: ItemType,
 }
 
 impl Item {

@@ -9,13 +9,21 @@ use std::mem;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Command {
+    /// Internal ID of the player who issused the command
     pub player_id: u8,
+    /// Tick count where the command occurred
     pub tick: u32,
+    /// Type of command issued
     pub command_type: CmdType,
+    /// If applicable, refers to the `pbgid` of an entity in Relic's attribute files
     pub entity_id: u32,
+    /// If applicable, x coordinate of command
     pub x: f32,
+    /// If applicable, y coordinate of command
     pub y: f32,
+    /// If applicable, z coordinate of command
     pub z: f32,
+    /// If `command_bytes = true`, the byte sequence of the command
     pub bytes: Option<Vec<u8>>,
 }
 

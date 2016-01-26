@@ -6,8 +6,11 @@ use std::string::String;
 
 #[derive(Debug, RustcEncodable)]
 pub struct ChatLine {
+    /// Tick count where the chat message occurred
     pub tick: u32,
+    /// Name of the player who wrote the message
     pub name: String,
+    /// Text of the message
     pub message: String,
 }
 

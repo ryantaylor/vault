@@ -50,18 +50,31 @@ macro_rules! test_eq {
 
 #[derive(Debug, RustcEncodable)]
 pub struct Replay {
+    /// If parsing failed, this will contain an error string
     pub error: Option<String>,
+    /// Abstraction of raw replay file bytes
     file: Stream,
+    /// Game engine version
     pub version: u16,
+    /// Game type (i.e. Automatch/Annihilate)
     pub game_type: String,
+    /// Timestamp encoded in replay file
     pub date_time: String,
+    /// Map this game was played on
     pub map: Map,
+    /// Players involved in the game
     pub players: Vec<Player>,
+    /// Commands issued per player
     pub commands: HashMap<u8, Vec<Command>>,
-    pub duration: u32,              // seconds
+    /// Game length in seconds
+    pub duration: u32,
+    /// Internal RNG seed used by game engine
     pub rng_seed: u32,
-    pub opponent_type: u32,         // 1 = human, 2 = cpu
+    /// Type of opponent (1 = human, 2 = cpu)
+    pub opponent_type: u32,
+    /// List of chat messages sent during replay
     pub chat: Vec<ChatLine>,
+    /// Configuration settings used for parsing
     config: Config,
 }
 

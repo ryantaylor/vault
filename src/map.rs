@@ -6,13 +6,20 @@ use std::string::String;
 
 #[derive(Debug, RustcEncodable)]
 pub struct Map {
+    /// Internal Relic map file path
     pub file: String,
+    /// Locale string representation of map name
     pub name: String,
+    /// Locale string representation of map description
     pub description: String,
+    /// If applicable, alternate text map description
     pub description_long: String,
+    /// Map width in game units
     pub width: u32,
+    /// Map height in game units
     pub height: u32,
-    pub players: u32
+    /// Number of players supported by the map
+    pub players: u32,
 }
 
 impl Map {

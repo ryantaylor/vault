@@ -111,7 +111,8 @@ pub fn parse_replay(path: &Path, config: Option<Config>) -> Result<Replay> {
     }
 }
 
-/// Parses all replay (`.rec`) files in a `.zip` archive.
+/// Parses all replay (`.rec`) files in a `.zip` archive. This function can be enabled with the
+/// `parse-archive` feature.
 ///
 /// If `None` is passed to `config`, the following default configuration is used:
 ///
@@ -211,7 +212,8 @@ pub fn parse_archive(path: &Path, config: Option<Config>) -> Result<Vec<Replay>>
 
 /// Parses the given filepath based on its metadata. Accepted are directories, replay files (with or
 /// without `.rec` based on the value of `strict`), and archives (`.zip`). The return value is always
-/// a `Vec`, even if a single replay file is given as input.
+/// a `Vec`, even if a single replay file is given as input. This function can be enabled with the
+/// `parse-all` feature.
 ///
 /// If `None` is passed to `config`, the following default configuration is used:
 ///
@@ -272,7 +274,8 @@ pub fn parse_any(path: &Path, config: Option<Config>) -> Result<Vec<Replay>> {
     }
 }
 
-/// Helper method to parse a `.rec` file in a directory and return it as a `Vec`.
+/// Helper method to parse a `.rec` file in a directory and return it as a `Vec`. This
+/// function can be enabled with the `parse-all` feature.
 
 #[cfg(feature = "parse-all")]
 fn parse_rec(path: &Path, config: Config) -> Result<Vec<Replay>> {
@@ -288,6 +291,7 @@ fn parse_rec(path: &Path, config: Config) -> Result<Vec<Replay>> {
 }
 
 /// Parses all replay and archive (`.zip`) files in the first level of the given directory.
+/// This function can be enabled with the `parse-all` feature.
 ///
 /// If `None` is passed to `config`, the following default configuration is used:
 ///
