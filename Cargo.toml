@@ -21,7 +21,7 @@ log = "0.3"
 rustc-serialize = "0.3"
 
 [dependencies.clippy]
-version = "*"
+version = "^0.0"
 optional = true
 
 [dependencies.libc]
