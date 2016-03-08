@@ -93,7 +93,7 @@ $ git clone https://github.com/ryantaylor/vault.git && cd vault
 $ cargo build --release --features=ffi
 ```
 
-The library you want to be using is `libvault.so`, which you can find at `vault/target/release`. This library exposes two external functions for use over FFI:
+The library you want to be using is `libvault.so` (Linux) or `vault.dll` (Windows), which you can find at `vault/target/release`. This library exposes two external functions for use over FFI:
 
 ```rust
 pub extern fn parse_to_cstring(path: *const c_char) -> *mut c_char {
@@ -119,6 +119,7 @@ var ref = require('ref');
 
 var charPtr = ref.refType(ref.types.CString);
 
+// On Windows this will be /path/to/vault/target/release/vault
 var lib = ffi.Library('/path/to/vault/target/release/libvault', {
     'parse_to_cstring': [charPtr, ['string']],
     'free_cstring': ['void', [charPtr]]
