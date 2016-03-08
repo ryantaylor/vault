@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/zip-0.1.15/src/write.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/zip-0.1.16/src/write.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>write.rs.html -- source</title>
@@ -425,7 +425,6 @@
 <span id="382">382</span>
 <span id="383">383</span>
 <span id="384">384</span>
-<span id="385">385</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Structs for creating a new zip archive</span>
 
@@ -449,7 +448,7 @@
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;bzip2&quot;</span>)]</span>
 <span class='kw'>use</span> <span class='ident'>bzip2</span>;
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;bzip2&quot;</span>)]</span>
-<span class='kw'>use</span> <span class='ident'>bzip2</span>::<span class='ident'>writer</span>::<span class='ident'>BzCompressor</span>;
+<span class='kw'>use</span> <span class='ident'>bzip2</span>::<span class='ident'>write</span>::<span class='ident'>BzEncoder</span>;
 
 <span class='kw'>enum</span> <span class='ident'>GenericZipWriter</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span> <span class='op'>+</span> <span class='ident'>io</span>::<span class='ident'>Seek</span><span class='op'>&gt;</span>
 {
@@ -457,7 +456,7 @@
     <span class='ident'>Storer</span>(<span class='ident'>W</span>),
     <span class='ident'>Deflater</span>(<span class='ident'>DeflateEncoder</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span>),
     <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;bzip2&quot;</span>)]</span>
-    <span class='ident'>Bzip2</span>(<span class='ident'>BzCompressor</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span>),
+    <span class='ident'>Bzip2</span>(<span class='ident'>BzEncoder</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span>),
 }
 
 <span class='doccomment'>/// Generator for ZIP files.</span>
@@ -503,7 +502,6 @@
     <span class='kw'>fn</span> <span class='ident'>write</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>buf</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span>
     {
         <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>files</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>0</span> { <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>io</span>::<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='ident'>io</span>::<span class='ident'>ErrorKind</span>::<span class='ident'>Other</span>, <span class='string'>&quot;No file has been started&quot;</span>)) }
-        <span class='comment'>//self.stats.update(buf);</span>
         <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>inner</span>.<span class='ident'>ref_mut</span>()
         {
             <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='kw-2'>mut</span> <span class='ident'>w</span>) <span class='op'>=&gt;</span> {
@@ -615,7 +613,7 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This will return the writer, but one should normally not append any data to the end of the file.  </span>
     <span class='doccomment'>/// Note that the zipfile will also be finished on drop.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>finish</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>ZipResult</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>finish</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>ZipResult</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span>
     {
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>finalize</span>());
         <span class='kw'>let</span> <span class='ident'>inner</span> <span class='op'>=</span> <span class='ident'>mem</span>::<span class='ident'>replace</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>inner</span>, <span class='ident'>GenericZipWriter</span>::<span class='ident'>Closed</span>);
@@ -682,7 +680,7 @@
             <span class='ident'>GenericZipWriter</span>::<span class='ident'>Storer</span>(<span class='ident'>w</span>) <span class='op'>=&gt;</span> <span class='ident'>w</span>,
             <span class='ident'>GenericZipWriter</span>::<span class='ident'>Deflater</span>(<span class='ident'>w</span>) <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>finish</span>()),
             <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;bzip2&quot;</span>)]</span>
-            <span class='ident'>GenericZipWriter</span>::<span class='ident'>Bzip2</span>(<span class='ident'>w</span>) <span class='op'>=&gt;</span> <span class='kw'>match</span> <span class='ident'>w</span>.<span class='ident'>into_inner</span>() { <span class='prelude-val'>Ok</span>(<span class='ident'>r</span>) <span class='op'>=&gt;</span> <span class='ident'>r</span>, <span class='prelude-val'>Err</span>((_, <span class='ident'>err</span>)) <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='prelude-val'>Err</span>(<span class='ident'>err</span>)) },
+            <span class='ident'>GenericZipWriter</span>::<span class='ident'>Bzip2</span>(<span class='ident'>w</span>) <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>w</span>.<span class='ident'>finish</span>()),
             <span class='ident'>GenericZipWriter</span>::<span class='ident'>Closed</span> <span class='op'>=&gt;</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='prelude-val'>Err</span>(<span class='ident'>io</span>::<span class='ident'>Error</span>::<span class='ident'>new</span>(<span class='ident'>io</span>::<span class='ident'>ErrorKind</span>::<span class='ident'>BrokenPipe</span>, <span class='string'>&quot;ZipWriter was already closed&quot;</span>))),
         };
 
@@ -691,7 +689,7 @@
             <span class='ident'>CompressionMethod</span>::<span class='ident'>Stored</span> <span class='op'>=&gt;</span> <span class='ident'>GenericZipWriter</span>::<span class='ident'>Storer</span>(<span class='ident'>bare</span>),
             <span class='ident'>CompressionMethod</span>::<span class='ident'>Deflated</span> <span class='op'>=&gt;</span> <span class='ident'>GenericZipWriter</span>::<span class='ident'>Deflater</span>(<span class='ident'>bare</span>.<span class='ident'>deflate_encode</span>(<span class='ident'>flate2</span>::<span class='ident'>Compression</span>::<span class='ident'>Default</span>)),
             <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;bzip2&quot;</span>)]</span>
-            <span class='ident'>CompressionMethod</span>::<span class='ident'>Bzip2</span> <span class='op'>=&gt;</span> <span class='ident'>GenericZipWriter</span>::<span class='ident'>Bzip2</span>(<span class='ident'>BzCompressor</span>::<span class='ident'>new</span>(<span class='ident'>bare</span>, <span class='ident'>bzip2</span>::<span class='ident'>Compress</span>::<span class='ident'>Default</span>)),
+            <span class='ident'>CompressionMethod</span>::<span class='ident'>Bzip2</span> <span class='op'>=&gt;</span> <span class='ident'>GenericZipWriter</span>::<span class='ident'>Bzip2</span>(<span class='ident'>BzEncoder</span>::<span class='ident'>new</span>(<span class='ident'>bare</span>, <span class='ident'>bzip2</span>::<span class='ident'>Compression</span>::<span class='ident'>Default</span>)),
             <span class='ident'>CompressionMethod</span>::<span class='ident'>Unsupported</span>(..) <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ZipError</span>::<span class='ident'>UnsupportedArchive</span>(<span class='string'>&quot;Unsupported compression&quot;</span>)),
         };
 

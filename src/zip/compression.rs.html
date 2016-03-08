@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/zip-0.1.15/src/compression.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/zip-0.1.16/src/compression.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>compression.rs.html -- source</title>
@@ -168,7 +168,7 @@
 
     <span class='attribute'>#[<span class='ident'>test</span>]</span>
     <span class='kw'>fn</span> <span class='ident'>from_eq_to</span>() {
-        <span class='kw'>for</span> <span class='ident'>v</span> <span class='kw'>in</span> (<span class='number'>0</span>..::<span class='ident'>std</span>::<span class='ident'>u16</span>::<span class='ident'>MAX</span> <span class='kw'>as</span> <span class='ident'>u32</span> <span class='op'>+</span> <span class='number'>1</span>)
+        <span class='kw'>for</span> <span class='ident'>v</span> <span class='kw'>in</span> <span class='number'>0</span>..(::<span class='ident'>std</span>::<span class='ident'>u16</span>::<span class='ident'>MAX</span> <span class='kw'>as</span> <span class='ident'>u32</span> <span class='op'>+</span> <span class='number'>1</span>)
         {
             <span class='kw'>let</span> <span class='ident'>from</span> <span class='op'>=</span> <span class='ident'>CompressionMethod</span>::<span class='ident'>from_u16</span>(<span class='ident'>v</span> <span class='kw'>as</span> <span class='ident'>u16</span>);
             <span class='kw'>let</span> <span class='ident'>to</span> <span class='op'>=</span> <span class='ident'>from</span>.<span class='ident'>to_u16</span>() <span class='kw'>as</span> <span class='ident'>u32</span>;

@@ -76,7 +76,7 @@
 <p>Before writing to this object, the start_file command should be called.</p>
 </div><h4 id='method.start_file' class='method'><code>fn <a href='#method.start_file' class='fnname'>start_file</a>&lt;S&gt;(&amp;mut self, name: S, compression: <a class='enum' href='../../zip/enum.CompressionMethod.html' title='zip::CompressionMethod'>CompressionMethod</a>) -&gt; <a class='type' href='../../zip/result/type.ZipResult.html' title='zip::result::ZipResult'>ZipResult</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt; <span class='where'>where S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;</span></code></h4>
 <div class='docblock'><p>Start a new file for with the requested compression method.</p>
-</div><h4 id='method.finish' class='method'><code>fn <a href='#method.finish' class='fnname'>finish</a>(self) -&gt; <a class='type' href='../../zip/result/type.ZipResult.html' title='zip::result::ZipResult'>ZipResult</a>&lt;W&gt;</code></h4>
+</div><h4 id='method.finish' class='method'><code>fn <a href='#method.finish' class='fnname'>finish</a>(&amp;mut self) -&gt; <a class='type' href='../../zip/result/type.ZipResult.html' title='zip::result::ZipResult'>ZipResult</a>&lt;W&gt;</code></h4>
 <div class='docblock'><p>Finish the last file and write all other zip-structures</p>
 
 <p>This will return the writer, but one should normally not append any data to the end of the file.<br>

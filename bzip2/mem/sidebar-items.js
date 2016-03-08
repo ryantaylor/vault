@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Action","Possible actions to take on compression."],["Error","Fatal errors encountered when compressing/decompressing bytes."],["Status","Result of compression or decompression"]],"struct":[["Compress","Representation of an in-memory compression stream."],["Decompress","Representation of an in-memory decompression stream."]]});

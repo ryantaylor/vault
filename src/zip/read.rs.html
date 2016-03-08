@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/zip-0.1.15/src/read.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/zip-0.1.16/src/read.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>read.rs.html -- source</title>
@@ -372,7 +372,7 @@
 <span class='kw'>use</span> <span class='ident'>msdos_time</span>::{<span class='ident'>TmMsDosExt</span>, <span class='ident'>MsDosDateTime</span>};
 
 <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;bzip2&quot;</span>)]</span>
-<span class='kw'>use</span> <span class='ident'>bzip2</span>::<span class='ident'>reader</span>::<span class='ident'>BzDecompressor</span>;
+<span class='kw'>use</span> <span class='ident'>bzip2</span>::<span class='ident'>read</span>::<span class='ident'>BzDecoder</span>;
 
 <span class='doccomment'>/// Wrapper for reading the contents of a ZIP file.</span>
 <span class='doccomment'>///</span>
@@ -411,7 +411,7 @@
     <span class='ident'>Stored</span>(<span class='ident'>Crc32Reader</span><span class='op'>&lt;</span><span class='ident'>io</span>::<span class='ident'>Take</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>Read</span><span class='op'>&gt;&gt;</span>),
     <span class='ident'>Deflated</span>(<span class='ident'>Crc32Reader</span><span class='op'>&lt;</span><span class='ident'>flate2</span>::<span class='ident'>read</span>::<span class='ident'>DeflateDecoder</span><span class='op'>&lt;</span><span class='ident'>io</span>::<span class='ident'>Take</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>Read</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>),
     <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;bzip2&quot;</span>)]</span>
-    <span class='ident'>Bzip2</span>(<span class='ident'>Crc32Reader</span><span class='op'>&lt;</span><span class='ident'>BzDecompressor</span><span class='op'>&lt;</span><span class='ident'>io</span>::<span class='ident'>Take</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>Read</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>),
+    <span class='ident'>Bzip2</span>(<span class='ident'>Crc32Reader</span><span class='op'>&lt;</span><span class='ident'>BzDecoder</span><span class='op'>&lt;</span><span class='ident'>io</span>::<span class='ident'>Take</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>Read</span><span class='op'>&gt;&gt;</span><span class='op'>&gt;</span>),
 }
 
 <span class='doccomment'>/// A struct for reading a zip file</span>
@@ -440,7 +440,7 @@
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>names_map</span> <span class='op'>=</span> <span class='ident'>HashMap</span>::<span class='ident'>new</span>();
 
         <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>reader</span>.<span class='ident'>seek</span>(<span class='ident'>io</span>::<span class='ident'>SeekFrom</span>::<span class='ident'>Start</span>(<span class='ident'>directory_start</span>)));
-        <span class='kw'>for</span> _ <span class='kw'>in</span> (<span class='number'>0</span> .. <span class='ident'>number_of_files</span>)
+        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span> .. <span class='ident'>number_of_files</span>
         {
             <span class='kw'>let</span> <span class='ident'>file</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>central_header_to_zip_file</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>reader</span>));
             <span class='ident'>names_map</span>.<span class='ident'>insert</span>(<span class='ident'>file</span>.<span class='ident'>file_name</span>.<span class='ident'>clone</span>(), <span class='ident'>files</span>.<span class='ident'>len</span>());
@@ -510,7 +510,7 @@
             <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;bzip2&quot;</span>)]</span>
             <span class='ident'>CompressionMethod</span>::<span class='ident'>Bzip2</span> <span class='op'>=&gt;</span>
             {
-                <span class='kw'>let</span> <span class='ident'>bzip2_reader</span> <span class='op'>=</span> <span class='ident'>BzDecompressor</span>::<span class='ident'>new</span>(<span class='ident'>limit_reader</span>);
+                <span class='kw'>let</span> <span class='ident'>bzip2_reader</span> <span class='op'>=</span> <span class='ident'>BzDecoder</span>::<span class='ident'>new</span>(<span class='ident'>limit_reader</span>);
                 <span class='ident'>ZipFileReader</span>::<span class='ident'>Bzip2</span>(<span class='ident'>Crc32Reader</span>::<span class='ident'>new</span>(
                     <span class='ident'>bzip2_reader</span>,
                     <span class='ident'>data</span>.<span class='ident'>crc32</span>))
