@@ -216,7 +216,7 @@ impl Replay {
     /// let replay = Replay::new(&path, config).unwrap();
     ///
     /// replay.parse();
-    /// 
+    ///
     /// // You can serialize the Replay type to JSON after parsing if you would like to print
     /// // replay data to stdout or write it to a file.
     /// //
@@ -275,7 +275,7 @@ impl Replay {
 
     fn parse_chunk(&mut self) -> Result<bool> {
         trace!("Replay::parse_chunk");
-        
+
         // a Utf8Error here is acceptable because the last read here will always consume random
         // data that could be invalid UTF-8.
         let chunk_type: String = match self.file.read_utf8(8) {
@@ -289,8 +289,8 @@ impl Replay {
         };
 
         if !chunk_type.starts_with("FOLD") && !chunk_type.starts_with("DATA") {
-            error!("Replay::parse_chunk - invalid chunk type {} at cursor {}", 
-                   chunk_type, 
+            error!("Replay::parse_chunk - invalid chunk type {} at cursor {}",
+                   chunk_type,
                    self.file.get_cursor_position());
             try!(self.file.skip_back(8));
             return Ok(false);
@@ -814,8 +814,8 @@ impl Replay {
         size = try!(self.file.read_u32());
         try!(self.file.read_utf8(size)); // Seb: default or skirmish
 
-        try!(self.file.skip_ahead(4)); // Seb: this is not count, it's t1p1 t2p1 t1p2 t2p2 etc 
-                                          // (fixed pos) or I dont even know anymore (for random) 
+        try!(self.file.skip_ahead(4)); // Seb: this is not count, it's t1p1 t2p1 t1p2 t2p2 etc
+                                          // (fixed pos) or I dont even know anymore (for random)
                                           // its still count
 
         try!(self.file.skip_ahead(4)); // something (not position)
@@ -926,7 +926,7 @@ impl Replay {
     /// Adds a `Command` to the list for the given `Player`.
 
     fn add_command(&mut self, player_id: u8, command: Command) {
-        let mut commands = self.commands.entry(player_id).or_insert(Vec::new());
+        let commands = self.commands.entry(player_id).or_insert(Vec::new());
         commands.push(command);
     }
 

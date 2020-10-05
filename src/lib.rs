@@ -8,7 +8,7 @@
 #![cfg_attr(feature = "dev", feature(plugin))]
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
-#[cfg(feature = "dev")]
+#![feature(test)]
 extern crate test;
 #[cfg(feature = "ffi")]
 extern crate libc;
@@ -17,6 +17,9 @@ extern crate log;
 extern crate rustc_serialize;
 #[cfg(feature = "parse-archive")]
 extern crate zip;
+#[macro_use]
+extern crate nom;
+extern crate byteorder;
 
 #[cfg(feature = "ffi")]
 use std::ffi::{CStr, CString};
@@ -47,6 +50,10 @@ pub use self::item::Item;
 pub use self::map::Map;
 pub use self::player::Player;
 pub use self::replay::Replay;
+
+mod replay_service;
+mod new_replay;
+pub mod parser;
 
 mod chat_line;
 mod command;

@@ -7,9 +7,8 @@ use command::*;
 #[cfg(feature = "dev")]
 use config::*;
 use error::*;
-use item::*;
 use stream::*;
-use std::{u32, u64};
+use std::{u32};
 #[cfg(feature = "dev")]
 use std::path::Path;
 
