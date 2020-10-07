@@ -19,7 +19,7 @@ crate-type = ["dylib", "rlib"]
 [dependencies]
 log = "0.3"
 rustc-serialize = "0.3"
-nom = "^4.0"
+nom = "^5.0"
 byteorder = "1"
 
 [dependencies.clippy]
