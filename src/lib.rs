@@ -8,8 +8,8 @@
 #![cfg_attr(feature = "dev", feature(plugin))]
 #![cfg_attr(feature = "dev", plugin(clippy))]
 
-#![feature(test)]
-extern crate test;
+// #![feature(test)]
+// extern crate test;
 #[cfg(feature = "ffi")]
 extern crate libc;
 #[macro_use]
