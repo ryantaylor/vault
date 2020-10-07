@@ -1,78 +1,127 @@
 use std::fmt::Debug;
 use std::io::Cursor;
-use std::ops::{RangeTo, RangeFrom, Deref};
+use std::ops::{RangeTo, RangeFrom, Deref, Mul, Add};
 use std::slice::SliceIndex;
 use std::str;
 use std::string::String;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
+use nom::{ToUsize, InputIter, InputTake};
+
 // use nom::{le_u16, IResult, Needed, need_more, InputTake, InputLength, AtEof, AsBytes, Slice};
 // use nom::types::CompleteByteSlice;
 use nom::{IResult};
+use nom::error::ParseError;
 use nom::bytes::complete::{take, take_till, take_while};
 // use nom::error::ParseError;
-use nom::combinator::{map_res, verify};
+use nom::combinator::{map, map_res, verify};
+use nom::multi::{count};
 use nom::number::complete::{le_u16, le_u32};
 use nom::sequence::{preceded};
 
-fn verify_zero_u16(input: &[u8]) -> IResult<&[u8], u16> {
+pub fn verify_zero_u16(input: &[u8]) -> IResult<&[u8], u16> {
     verify(le_u16, |n: &u16| *n == 0)(input)
 }
 
-// fn verify_zero_u16<'a, O2, E: ParseError<&'a [u8]>, F, G>(
-//     first: F,
-//     second: G
-// ) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], u16, E> where
-//     F: Fn(&'a [u8]) -> IResult<&'a [u8], u16, E>,
-//     G: Fn(&O2) -> bool,
-//     O2: ?Sized {
-//         verify(le_u16, |n: &u16| *n == 0)
-//     }
-// fn verify_zero_u16<'a, E: ParseError<&'a [u8]>>() -> impl Fn(&'a [u8]) -> IResult<&'a [u8], u16, E> {
-//     verify(le_u16, |n: &u16| *n == 0)
-// }
-// named!(zero_u16<u16>, verify!(le_u16, |n: u16| n == 0));
-
-pub fn parse_version(input: &[u8]) -> IResult<&[u8], u16> {
-    // let zero = verify(le_u16, |n: &u16| *n == 0);
-    preceded(verify_zero_u16, le_u16)(input)
-}
-// named!(pub match_version<u16>,
-//     do_parse!(
-//         zero_u16 >>
-//         version: le_u16 >>
-//         (version)
-//     )
-// );
-
-pub fn parse_utf8<'a>(len: u8) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], &str> {
-    map_res(take(len), |s: &[u8]| str::from_utf8(s))
+pub fn verify_le_u32<'a>(expected: u32) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], u32> {
+    verify(le_u32, move |n: &u32| *n == expected)
 }
 
-pub fn parse_game_type(input: &[u8]) -> IResult<&[u8], &str> {
-    parse_utf8(8)(input)
+pub fn parse_utf8_fixed<'a, E, T: ToUsize>(len: T) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], String, E>
+where
+    E: ParseError<&'a [u8]>
+{
+    map(take(len), |s: &[u8]| String::from_utf8_lossy(s).into_owned())
 }
 
-pub fn parse_utf16(input: &[u8]) -> IResult<&[u8], String> {
-    let (input, u8_slice) = take_till(|c| c == 0)(input)?;
+pub fn parse_utf8_variable<'a, O, E, F>(f: F) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], (O, String), E>
+where
+    E: ParseError<&'a [u8]>,
+    F: Fn(&'a [u8]) -> IResult<&'a [u8], O, E>,
+    O: ToUsize + Copy
+{
+    move |input: &[u8]| {
+        let (input, num) = f(input)?;
+        let (input, res) = parse_utf8_fixed(num)(input)?;
 
-    let mut u16_vec = Vec::with_capacity(u8_slice.len() / 2);
-    let mut cursor = Cursor::new(u8_slice);
+        Ok((input, (num, res)))
+    }
+}
+
+fn bytes_to_utf16(bytes: &[u8]) -> String {
+    let mut u16_vec = Vec::with_capacity(bytes.len() / 2);
+    let mut cursor = Cursor::new(bytes);
 
     cursor.read_u16_into::<LittleEndian>(&mut u16_vec).unwrap();
 
-    let result = String::from_utf16(&u16_vec).unwrap();
+    String::from_utf16_lossy(&u16_vec)
+}
 
-    Ok((input, result))
+pub fn parse_utf16_terminated(input: &[u8]) -> IResult<&[u8], String> {
+    map(
+        take_till(|c| c == 0),
+        |bytes: &[u8]| bytes_to_utf16(bytes)
+    )(input)
+}
+
+pub fn parse_utf16_fixed<'a, E, T>(len: T) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], String, E>
+where
+    E: ParseError<&'a [u8]>,
+    T: ToUsize
+{
+    let len = len.to_usize();
+    let true_len = len * 2;
+
+    map(
+        take(true_len),
+        |bytes: &[u8]| bytes_to_utf16(bytes)
+    )
+}
+
+pub fn parse_utf16_variable<'a, O, E, F>(f: F) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], (O, String), E>
+where
+    E: ParseError<&'a [u8]>,
+    F: Fn(&'a [u8]) -> IResult<&'a [u8], O, E>,
+    O: ToUsize + Copy
+{
+    move |input: &[u8]| {
+        let (input, num) = f(input)?;
+        let (input, res) = parse_utf16_fixed(num)(input)?;
+
+        Ok((input, (num, res)))
+    }
 }
 
 pub fn take_zeroes(input: &[u8]) -> IResult<&[u8], &[u8]> {
     take_while(|n: u8| n == 0)(input)
 }
 
-pub fn verify_le_u32<'a>(expected: u32) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], u32> {
-    verify(le_u32, move |n: &u32| *n == expected)
+pub fn count_n<I, O, E, F, P>(count_parser: impl Fn(I) -> IResult<I, P, E>, f: F) -> impl Fn(I) -> IResult<I, (P, Vec<O>), E>
+where
+    I: Clone + PartialEq,
+    P: ToUsize,
+    F: Fn(I) -> IResult<I, O, E>,
+    E: ParseError<I>,
+{
+    move |input: I| {
+        let (input, num) = count_parser(input)?;
+        let (input, res) = count(&f, num.to_usize())(input)?;
+
+        Ok((input, (num, res)))
+    }
+}
+
+pub fn take_n<I, O: ToUsize, E: ParseError<I>>(count_parser: impl Fn(I) -> IResult<I, O, E>) -> impl Fn(I) -> IResult<I, (O, I), E>
+where
+    I: Clone + PartialEq + InputIter + InputTake
+{
+    move |input: I| {
+        let (input, num) = count_parser(input)?;
+        let (input, res) = take(num.to_usize())(input)?;
+
+        Ok((input, (num, res)))
+    }
 }
 
 // fn parse_utf16(input: &[u8]) -> IResult<&[u8], &str> {
