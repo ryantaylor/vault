@@ -7,7 +7,7 @@ use std::string::String;
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
-use nom::{ToUsize, InputIter, InputTake};
+use nom::{ToUsize, InputIter, InputTake, Slice, InputLength};
 
 // use nom::{le_u16, IResult, Needed, need_more, InputTake, InputLength, AtEof, AsBytes, Slice};
 // use nom::types::CompleteByteSlice;
@@ -47,6 +47,15 @@ where
 
         Ok((input, (num, res)))
     }
+}
+
+fn bytes_to_u16(bytes: &[u8]) -> Vec<u16> {
+    let mut u16_vec = Vec::with_capacity(bytes.len() / 2);
+    let mut cursor = Cursor::new(bytes);
+
+    cursor.read_u16_into::<LittleEndian>(&mut u16_vec).unwrap();
+
+    u16_vec
 }
 
 fn bytes_to_utf16(bytes: &[u8]) -> String {
@@ -123,6 +132,24 @@ where
         Ok((input, (num, res)))
     }
 }
+
+pub fn take_u16<'a>(len: usize) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], Vec<u16>> {
+    map(
+        take(len * 2),
+        |bytes| bytes_to_u16(bytes)
+    )
+}
+
+// pub fn take_u16<I, C, E: ParseError<(I, usize)>>(count: C) -> impl Fn(I) -> IResult<I, Vec<u16>, E>
+// where
+//   I: Slice<RangeFrom<usize>> + InputIter<Item = u8> + InputLength,
+//   C: ToUsize
+// {
+//     map(
+//         take(count.to_usize() * 2),
+//         |bytes| bytes_to_u16(bytes)
+//     )
+// }
 
 // fn parse_utf16(input: &[u8]) -> IResult<&[u8], &str> {
 //     map_res(take_till(|c| c == 0), |s: &[u8]| String::from_utf16(s as &[u16])?.as_str)(input)

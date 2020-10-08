@@ -9,9 +9,9 @@ use std::option::Option;
 
 use nom::IResult;
 use nom::branch::{alt};
-use nom::bytes::complete::{tag, take};
-use nom::combinator::{map, map_res, peek, verify};
-use nom::multi::{count, many0, many_till};
+use nom::bytes::complete::{tag, take, take_while};
+use nom::combinator::{map, map_res, peek, rest_len, verify};
+use nom::multi::{count, many0, many_till, length_value};
 use nom::number::complete::{le_u8, le_u16, le_u32, le_u64};
 use nom::sequence::{preceded, tuple};
 
@@ -35,19 +35,32 @@ pub fn parse(path: &Path) -> bool {
     true
 }
 
-// fn parse_replay(input: &[u8]) -> IResult<&[u8], NewReplay> {
-//     let (input, (
-//             version,
-//             game_type,
-//             timestamp
-//         )) = tuple((
-//             parse_version,
-//             parse_game_type,
-//             parse_utf16_terminated
-//         ))(input)?;
+struct NomReplay {
+    header: Header,
+    chunkies: Vec<RelicChunky>,
+    actions: Vec<Box<dyn Action>>
+}
 
-//     Ok((input, NewReplay::new(version, game_type, timestamp)))
-// }
+fn parse_replay(input: &[u8]) -> IResult<&[u8], NomReplay> {
+    map(
+        tuple((
+            parse_header,
+            many0(parse_chunky),
+            many0(parse_action)
+        )),
+        |(
+            header,
+            chunkies,
+            actions
+        )| {
+            NomReplay {
+                header,
+                chunkies,
+                actions
+            }
+        }
+    )(input)
+}
 
 struct Header {
     pub version: u16,
@@ -766,8 +779,23 @@ fn parse_chunk_header(input: &[u8]) -> IResult<&[u8], ChunkHeader> {
     )(input)
 }
 
+pub trait Action {
+    fn test(&self) -> String {
+        String::from("test")
+    }
+}
+
+fn parse_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+    alt((
+        parse_tick,
+        parse_populated_chat_action,
+        parse_empty_chat_action
+    ))(input)
+}
+
 struct Tick {
-    pub tick_type: u32, // either 0 (normal/actions) or 1 (special/chat)
+    pub action_type: u32, // 0x0 for command ticks
+    pub length: u32,
     pub unknown_flag_1: u8, // usually 0x20 but can be 0x0
     pub tick_id: u32,
     pub unknown_flag_2: u32, // some id
@@ -775,18 +803,79 @@ struct Tick {
     pub bundles: Vec<Bundle>
 }
 
+impl Action for Tick {}
+
+fn parse_tick(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+    map(
+        tuple((
+            verify(le_u32, |n: &u32| *n == 0),
+            peek(le_u32),
+            length_value(
+                le_u32,
+                tuple((
+                    le_u8,
+                    le_u32,
+                    le_u32,
+                    count_n(le_u32, parse_bundle)
+                ))
+            )
+        )),
+        |(
+            action_type,
+            length,
+            (
+                unknown_flag_1,
+                tick_id,
+                unknown_flag_2,
+                (bundle_count, bundles)
+            )
+        )| {
+            Box::new(Tick {
+                action_type,
+                length,
+                unknown_flag_1,
+                tick_id,
+                unknown_flag_2,
+                bundle_count,
+                bundles
+            }) as Box<dyn Action>
+        }
+    )(input)
+}
+
 struct Bundle {
     pub unknown_flag_1: u32, // maybe bundle part count?
     pub unknown_flag_2: u32, // Seb: thought 0 but can be 33554432
-    pub bundle_length: u32,
+    pub length: u32,
     pub checksum: u8, // checksum == bundle_length % 256 else error
-    pub actions: Vec<Box<dyn Action>>
+    pub commands: Vec<Command>
 }
 
-pub trait Action {
-    fn test(&self) -> String {
-        String::from("test")
-    }
+fn parse_bundle(input: &[u8]) -> IResult<&[u8], Bundle> {
+    let (input, (
+        unknown_flag_1,
+        unknown_flag_2,
+        length,
+        checksum
+    )) = tuple((
+        le_u32,
+        le_u32,
+        le_u32,
+        le_u8
+    ))(input)?;
+
+    let (input, data) = take(length)(input)?;
+
+    let (_, commands) = many0(parse_command)(data)?;
+
+    Ok((input,
+        Bundle {
+            unknown_flag_1,
+            unknown_flag_2,
+            length,
+            checksum,
+            commands
+    }))
 }
 
 struct Command {
@@ -804,11 +893,186 @@ struct Command {
     pub command_data: Vec<u8>
 }
 
-impl Action for Command {}
-
-fn parse_tick(input: &[u8]) -> IResult<&[u8], Tick> {
-
+fn parse_command(input: &[u8]) -> IResult<&[u8], Command> {
+    map(
+        length_value(
+            peek(le_u8),
+            tuple((
+                le_u8,
+                le_u8,
+                le_u8,
+                le_u8,
+                le_u8,
+                le_u8,
+                le_u16,
+                le_u16,
+                le_u8,
+                le_u8,
+                le_u8,
+                take_while(|_| true)
+            ))
+        ),
+        |(
+            data_length,
+            unknown_flag_1,
+            action_type,
+            unknown_flag_2,
+            unknown_flag_3,
+            player_id,
+            unknown_flag_4,
+            unknown_flag_5,
+            unknown_flag_6,
+            unknown_flag_7,
+            command_sub_id,
+            command_data
+        )| {
+            Command {
+                data_length,
+                unknown_flag_1,
+                action_type,
+                unknown_flag_2,
+                unknown_flag_3,
+                player_id,
+                unknown_flag_4,
+                unknown_flag_5,
+                unknown_flag_6,
+                unknown_flag_7,
+                command_sub_id,
+                command_data: command_data.to_vec()
+            }
+        }
+    )(input)
 }
+
+pub trait ChatAction {
+    fn test(&self) -> String {
+        String::from("test")
+    }
+}
+
+impl<T> Action for T where T: ChatAction {}
+
+struct PopulatedChatAction {
+    pub action_type: u32, // 0x1 for chat actions it seems
+    pub length: u32,
+    pub chat_flag: u32, // Seb: is chat? most 1 few 0 (maybe number of messages in action?)
+    pub unknown_flag_1: u32, // length
+    pub unknown_flag_2: u32, // Seb: chat nbr 2 6 or few 4
+    pub name_length: u32,
+    pub name: String,
+    pub message_length: u32,
+    pub message: String,
+    pub unknown_data_length: u32, // not sure what this is
+    pub unknown_data: Vec<u16>    // some numeric ids? all u16s
+}
+
+impl ChatAction for PopulatedChatAction {}
+
+fn parse_populated_chat_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+    map(
+        tuple((
+            verify(le_u32, |n: &u32| *n == 1),
+            peek(le_u32),
+            length_value(
+                le_u32,
+                tuple((
+                    verify(le_u32, |n: &u32| *n == 1),
+                    le_u32,
+                    le_u32,
+                    parse_utf16_variable(le_u32),
+                    parse_utf16_variable(le_u32),
+                    count_n(le_u32, le_u16)
+                ))
+            )
+        )),
+        |(
+            action_type,
+            length,
+            (
+                chat_flag,
+                unknown_flag_1,
+                unknown_flag_2,
+                (name_length, name),
+                (message_length, message),
+                (unknown_data_length, unknown_data)
+            )
+        )| {
+            Box::new(PopulatedChatAction {
+                action_type,
+                length,
+                chat_flag,
+                unknown_flag_1,
+                unknown_flag_2,
+                name_length,
+                name,
+                message_length,
+                message,
+                unknown_data_length,
+                unknown_data
+            }) as Box<dyn Action>
+        }
+    )(input)
+}
+
+struct EmptyChatAction {
+    pub action_type: u32, // 0x1 for chat actions it seems
+    pub length: u32,
+    pub chat_flag: u32, // Seb: is chat? most 1 few 0 (maybe number of messages in action?)
+    pub unknown_flag_1: u32, // 0x8
+    pub unknown_flag_2: u32, // Seb: special E9 03 00 00 1000 to 1006
+    pub unknown_flag_3: u32 // 0x0
+}
+
+impl ChatAction for EmptyChatAction {}
+
+fn parse_empty_chat_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+    map(
+        tuple((
+            verify(le_u32, |n: &u32| *n == 1),
+            peek(le_u32),
+            length_value(
+                le_u32,
+                tuple((
+                    verify(le_u32, |n: &u32| *n == 0),
+                    le_u32,
+                    le_u32,
+                    le_u32
+                ))
+            )
+        )),
+        |(
+            action_type,
+            length,
+            (
+                chat_flag,
+                unknown_flag_1,
+                unknown_flag_2,
+                unknown_flag_3
+            )
+        )| {
+            Box::new(EmptyChatAction {
+                action_type,
+                length,
+                chat_flag,
+                unknown_flag_1,
+                unknown_flag_2,
+                unknown_flag_3
+            }) as Box<dyn Action>
+        }
+    )(input)
+}
+
+// fn parse_action(input: &[u8]) -> IResult<&[u8], Vec<Box<dyn Action>>> {
+
+// }
+
+// fn parse_actions(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+//     map(
+//         alt((
+
+//         ))
+//     )
+// }
 
 // named!(parse_header<(u16, &str, String)>,
 //     do_parse!(
