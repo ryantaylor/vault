@@ -21,6 +21,7 @@ log = "0.3"
 rustc-serialize = "0.3"
 nom = "^5.0"
 byteorder = "1"
+nom-trace = "0.2"
 
 [dependencies.clippy]
 version = "^0.0"
