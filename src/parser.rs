@@ -15,8 +15,8 @@ use nom::{IResult};
 use nom::error::ParseError;
 use nom::bytes::complete::{take, take_till, take_while};
 // use nom::error::ParseError;
-use nom::combinator::{map, map_res, verify};
-use nom::multi::{count};
+use nom::combinator::{cut, map, map_res, verify, peek, rest};
+use nom::multi::{count, many_till};
 use nom::number::complete::{le_u16, le_u32};
 use nom::sequence::{preceded};
 
@@ -26,6 +26,10 @@ pub fn verify_zero_u16(input: &[u8]) -> IResult<&[u8], u16> {
 
 pub fn verify_le_u32<'a>(expected: u32) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], u32> {
     verify(le_u32, move |n: &u32| *n == expected)
+}
+
+pub fn enforce_end_of_input(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    verify(rest, |bytes: &[u8]| bytes.len() == 0)(input)
 }
 
 pub fn parse_utf8_fixed<'a, E, T: ToUsize>(len: T) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], String, E>
@@ -62,15 +66,19 @@ fn bytes_to_utf16(bytes: &[u8]) -> String {
     let mut u16_vec = Vec::with_capacity(bytes.len() / 2);
     let mut cursor = Cursor::new(bytes);
 
-    cursor.read_u16_into::<LittleEndian>(&mut u16_vec).unwrap();
+    for _ in 1..bytes.len() / 2 {
+        u16_vec.push(cursor.read_u16::<LittleEndian>().unwrap());
+    }
 
     String::from_utf16_lossy(&u16_vec)
 }
 
 pub fn parse_utf16_terminated(input: &[u8]) -> IResult<&[u8], String> {
     map(
-        take_till(|c| c == 0),
-        |bytes: &[u8]| bytes_to_utf16(bytes)
+        many_till(
+            le_u16,
+            peek(verify(le_u16, |n: &u16| *n == 0))
+        ), |(u16s, _)| String::from_utf16_lossy(&u16s)
     )(input)
 }
 

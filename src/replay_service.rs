@@ -2,6 +2,8 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use std::option::Option;
+use std::fmt::Debug;
+use std::collections::HashMap;
 // use test::Bencher;
 
 // use nom::{le_u8, le_u16, le_u32, IResult};
@@ -10,15 +12,18 @@ use std::option::Option;
 use nom::IResult;
 use nom::branch::{alt};
 use nom::bytes::complete::{tag, take, take_while};
-use nom::combinator::{map, map_res, peek, rest_len, verify};
+use nom::combinator::{cut, map, map_res, map_parser, peek, rest_len, verify};
 use nom::multi::{count, many0, many_till, length_value};
 use nom::number::complete::{le_u8, le_u16, le_u32, le_u64};
-use nom::sequence::{preceded, tuple};
+use nom::sequence::{preceded, tuple, terminated};
+use nom::error::convert_error;
+use nom::dbg_dmp;
+use nom_trace::{Input, tr};
 
 use new_replay::NewReplay;
 // use parser::{orig_le_u16, g_le_u8, g_le_u16, g_le_u32, g_le_u64, cbs_le_u16, match_utf8, match_version, match_terminated_utf16};
 
-use parser::{count_n, take_n, parse_utf8_fixed, parse_utf16_terminated, take_zeroes, verify_le_u32, verify_zero_u16, parse_utf8_variable, parse_utf16_variable};
+use parser::{enforce_end_of_input, count_n, take_n, parse_utf8_fixed, parse_utf16_terminated, take_zeroes, verify_le_u32, verify_zero_u16, parse_utf8_variable, parse_utf16_variable};
 
 const GAME_TYPE: &'static str = "COH2_REC";
 const CHUNKY_NAME: &'static str = "Relic Chunky";
@@ -26,16 +31,33 @@ const CHUNKY_NAME: &'static str = "Relic Chunky";
 const CHUNKY_TYPE: u32 = 0x1A0A0D;
 const CHUNKY_VERSION: u32 = 0x3;
 
-pub fn parse(path: &Path) -> bool {
+fn t<I,O,E,F>(name: &'static str, f: F) -> impl Fn(I) -> IResult<I,O,E>
+  where Input: From<I>,
+        F: Fn(I) -> IResult<I,O,E>,
+        I: Clone,
+        O: Debug,
+        E: Debug {
+  tr("default", name, f)
+}
+
+pub fn parse(path: &Path) -> IResult<Vec<u8>, NomReplay> {
     let mut file = File::open(path).unwrap();
     let mut buff: Vec<u8> = Vec::new();
     file.read_to_end(&mut buff).unwrap();
 
-    // let (remaining, replay) = parse_replay(&buff).unwrap();
-    true
+    match parse_replay(&buff) {
+        Ok((remaining, replay)) => Ok((remaining.to_vec(), replay)),
+        Err(_)                  => {
+            print_trace!();
+            // println!("in error branch");
+            // println!("{:#?}", e);
+            panic!()
+        }
+    }
 }
 
-struct NomReplay {
+#[derive(Debug)]
+pub struct NomReplay {
     header: Header,
     chunkies: Vec<RelicChunky>,
     actions: Vec<Box<dyn Action>>
@@ -62,6 +84,7 @@ fn parse_replay(input: &[u8]) -> IResult<&[u8], NomReplay> {
     )(input)
 }
 
+#[derive(Debug)]
 struct Header {
     pub version: u16,
     pub game_type: String,
@@ -91,6 +114,7 @@ fn parse_header(input: &[u8]) -> IResult<&[u8], Header> {
     )(input)
 }
 
+#[derive(Debug)]
 struct RelicChunky {
     pub name: String,
     pub signature: u32,
@@ -138,7 +162,7 @@ fn parse_chunky(input: &[u8]) -> IResult<&[u8], RelicChunky> {
     )(input)
 }
 
-pub trait Chunk {
+pub trait Chunk: Debug {
     fn test(&self) -> String {
         String::from("test")
     }
@@ -156,11 +180,35 @@ struct ChunkHeader {
 }
 
 fn parse_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
-    alt((
-        parse_data_chunk, parse_folder_chunk
-    ))(input)
+    let (input, header) = parse_chunk_header(input)?;
+
+    println!("{:#?}", header);
+
+    let parser = match &header.chunk_kind as &str {
+        "DATA" => match &header.chunk_type as &str {
+            "DATA" => parse_datadata_chunk,
+            "SDSC" => parse_datasdsc_chunk,
+            "PLAS" => parse_dataplas_chunk,
+                 _ => panic!()
+        },
+        "FOLD" => parse_folder_chunk,
+             _ => panic!()
+    };
+
+    println!("parsing {}{}", header.chunk_kind, header.chunk_type);
+
+    cut(
+        map_parser(
+            take(header.length),
+            terminated(
+                parser(header),
+                enforce_end_of_input
+            )
+        )
+    )(input)
 }
 
+#[derive(Debug)]
 struct FOLDChunk {
     pub header: ChunkHeader,
     pub chunks: Vec<Box<dyn Chunk>>
@@ -168,38 +216,31 @@ struct FOLDChunk {
 
 impl Chunk for FOLDChunk {}
 
-fn parse_folder_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
-    map(
-        preceded(
-            peek(tag("FOLD")),
-            tuple((
-                parse_chunk_header,
+fn parse_folder_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+    Box::new(
+        move |input| map(
+            map_parser(
+                take(header.length),
                 many0(parse_chunk)
-            ))
-        ),
-        |(
-            header,
-            chunks
-        )| {
-            Box::new(FOLDChunk {
-                header,
-                chunks
-            }) as Box<dyn Chunk>
-        }
-    )(input)
+            ),
+            |chunks| {
+                Box::new(FOLDChunk {
+                    header: header.clone(),
+                    chunks
+                }) as Box<dyn Chunk>
+            }
+        )(input)
+    )
 }
 
-fn parse_data_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
-    preceded(
-        peek(tag("DATA")),
-        alt((
-            parse_datasdsc_chunk,
-            parse_datadata_chunk,
-            parse_dataplas_chunk
-        ))
-    )(input)
+fn parse_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+    match header.version {
+        1 => parse_simple_datadata_chunk(header),
+        _ => parse_complex_datadata_chunk(header)
+    }
 }
 
+#[derive(Debug)]
 struct SimpleDATADATAChunk {
     pub header: ChunkHeader,
     pub unknown: Vec<u8>
@@ -207,6 +248,21 @@ struct SimpleDATADATAChunk {
 
 impl Chunk for SimpleDATADATAChunk {}
 
+fn parse_simple_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+    Box::new(
+        move |input| map(
+            take(header.length),
+            |unknown: &[u8]| {
+                Box::new(SimpleDATADATAChunk {
+                    header: header.clone(),
+                    unknown: unknown.to_vec()
+                }) as Box<dyn Chunk>
+            }
+        )(input)
+    )
+}
+
+#[derive(Debug)]
 struct ComplexDATADATAChunk {
     pub header: ChunkHeader,
     pub opponent_type: u32,
@@ -215,64 +271,128 @@ struct ComplexDATADATAChunk {
     pub unknown_flag_3: u16, // 0
     pub rng_seed: u32,
     pub player_count: u32,
-    pub player_data: Vec<PlayerData>
+    pub player_data: Vec<PlayerData>,
+    pub unknown_flag_4: u32, // 0x0 in test
+    pub unknown_flag_5: u32, // some large number
+    pub unknown_flag_6: u32, // 0x0 in test
+    pub unknown_flag_7: u32, // some large number
+    pub unknown_flag_8: u32, // 0x0 in test
+    pub unknown_flag_9: u32, // 0x4 in test
+    pub unknown_flag_10: u32, // 0x0 in test
+    pub unknown_flag_11: u32, // 0x0 in test
+    pub unknown_flag_12: u32, // 0x1 in test
+    pub unknown_flag_13: u32, // 0x0 in test
+    pub unknown_flag_14: u32, // 0x2 in test
+    pub unknown_flag_15: u32, // 0x1 in test
+    pub unknown_flag_16: u32, // 0x1 in test
+    pub unknown_text_length: u32,
+    pub unknown_text: String,
+    pub unknown_flag_17: u16, // 0x1 in test
+    pub unknown_flag_18: u32, // 0x1 in test
+    pub unknown_flag_19: u32, // 0x0 in test
+    pub unknown_flag_20: u32, // 0x0 in test
+    pub unknown_flag_21: u32 // 0x0 in test
 }
 
 impl Chunk for ComplexDATADATAChunk {}
 
-fn parse_datadata_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
-    let (input, header) = preceded(peek(tag("DATADATA")), parse_chunk_header)(input)?;
-
-    match header.version {
-        1 => parse_simple_datadata_chunk(header)(input),
-        _ => parse_complex_datadata_chunk(header)(input)
-    }
-}
-
-fn parse_simple_datadata_chunk<'a>(header: ChunkHeader) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>> {
-    map(
-        take(header.length),
-        move |unknown: &[u8]| {
-            Box::new(SimpleDATADATAChunk {
-                header: header.clone(),
-                unknown: unknown.to_vec()
-            }) as Box<dyn Chunk>
-        }
-    )
-}
-
-fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>> {
-    map(
-        tuple((
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u16,
-            le_u32,
-            count_n(le_u32, parse_player_data)
-        )),
-        move |(
-            opponent_type,
-            unknown_flag_1,
-            unknown_flag_2,
-            unknown_flag_3,
-            rng_seed,
-            (player_count, player_data)
-        )| {
-            Box::new(ComplexDATADATAChunk {
-                header: header.clone(),
+fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+    Box::new(
+        move |input| map(
+            tuple((
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u16,
+                le_u32,
+                count_n(le_u32, parse_player_data),
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                parse_utf8_variable(le_u32),
+                tuple((
+                    le_u16,
+                    le_u32,
+                    le_u32,
+                    le_u32,
+                    le_u32
+                ))
+            )),
+            |(
                 opponent_type,
                 unknown_flag_1,
                 unknown_flag_2,
                 unknown_flag_3,
                 rng_seed,
-                player_count,
-                player_data
-            }) as Box<dyn Chunk>
-        }
+                (player_count, player_data),
+                unknown_flag_4,
+                unknown_flag_5,
+                unknown_flag_6,
+                unknown_flag_7,
+                unknown_flag_8,
+                unknown_flag_9,
+                unknown_flag_10,
+                unknown_flag_11,
+                unknown_flag_12,
+                unknown_flag_13,
+                unknown_flag_14,
+                unknown_flag_15,
+                unknown_flag_16,
+                (unknown_text_length, unknown_text),
+                (
+                    unknown_flag_17,
+                    unknown_flag_18,
+                    unknown_flag_19,
+                    unknown_flag_20,
+                    unknown_flag_21
+                )
+            )| {
+                Box::new(ComplexDATADATAChunk {
+                    header: header.clone(),
+                    opponent_type,
+                    unknown_flag_1,
+                    unknown_flag_2,
+                    unknown_flag_3,
+                    rng_seed,
+                    player_count,
+                    player_data,
+                    unknown_flag_4,
+                    unknown_flag_5,
+                    unknown_flag_6,
+                    unknown_flag_7,
+                    unknown_flag_8,
+                    unknown_flag_9,
+                    unknown_flag_10,
+                    unknown_flag_11,
+                    unknown_flag_12,
+                    unknown_flag_13,
+                    unknown_flag_14,
+                    unknown_flag_15,
+                    unknown_flag_16,
+                    unknown_text_length,
+                    unknown_text,
+                    unknown_flag_17,
+                    unknown_flag_18,
+                    unknown_flag_19,
+                    unknown_flag_20,
+                    unknown_flag_21
+                }) as Box<dyn Chunk>
+            }
+        )(input)
     )
 }
 
+#[derive(Debug)]
 struct PlayerData {
     pub unknown_flag_1: u8, // could be 1 = human player, 0 = cpu player?
     pub name_length: u32,
@@ -297,12 +417,9 @@ struct PlayerData {
     pub steam_id: u64,
     pub item_block_1_size: u32, // commanders are usually in this block
     pub item_block_2_size: u32, // bulletins are usually in this block
-    pub unknown_data_1: Vec<u8>,
-    pub unknown_data_2_length: u32,
-    pub unknown_data_2: String,
-    pub unknown_flag_11: u16, // was 0x1 in test replay
-    pub unknown_flag_12: u32, // was 0x1 in test replay
-    pub unknown_data_3: Vec<u8>,
+    pub unknown_flag_11: u32, // 0x0
+    pub unknown_flag_12: u32, // don't know what this is yet, 2 u32s
+    pub unknown_flag_13: u32, // ^
     pub item_data: Vec<Box<dyn ItemData>>
 }
 
@@ -328,12 +445,10 @@ fn parse_player_data(input: &[u8]) -> IResult<&[u8], PlayerData> {
             count(parse_item_data, 3),
             count_n(le_u32, parse_item_data),
             count_n(le_u32, parse_item_data),
-            take(64usize),
+            le_u32,
             tuple((
-                parse_utf8_variable(le_u32),
-                le_u16,
                 le_u32,
-                take(12usize)
+                le_u32,
             ))
         )),
         |(
@@ -356,12 +471,10 @@ fn parse_player_data(input: &[u8]) -> IResult<&[u8], PlayerData> {
             other_item_data,
             (item_block_1_size, item_block_1),
             (item_block_2_size, item_block_2),
-            unknown_data_1,
+            unknown_flag_11,
             (
-                (unknown_data_2_length, unknown_data_2),
-                unknown_flag_11,
                 unknown_flag_12,
-                unknown_data_3
+                unknown_flag_13
             )
         )| {
             let items = vec![item_data, other_item_data, item_block_1, item_block_2];
@@ -387,19 +500,16 @@ fn parse_player_data(input: &[u8]) -> IResult<&[u8], PlayerData> {
                 steam_id,
                 item_block_1_size,
                 item_block_2_size,
-                unknown_data_1: unknown_data_1.to_vec(),
-                unknown_data_2_length,
-                unknown_data_2,
                 unknown_flag_11,
                 unknown_flag_12,
-                unknown_data_3: unknown_data_3.to_vec(),
+                unknown_flag_13,
                 item_data: items.into_iter().flatten().collect()
             }
         }
     )(input)
 }
 
-pub trait ItemData {
+pub trait ItemData: Debug {
     fn test(&self) -> String {
         String::from("test")
     }
@@ -414,6 +524,7 @@ fn parse_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
     ))(input)
 }
 
+#[derive(Debug)]
 struct PlayerItemData {
     pub item_type: u16,
     pub selection_id: u32,
@@ -457,6 +568,7 @@ fn parse_player_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
     )(input)
 }
 
+#[derive(Debug)]
 struct SpecialPlayerItemData {
     pub item_type: u16,
     pub unknown_data: Vec<u8>, // lots of data, no idea what it is
@@ -490,6 +602,7 @@ fn parse_special_player_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemDa
     )(input)
 }
 
+#[derive(Debug)]
 struct CPUItemData {
     pub item_type: u16,
     pub unknown_flag_1: u8, // 0x1
@@ -519,6 +632,7 @@ fn parse_cpu_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
     )(input)
 }
 
+#[derive(Debug)]
 struct EmptyItemData {
     pub item_type: u16
 }
@@ -527,7 +641,7 @@ impl ItemData for EmptyItemData {}
 
 fn parse_empty_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
     map(
-        verify(le_u16, |n: &u16| *n == 0x206),
+        verify(le_u16, |n: &u16| *n == 0x1),
         |item_type| {
             Box::new(EmptyItemData {
                 item_type
@@ -536,6 +650,7 @@ fn parse_empty_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
     )(input)
 }
 
+#[derive(Debug)]
 struct DATASDSCChunk {
     pub header: ChunkHeader,
     pub unknown_flag_1: u32, // 0x0
@@ -550,10 +665,9 @@ struct DATASDSCChunk {
     pub unknown_data_1: Vec<u8>, // something to do with map start positions?
     pub map_name_length: u32,
     pub map_name: String,
-    pub long_map_description_length: u32,
-    pub long_map_description: String,
-    pub short_map_description_length: u32,
-    pub short_map_description: String,
+    pub unknown_separator: u32, // 0x0
+    pub map_description_length: u32,
+    pub map_description: String,
     pub map_players: u32,
     pub map_width: u32,
     pub map_height: u32,
@@ -561,18 +675,24 @@ struct DATASDSCChunk {
     pub unknown_flag_8: u32, // 0x2?
     pub unknown_data_3: Vec<u8>,
     pub unknown_flag_9: u32, // 0x4?
-    pub unknown_data_4_length: u32,
-    pub unknown_data_4: String,
+    pub unknown_data_4: Vec<u8>,
+    pub unknown_data_5_length: u32,
+    pub unknown_data_5: String,
     pub unknown_flag_10: u32, // 0x0
-    pub unknown_flag_11: u32, // 0x11 in test replay
-    pub icon_data: Vec<IconData>,
-    pub unknown_flag_12: u32, // 0x1 maybe
+    pub icon_data_block_1_length: u32,
+    pub icon_data_block_1: Vec<IconData>,
+    pub icon_data_block_2_length: u32,
+    pub icon_data_block_2: Vec<IconData>,
+    pub icon_data_block_3_length: u32,
+    pub icon_data_block_3: Vec<IconData>,
+    pub unknown_flag_11: u32, // 0x1 maybe
     pub location_length: u32,
     pub location: String
 }
 
 impl Chunk for DATASDSCChunk {}
 
+#[derive(Debug)]
 struct IconData {
     pub unknown_flag_1: u32, // maybe some ID?
     pub unknown_flag_2: u32, // ^
@@ -580,74 +700,41 @@ struct IconData {
     pub icon: String
 }
 
-fn parse_datasdsc_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
-    map(
-        tuple((
-            preceded(
-                peek(tag("DATASDSC")),
-                parse_chunk_header
-            ),
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u32,
-            parse_utf8_variable(le_u32),
-            take(16usize),
-            parse_utf16_variable(le_u32),
-            parse_utf16_variable(le_u32),
-            parse_utf16_variable(le_u32),
-            le_u32,
-            le_u32,
-            le_u32,
-            take(40usize),
-            le_u32,
-            take(18usize),
-            le_u32,
+fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+    Box::new(
+        move |input| map(
             tuple((
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
+                le_u32,
                 parse_utf8_variable(le_u32),
+                take(16usize),
+                parse_utf16_variable(le_u32),
+                le_u32,
+                parse_utf16_variable(le_u32),
                 le_u32,
                 le_u32,
-                many_till(
-                    parse_icon_data,
-                    verify(le_u32, |n: &u32| *n == 1)
-                ),
-                parse_utf8_variable(le_u32)
-            ))
-        )),
-        |(
-            header,
-            unknown_flag_1,
-            unknown_flag_2,
-            unknown_flag_3,
-            unknown_flag_4,
-            unknown_flag_5,
-            unknown_flag_6,
-            unknown_flag_7,
-            (map_file_length, map_file),
-            unknown_data_1,
-            (map_name_length, map_name),
-            (long_map_description_length, long_map_description),
-            (short_map_description_length, short_map_description),
-            map_players,
-            map_width,
-            map_height,
-            unknown_data_2,
-            unknown_flag_8,
-            unknown_data_3,
-            unknown_flag_9,
-            (
-                (unknown_data_4_length, unknown_data_4),
-                unknown_flag_10,
-                unknown_flag_11,
-                (icon_data, unknown_flag_12),
-                (location_length, location)
-            )
-        )| {
-            Box::new(DATASDSCChunk {
-                header,
+                le_u32,
+                take(40usize),
+                le_u32,
+                take(18usize),
+                le_u32,
+                take(12usize),
+                tuple((
+                    parse_utf8_variable(le_u32),
+                    le_u32,
+                    count_n(le_u32, parse_icon_data),
+                    count_n(le_u32, parse_icon_data),
+                    count_n(le_u32, parse_icon_data),
+                    le_u32,
+                    parse_utf8_variable(le_u32)
+                ))
+            )),
+            |(
                 unknown_flag_1,
                 unknown_flag_2,
                 unknown_flag_3,
@@ -655,33 +742,70 @@ fn parse_datasdsc_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
                 unknown_flag_5,
                 unknown_flag_6,
                 unknown_flag_7,
-                map_file_length,
-                map_file,
-                unknown_data_1: unknown_data_1.to_vec(),
-                map_name_length,
-                map_name,
-                long_map_description_length,
-                long_map_description,
-                short_map_description_length,
-                short_map_description,
+                (map_file_length, map_file),
+                unknown_data_1,
+                (map_name_length, map_name),
+                unknown_separator,
+                (map_description_length, map_description),
                 map_players,
                 map_width,
                 map_height,
-                unknown_data_2: unknown_data_2.to_vec(),
+                unknown_data_2,
                 unknown_flag_8,
-                unknown_data_3: unknown_data_3.to_vec(),
+                unknown_data_3,
                 unknown_flag_9,
-                unknown_data_4_length,
                 unknown_data_4,
-                unknown_flag_10,
-                unknown_flag_11,
-                icon_data,
-                unknown_flag_12,
-                location_length,
-                location
-            }) as Box<dyn Chunk>
-        }
-    )(input)
+                (
+                    (unknown_data_5_length, unknown_data_5),
+                    unknown_flag_10,
+                    (icon_data_block_1_length, icon_data_block_1),
+                    (icon_data_block_2_length, icon_data_block_2),
+                    (icon_data_block_3_length, icon_data_block_3),
+                    unknown_flag_11,
+                    (location_length, location)
+                )
+            )| {
+                Box::new(DATASDSCChunk {
+                    header: header.clone(),
+                    unknown_flag_1,
+                    unknown_flag_2,
+                    unknown_flag_3,
+                    unknown_flag_4,
+                    unknown_flag_5,
+                    unknown_flag_6,
+                    unknown_flag_7,
+                    map_file_length,
+                    map_file,
+                    unknown_data_1: unknown_data_1.to_vec(),
+                    map_name_length,
+                    map_name,
+                    unknown_separator,
+                    map_description_length,
+                    map_description,
+                    map_players,
+                    map_width,
+                    map_height,
+                    unknown_data_2: unknown_data_2.to_vec(),
+                    unknown_flag_8,
+                    unknown_data_3: unknown_data_3.to_vec(),
+                    unknown_flag_9,
+                    unknown_data_4: unknown_data_4.to_vec(),
+                    unknown_data_5_length,
+                    unknown_data_5,
+                    unknown_flag_10,
+                    icon_data_block_1_length,
+                    icon_data_block_1,
+                    icon_data_block_2_length,
+                    icon_data_block_2,
+                    icon_data_block_3_length,
+                    icon_data_block_3,
+                    unknown_flag_11,
+                    location_length,
+                    location
+                }) as Box<dyn Chunk>
+            }
+        )(input)
+    )
 }
 
 fn parse_icon_data(input: &[u8]) -> IResult<&[u8], IconData> {
@@ -706,34 +830,28 @@ fn parse_icon_data(input: &[u8]) -> IResult<&[u8], IconData> {
     )(input)
 }
 
+#[derive(Debug)]
 struct DATAPLASChunk {
     pub header: ChunkHeader,
     pub unknown_data_length: u32, // was 8 on a test 4v4 replay
-    pub unknown_data: Vec<u8>
+    pub unknown_data: Vec<u32>    // seems like some ids, maybe positions? player ids?
 }
 
 impl Chunk for DATAPLASChunk {}
 
-fn parse_dataplas_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
-    map(
-        tuple((
-            preceded(
-                peek(tag("DATAPLAS")),
-                parse_chunk_header
-            ),
-            take_n(le_u32)
-        )),
-        |(
-            header,
-            (unknown_data_length, unknown_data)
-        )| {
-            Box::new(DATAPLASChunk {
-                header,
-                unknown_data_length,
-                unknown_data: unknown_data.to_vec()
-            }) as Box<dyn Chunk>
-        }
-    )(input)
+fn parse_dataplas_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+    Box::new(
+        move |input| map(
+            count_n(le_u32, le_u32),
+            |(unknown_data_length, unknown_data)| {
+                Box::new(DATAPLASChunk {
+                    header: header.clone(),
+                    unknown_data_length,
+                    unknown_data: unknown_data.to_vec()
+                }) as Box<dyn Chunk>
+            }
+        )(input)
+    )
 }
 
 // struct ChunkHeader {
@@ -749,25 +867,34 @@ fn parse_dataplas_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
 fn parse_chunk_header(input: &[u8]) -> IResult<&[u8], ChunkHeader> {
     map(
         tuple((
-            parse_utf8_fixed(4usize),
-            parse_utf8_fixed(4usize),
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u32
+            alt((
+                tag("DATA"),
+                tag("FOLD")
+            )),
+            cut(
+                tuple((
+                    parse_utf8_fixed(4usize),
+                    le_u32,
+                    le_u32,
+                    le_u32,
+                    le_u32,
+                    le_u32
+                ))
+            )
         )),
         |(
             chunk_kind,
-            chunk_type,
-            version,
-            length,
-            name_length,
-            flags,
-            min_version
+            (
+                chunk_type,
+                version,
+                length,
+                name_length,
+                flags,
+                min_version
+            )
         )| {
             ChunkHeader {
-                chunk_kind: chunk_kind.to_owned(),
+                chunk_kind: String::from_utf8_lossy(chunk_kind).into_owned(),
                 chunk_type: chunk_type.to_owned(),
                 version,
                 length,
@@ -779,13 +906,14 @@ fn parse_chunk_header(input: &[u8]) -> IResult<&[u8], ChunkHeader> {
     )(input)
 }
 
-pub trait Action {
+pub trait Action: Debug {
     fn test(&self) -> String {
         String::from("test")
     }
 }
 
 fn parse_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+    println!("parsing action");
     alt((
         parse_tick,
         parse_populated_chat_action,
@@ -793,6 +921,7 @@ fn parse_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
     ))(input)
 }
 
+#[derive(Debug)]
 struct Tick {
     pub action_type: u32, // 0x0 for command ticks
     pub length: u32,
@@ -843,6 +972,7 @@ fn parse_tick(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
     )(input)
 }
 
+#[derive(Debug)]
 struct Bundle {
     pub unknown_flag_1: u32, // maybe bundle part count?
     pub unknown_flag_2: u32, // Seb: thought 0 but can be 33554432
@@ -878,6 +1008,7 @@ fn parse_bundle(input: &[u8]) -> IResult<&[u8], Bundle> {
     }))
 }
 
+#[derive(Debug)]
 struct Command {
     pub data_length: u8,
     pub unknown_flag_1: u8, // not sure? mostly 0 I think
@@ -944,7 +1075,7 @@ fn parse_command(input: &[u8]) -> IResult<&[u8], Command> {
     )(input)
 }
 
-pub trait ChatAction {
+pub trait ChatAction: Debug {
     fn test(&self) -> String {
         String::from("test")
     }
@@ -952,6 +1083,7 @@ pub trait ChatAction {
 
 impl<T> Action for T where T: ChatAction {}
 
+#[derive(Debug)]
 struct PopulatedChatAction {
     pub action_type: u32, // 0x1 for chat actions it seems
     pub length: u32,
@@ -1014,6 +1146,7 @@ fn parse_populated_chat_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> 
     )(input)
 }
 
+#[derive(Debug)]
 struct EmptyChatAction {
     pub action_type: u32, // 0x1 for chat actions it seems
     pub length: u32,
@@ -1168,4 +1301,40 @@ fn parse_empty_chat_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
 //         file.read_to_end(&mut buff).unwrap();
 //         buff
 //     }
+// }
+
+
+
+// trait Foo {}
+
+// struct Bar {
+//     pub id: i32
+// }
+
+// impl Foo for Bar {}
+
+// struct Baz {
+//     pub id: i32
+// }
+
+// impl Foo for Baz {}
+
+// fn bar_closure() -> Box<dyn Fn() -> Box<dyn Foo>> {
+//     Box::new(move || {
+//         Box::new(Bar { id: 1 })
+//     })
+// }
+
+// fn baz_closure() -> Box<dyn Fn() -> Box<dyn Foo>> {
+//     Box::new(move || {
+//         Box::new(Baz { id: 1 })
+//     })
+// }
+
+// fn foo_match() {
+//     let a = 1;
+//     let foo_fn = match a {
+//         1 => bar_closure,
+//         _ => baz_closure
+//     };
 // }
