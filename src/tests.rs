@@ -9,10 +9,20 @@ use config::*;
 use error::*;
 use stream::*;
 use std::{u32};
-#[cfg(feature = "dev")]
+use replay_service::parse;
+// #[cfg(feature = "dev")]
 use std::path::Path;
 
 // mod command
+
+#[test]
+fn test_parse() {
+    let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
+    let path = Path::new(&path_str);
+    let (remaining, replay) = parse(&path).unwrap();
+    println!("{:?}", remaining.len());
+    // println!("{:#?}", replay);
+}
 
 #[test]
 fn cmdtype_bounds() {
