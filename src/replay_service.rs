@@ -1,9 +1,12 @@
+use std::fs;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use std::option::Option;
 use std::fmt::Debug;
 use std::collections::HashMap;
+use std::ops::Deref;
+use std::thread;
 // use test::Bencher;
 
 // use nom::{le_u8, le_u16, le_u32, IResult};
@@ -20,7 +23,8 @@ use nom::error::convert_error;
 use nom::dbg_dmp;
 use nom_trace::{Input, tr};
 
-use new_replay::NewReplay;
+use result::Result;
+use error::Error;
 // use parser::{orig_le_u16, g_le_u8, g_le_u16, g_le_u32, g_le_u64, cbs_le_u16, match_utf8, match_version, match_terminated_utf16};
 
 use parser::{enforce_end_of_input, count_n, take_n, parse_utf8_fixed, parse_utf16_terminated, take_zeroes, verify_le_u32, verify_zero_u16, parse_utf8_variable, parse_utf16_variable};
@@ -40,27 +44,87 @@ fn t<I,O,E,F>(name: &'static str, f: F) -> impl Fn(I) -> IResult<I,O,E>
   tr("default", name, f)
 }
 
-pub fn parse(path: &Path) -> IResult<Vec<u8>, NomReplay> {
+pub fn parse(path: &Path) -> Option<NomReplay> {
     let mut file = File::open(path).unwrap();
     let mut buff: Vec<u8> = Vec::new();
     file.read_to_end(&mut buff).unwrap();
 
+    if buff.len() == 0 {
+        println!("empty file");
+        return None;
+    }
+
     match parse_replay(&buff) {
-        Ok((remaining, replay)) => Ok((remaining.to_vec(), replay)),
-        Err(_)                  => {
+        Ok((_, replay)) => Some(replay),
+        Err(e)                  => {
             print_trace!();
-            // println!("in error branch");
-            // println!("{:#?}", e);
-            panic!()
+            println!("in error branch");
+            println!("{:#?}", e);
+            None
         }
     }
 }
 
+pub fn parse_directory(path: &Path) -> Result<Vec<NomReplay>, Error> {
+    let dir = fs::read_dir(path)?;
+    let mut replays: Vec<NomReplay> = Vec::new();
+    let mut handles: Vec<_> = Vec::new();
+
+    for item in dir {
+        let item = match item {
+            Ok(val) => val,
+            Err(_) => {
+                println!("error reading file in directory");
+                continue;
+            }
+        };
+
+        let path = item.path();
+        if path.is_file() {
+            match path.extension() {
+                Some(ext) => match ext.to_string_lossy().deref() {
+                    "rec" => {
+                        let path = path.to_owned();
+                        let handle = thread::spawn(move || {
+                            match parse(&path) {
+                                Some(results) => Some(results),
+                                None => {
+                                    let long_name = path.to_string_lossy();
+                                    let long_name = long_name.deref();
+                                    println!("Replay failed: {:#?}", long_name);
+                                    panic!();
+                                }
+                            }
+                        });
+                        handles.push(handle);
+                    },
+                    _ => println!("skipping {}, not a replay or archive", path.display()),
+                },
+                None => println!("skipping {}, not a replay or archive", path.display())
+            }
+        } else if path.is_dir() {
+            match parse_directory(&path) {
+                Ok(result) => replays.extend(result.into_iter()),
+                Err(_) => println!("parse failed"),
+            }
+        }
+    }
+
+    for handle in handles {
+        match handle.join() {
+            Ok(result) => replays.extend(result.into_iter()),
+            Err(_) => println!("parse failed"),
+        }
+    }
+
+    Ok(replays)
+}
+
 #[derive(Debug)]
 pub struct NomReplay {
-    header: Header,
-    chunkies: Vec<RelicChunky>,
-    actions: Vec<Box<dyn Action>>
+    pub header: Header,
+    pub chunkies: Vec<RelicChunky>,
+    pub actions: Vec<Box<dyn Action>>
 }
 
 fn parse_replay(input: &[u8]) -> IResult<&[u8], NomReplay> {
@@ -85,7 +149,7 @@ fn parse_replay(input: &[u8]) -> IResult<&[u8], NomReplay> {
 }
 
 #[derive(Debug)]
-struct Header {
+pub struct Header {
     pub version: u16,
     pub game_type: String,
     pub timestamp: String
@@ -115,7 +179,7 @@ fn parse_header(input: &[u8]) -> IResult<&[u8], Header> {
 }
 
 #[derive(Debug)]
-struct RelicChunky {
+pub struct RelicChunky {
     pub name: String,
     pub signature: u32,
     pub major_version: u32,
@@ -162,7 +226,7 @@ fn parse_chunky(input: &[u8]) -> IResult<&[u8], RelicChunky> {
     )(input)
 }
 
-pub trait Chunk: Debug {
+pub trait Chunk: Debug + Send {
     fn test(&self) -> String {
         String::from("test")
     }
@@ -182,7 +246,7 @@ struct ChunkHeader {
 fn parse_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
     let (input, header) = parse_chunk_header(input)?;
 
-    println!("{:#?}", header);
+    // println!("parsing {}{}", header.chunk_kind, header.chunk_type);
 
     let parser = match &header.chunk_kind as &str {
         "DATA" => match &header.chunk_type as &str {
@@ -194,8 +258,6 @@ fn parse_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
         "FOLD" => parse_folder_chunk,
              _ => panic!()
     };
-
-    println!("parsing {}{}", header.chunk_kind, header.chunk_type);
 
     cut(
         map_parser(
@@ -285,16 +347,42 @@ struct ComplexDATADATAChunk {
     pub unknown_flag_14: u32, // 0x2 in test
     pub unknown_flag_15: u32, // 0x1 in test
     pub unknown_flag_16: u32, // 0x1 in test
-    pub unknown_text_length: u32,
+    pub unknown_text_length: u32, // some long num string (usually zeroes), then colon, then more nums
     pub unknown_text: String,
     pub unknown_flag_17: u16, // 0x1 in test
-    pub unknown_flag_18: u32, // 0x1 in test
+    pub unknown_flag_18: u32, // 0x1 in test (big endian though)
     pub unknown_flag_19: u32, // 0x0 in test
-    pub unknown_flag_20: u32, // 0x0 in test
-    pub unknown_flag_21: u32 // 0x0 in test
+    pub guid_like_string_length: u32,
+    pub guid_like_string: String,
+    pub unknown_datadata_block_count: u32, // 0x0 in test
+    pub unknown_datadata_blocks: Vec<UnknownDATADATABlock>
 }
 
 impl Chunk for ComplexDATADATAChunk {}
+
+#[derive(Debug)]
+struct UnknownDATADATABlock {
+    pub unknown_id: u32, // seems to usually be <10
+    pub unknown_byte_stream: Vec<u8> // 32 bytes of unknown data
+}
+
+fn parse_unknown_datadata_block(input: &[u8]) -> IResult<&[u8], UnknownDATADATABlock> {
+    map(
+        tuple((
+            le_u32,
+            take(32usize)
+        )),
+        |(
+            unknown_id,
+            unknown_byte_stream
+        )| {
+            UnknownDATADATABlock {
+                unknown_id,
+                unknown_byte_stream: unknown_byte_stream.to_vec()
+            }
+        }
+    )(input)
+}
 
 fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
     Box::new(
@@ -324,8 +412,8 @@ fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8])
                     le_u16,
                     le_u32,
                     le_u32,
-                    le_u32,
-                    le_u32
+                    parse_utf8_variable(le_u32),
+                    count_n(le_u32, parse_unknown_datadata_block)
                 ))
             )),
             |(
@@ -353,8 +441,8 @@ fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8])
                     unknown_flag_17,
                     unknown_flag_18,
                     unknown_flag_19,
-                    unknown_flag_20,
-                    unknown_flag_21
+                    (guid_like_string_length, guid_like_string),
+                    (unknown_datadata_block_count, unknown_datadata_blocks)
                 )
             )| {
                 Box::new(ComplexDATADATAChunk {
@@ -384,8 +472,10 @@ fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8])
                     unknown_flag_17,
                     unknown_flag_18,
                     unknown_flag_19,
-                    unknown_flag_20,
-                    unknown_flag_21
+                    guid_like_string_length,
+                    guid_like_string,
+                    unknown_datadata_block_count,
+                    unknown_datadata_blocks
                 }) as Box<dyn Chunk>
             }
         )(input)
@@ -509,7 +599,7 @@ fn parse_player_data(input: &[u8]) -> IResult<&[u8], PlayerData> {
     )(input)
 }
 
-pub trait ItemData: Debug {
+pub trait ItemData: Debug + Send {
     fn test(&self) -> String {
         String::from("test")
     }
@@ -665,18 +755,28 @@ struct DATASDSCChunk {
     pub unknown_data_1: Vec<u8>, // something to do with map start positions?
     pub map_name_length: u32,
     pub map_name: String,
-    pub unknown_separator: u32, // 0x0
+    pub map_name_localized_length: u32,
+    pub map_name_localized: String,
     pub map_description_length: u32,
     pub map_description: String,
     pub map_players: u32,
     pub map_width: u32,
     pub map_height: u32,
+    pub audio_data_length: u32,
+    pub audio_data: String,
+    pub map_long_name_length: u32,
+    pub map_long_name: String,
     pub unknown_data_2: Vec<u8>,
+    pub environment_data_count: u32,
+    pub environment_data: Vec<EnvironmentData>,
     pub unknown_flag_8: u32, // 0x2?
     pub unknown_data_3: Vec<u8>,
     pub unknown_flag_9: u32, // 0x4?
-    pub unknown_data_4: Vec<u8>,
-    pub unknown_data_5_length: u32,
+    pub campaign_description_length: u32,
+    pub campaign_description: String,
+    pub unknown_length_maybe: u32,
+    pub unknown_id_maybe: u32,
+    pub unknown_data_5_length: u32, // long num string (usually zeroes), then colon, then more nums
     pub unknown_data_5: String,
     pub unknown_flag_10: u32, // 0x0
     pub icon_data_block_1_length: u32,
@@ -685,9 +785,8 @@ struct DATASDSCChunk {
     pub icon_data_block_2: Vec<IconData>,
     pub icon_data_block_3_length: u32,
     pub icon_data_block_3: Vec<IconData>,
-    pub unknown_flag_11: u32, // 0x1 maybe
-    pub location_length: u32,
-    pub location: String
+    pub location_data_count: u32, // 0x1 maybe
+    pub location_data: Vec<(u32, String)> // (location_length, location)
 }
 
 impl Chunk for DATASDSCChunk {}
@@ -698,6 +797,32 @@ struct IconData {
     pub unknown_flag_2: u32, // ^
     pub icon_length: u32,
     pub icon: String
+}
+
+#[derive(Debug)]
+struct EnvironmentData {
+    pub unknown_id: u32, // at least I think it's an ID
+    pub filename_length: u32,
+    pub filename: String
+}
+
+fn parse_environment_data(input: &[u8]) -> IResult<&[u8], EnvironmentData> {
+    map(
+        tuple((
+            le_u32,
+            parse_utf8_variable(le_u32)
+        )),
+        |(
+            unknown_id,
+            (filename_length, filename)
+        )| {
+            EnvironmentData {
+                unknown_id,
+                filename_length,
+                filename
+            }
+        }
+    )(input)
 }
 
 fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
@@ -714,24 +839,28 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                 parse_utf8_variable(le_u32),
                 take(16usize),
                 parse_utf16_variable(le_u32),
-                le_u32,
+                parse_utf16_variable(le_u32),
                 parse_utf16_variable(le_u32),
                 le_u32,
                 le_u32,
                 le_u32,
-                take(40usize),
+                parse_utf8_variable(le_u32),
+                parse_utf16_variable(le_u32),
+                take(28usize),
+                count_n(le_u32, parse_environment_data),
                 le_u32,
-                take(18usize),
-                le_u32,
-                take(12usize),
                 tuple((
+                    take(18usize),
+                    le_u32,
+                    parse_utf16_variable(le_u32),
+                    le_u32,
+                    le_u32,
                     parse_utf8_variable(le_u32),
                     le_u32,
                     count_n(le_u32, parse_icon_data),
                     count_n(le_u32, parse_icon_data),
                     count_n(le_u32, parse_icon_data),
-                    le_u32,
-                    parse_utf8_variable(le_u32)
+                    count_n(le_u32, parse_utf8_variable(le_u32))
                 ))
             )),
             |(
@@ -745,24 +874,28 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                 (map_file_length, map_file),
                 unknown_data_1,
                 (map_name_length, map_name),
-                unknown_separator,
+                (map_name_localized_length, map_name_localized),
                 (map_description_length, map_description),
                 map_players,
                 map_width,
                 map_height,
+                (audio_data_length, audio_data),
+                (map_long_name_length, map_long_name),
                 unknown_data_2,
+                (environment_data_count, environment_data),
                 unknown_flag_8,
-                unknown_data_3,
-                unknown_flag_9,
-                unknown_data_4,
                 (
+                    unknown_data_3,
+                    unknown_flag_9,
+                    (campaign_description_length, campaign_description),
+                    unknown_length_maybe,
+                    unknown_id_maybe,
                     (unknown_data_5_length, unknown_data_5),
                     unknown_flag_10,
                     (icon_data_block_1_length, icon_data_block_1),
                     (icon_data_block_2_length, icon_data_block_2),
                     (icon_data_block_3_length, icon_data_block_3),
-                    unknown_flag_11,
-                    (location_length, location)
+                    (location_data_count, location_data)
                 )
             )| {
                 Box::new(DATASDSCChunk {
@@ -779,17 +912,27 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                     unknown_data_1: unknown_data_1.to_vec(),
                     map_name_length,
                     map_name,
-                    unknown_separator,
+                    map_name_localized_length,
+                    map_name_localized,
                     map_description_length,
                     map_description,
                     map_players,
                     map_width,
                     map_height,
+                    audio_data_length,
+                    audio_data,
+                    map_long_name_length,
+                    map_long_name,
                     unknown_data_2: unknown_data_2.to_vec(),
+                    environment_data_count,
+                    environment_data,
                     unknown_flag_8,
                     unknown_data_3: unknown_data_3.to_vec(),
                     unknown_flag_9,
-                    unknown_data_4: unknown_data_4.to_vec(),
+                    campaign_description_length,
+                    campaign_description,
+                    unknown_length_maybe,
+                    unknown_id_maybe,
                     unknown_data_5_length,
                     unknown_data_5,
                     unknown_flag_10,
@@ -799,9 +942,8 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                     icon_data_block_2,
                     icon_data_block_3_length,
                     icon_data_block_3,
-                    unknown_flag_11,
-                    location_length,
-                    location
+                    location_data_count,
+                    location_data
                 }) as Box<dyn Chunk>
             }
         )(input)
@@ -835,6 +977,9 @@ struct DATAPLASChunk {
     pub header: ChunkHeader,
     pub unknown_data_length: u32, // was 8 on a test 4v4 replay
     pub unknown_data: Vec<u32>    // seems like some ids, maybe positions? player ids?
+                                  // after more testing, looks like positions. n u32s where
+                                  // n equals the number of players in the game, and one of
+                                  // the integers appears in every command action block.
 }
 
 impl Chunk for DATAPLASChunk {}
@@ -906,14 +1051,13 @@ fn parse_chunk_header(input: &[u8]) -> IResult<&[u8], ChunkHeader> {
     )(input)
 }
 
-pub trait Action: Debug {
+pub trait Action: Debug + Send {
     fn test(&self) -> String {
         String::from("test")
     }
 }
 
 fn parse_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
-    println!("parsing action");
     alt((
         parse_tick,
         parse_populated_chat_action,
@@ -1016,7 +1160,7 @@ struct Command {
     pub unknown_flag_2: u8, // base location?
     pub unknown_flag_3: u8, // part of player ID?
     pub player_id: u8,
-    pub unknown_flag_4: u16, // probably counts current num of tick_size
+    pub plas_flag: u16, // matches an ID in the DATAPLAS chunk
     pub unknown_flag_5: u16, // lots of 0, 16 then 20546 2054720802 21085
     pub unknown_flag_6: u8, // command type (CMD, PCMD, SCMD)
     pub unknown_flag_7: u8, // some sort of target ID (unit/building/player)
@@ -1050,7 +1194,7 @@ fn parse_command(input: &[u8]) -> IResult<&[u8], Command> {
             unknown_flag_2,
             unknown_flag_3,
             player_id,
-            unknown_flag_4,
+            plas_flag,
             unknown_flag_5,
             unknown_flag_6,
             unknown_flag_7,
@@ -1064,7 +1208,7 @@ fn parse_command(input: &[u8]) -> IResult<&[u8], Command> {
                 unknown_flag_2,
                 unknown_flag_3,
                 player_id,
-                unknown_flag_4,
+                plas_flag,
                 unknown_flag_5,
                 unknown_flag_6,
                 unknown_flag_7,
@@ -1075,7 +1219,7 @@ fn parse_command(input: &[u8]) -> IResult<&[u8], Command> {
     )(input)
 }
 
-pub trait ChatAction: Debug {
+pub trait ChatAction: Debug + Send {
     fn test(&self) -> String {
         String::from("test")
     }

@@ -9,7 +9,7 @@ use config::*;
 use error::*;
 use stream::*;
 use std::{u32};
-use replay_service::parse;
+use replay_service::{parse, parse_directory};
 // #[cfg(feature = "dev")]
 use std::path::Path;
 
@@ -17,10 +17,21 @@ use std::path::Path;
 
 #[test]
 fn test_parse() {
-    let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
+    // let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
+    let path_str = "/Users/ryantaylor/Replays/replays/recs/000/004/828/original/40254.ggbritscavengeop_(1).rec";
     let path = Path::new(&path_str);
-    let (remaining, replay) = parse(&path).unwrap();
-    println!("{:?}", remaining.len());
+    let replay = parse(&path).unwrap();
+    println!("{:#?}", replay.chunkies);
+    // println!("{:?}", remaining.len());
+    // println!("{:#?}", replay);
+}
+
+#[test]
+fn test_dir() {
+    let path_str = "/Users/ryantaylor/Replays";
+    let path = Path::new(&path_str);
+    let replays = parse_directory(&path).unwrap();
+    println!("{:?}", replays.len());
     // println!("{:#?}", replay);
 }
 
