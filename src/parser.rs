@@ -11,8 +11,8 @@ use nom::{ToUsize, InputIter, InputTake, Slice, InputLength};
 
 // use nom::{le_u16, IResult, Needed, need_more, InputTake, InputLength, AtEof, AsBytes, Slice};
 // use nom::types::CompleteByteSlice;
-use nom::{IResult};
-use nom::error::ParseError;
+use nom::{IResult, Err};
+use nom::error::{ParseError, ErrorKind};
 use nom::bytes::complete::{take, take_till, take_while};
 // use nom::error::ParseError;
 use nom::combinator::{cut, map, map_res, verify, peek, rest};
@@ -146,6 +146,62 @@ pub fn take_u16<'a>(len: usize) -> impl Fn(&'a [u8]) -> IResult<&'a [u8], Vec<u1
         take(len * 2),
         |bytes| bytes_to_u16(bytes)
     )
+}
+
+pub fn many_n_till<I, O1, O2, E, F, G>(n: usize, f: F, g: G) -> impl Fn(I) -> IResult<I, (Vec<O1>, Option<O2>), E>
+where
+  I: Clone + PartialEq,
+  F: Fn(I) -> IResult<I, O1, E>,
+  G: Fn(I) -> IResult<I, O2, E>,
+  E: ParseError<I>,
+{
+    move |i: I| {
+        let mut res = Vec::with_capacity(m);
+        let mut input = i.clone();
+        let mut count: usize = 0;
+
+        if n == 0 {
+            return Ok((i, (vec!(), None)))
+        }
+
+        loop {
+            match g(i.clone()) {
+                Ok((i1, o)) => return Ok((i1, (res, Some(o)))),
+                Err(Err::Error(_)) => {
+
+                },
+                Err(e) => return Err(e),
+            }
+
+            let _i = input.clone();
+            match f(_i) {
+                Ok((i, o)) => {
+                    // do not allow parsers that do not consume input (causes infinite loops)
+                    if i == input {
+                        return Err(Err::Error(E::from_error_kind(input, ErrorKind::ManyMN)));
+                    }
+
+                    res.push(o);
+                    input = i;
+                    count += 1;
+
+                    if count == n {
+                        return Ok((input, res));
+                    }
+                }
+                Err(Err::Error(e)) => {
+                    if count < m {
+                        return Err(Err::Error(E::append(input, ErrorKind::ManyMN, e)));
+                    } else {
+                        return Ok((input, res));
+                    }
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            }
+        }
+    }
 }
 
 // pub fn take_u16<I, C, E: ParseError<(I, usize)>>(count: C) -> impl Fn(I) -> IResult<I, Vec<u16>, E>

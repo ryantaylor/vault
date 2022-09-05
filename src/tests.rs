@@ -18,10 +18,10 @@ use std::path::Path;
 #[test]
 fn test_parse() {
     // let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
-    let path_str = "/Users/ryantaylor/Replays/replays/recs/000/004/828/original/40254.ggbritscavengeop_(1).rec";
+    let path_str = "/Users/ryantaylor/Replays/replays/recs/000/004/933/original/ml-20_smask.rec";
     let path = Path::new(&path_str);
     let replay = parse(&path).unwrap();
-    println!("{:#?}", replay.chunkies);
+    // println!("{:#?}", replay.chunkies);
     // println!("{:?}", remaining.len());
     // println!("{:#?}", replay);
 }

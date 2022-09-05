@@ -5,7 +5,7 @@ pub struct NewReplay {
 }
 
 impl NewReplay {
-    pub fn new<S>(version: u16, game_type: S, timestamp: S) -> NewReplay where S: Into<String> {
+    pub fn new<S>(version: u16, game_type: S, timestamp: String) -> NewReplay where S: Into<String> {
         NewReplay {
             version,
             game_type: game_type.into(),

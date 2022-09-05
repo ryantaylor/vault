@@ -15,8 +15,8 @@ use std::thread;
 use nom::IResult;
 use nom::branch::{alt};
 use nom::bytes::complete::{tag, take, take_while};
-use nom::combinator::{cut, map, map_res, map_parser, peek, rest_len, verify};
-use nom::multi::{count, many0, many_till, length_value};
+use nom::combinator::{cut, map, map_res, map_parser, peek, rest_len, verify, cond};
+use nom::multi::{count, many0, many_till, length_value, many_m_n};
 use nom::number::complete::{le_u8, le_u16, le_u32, le_u64};
 use nom::sequence::{preceded, tuple, terminated};
 use nom::error::convert_error;
@@ -246,7 +246,7 @@ struct ChunkHeader {
 fn parse_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
     let (input, header) = parse_chunk_header(input)?;
 
-    // println!("parsing {}{}", header.chunk_kind, header.chunk_type);
+    println!("parsing {}{}", header.chunk_kind, header.chunk_type);
 
     let parser = match &header.chunk_kind as &str {
         "DATA" => match &header.chunk_type as &str {
@@ -346,7 +346,7 @@ struct ComplexDATADATAChunk {
     pub unknown_flag_13: u32, // 0x0 in test
     pub unknown_flag_14: u32, // 0x2 in test
     pub unknown_flag_15: u32, // 0x1 in test
-    pub unknown_flag_16: u32, // 0x1 in test
+    pub unknown_flag_16: Option<u32>, // 0x1 in test (exists when version == 28, doesn't when 27)
     pub unknown_text_length: u32, // some long num string (usually zeroes), then colon, then more nums
     pub unknown_text: String,
     pub unknown_flag_17: u16, // 0x1 in test
@@ -406,7 +406,7 @@ fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8])
                 le_u32,
                 le_u32,
                 le_u32,
-                le_u32,
+                cond(header.version >= 0x1C, le_u32),
                 parse_utf8_variable(le_u32),
                 tuple((
                     le_u16,
@@ -516,29 +516,32 @@ struct PlayerData {
 fn parse_player_data(input: &[u8]) -> IResult<&[u8], PlayerData> {
     map(
         tuple((
-            le_u8,
-            parse_utf16_variable(le_u32),
-            le_u32,
-            parse_utf8_variable(le_u32),
-            le_u32,
-            le_u32,
-            parse_utf8_variable(le_u32),
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u32,
-            le_u16,
-            count(parse_item_data, 3),
-            le_u16,
-            le_u64,
-            le_u64,
-            count(parse_item_data, 3),
-            count_n(le_u32, parse_item_data),
-            count_n(le_u32, parse_item_data),
-            le_u32,
+            t("1", le_u8),
+            t("name", parse_utf16_variable(le_u32)),
+            t("team", le_u32),
+            t("faction", parse_utf8_variable(le_u32)),
+            t("2", le_u32),
+            t("3", le_u32),
+            t("game_mode", parse_utf8_variable(le_u32)),
+            t("4", le_u32),
+            t("5", le_u32),
+            t("6", le_u32),
+            t("7", le_u32),
+            t("8", le_u16),
+            many_m_n(0, 3, preceded(
+                peek(verify(le_u16, |n: &u16| *n != 0x1)),
+                parse_item_data
+            )),
+            t("9", le_u16),
+            t("10", le_u64),
+            t("steam_id", le_u64),
+            count(t("item_2", parse_item_data), 3),
+            count_n(le_u32, t("item_3", parse_item_data)),
+            count_n(le_u32, t("item_4", parse_item_data)),
+            t("11", le_u32),
             tuple((
-                le_u32,
-                le_u32,
+                t("12", le_u32),
+                t("13", le_u32),
             ))
         )),
         |(
@@ -767,10 +770,19 @@ struct DATASDSCChunk {
     pub map_long_name_length: u32,
     pub map_long_name: String,
     pub unknown_data_2: Vec<u8>,
+    pub map_sub_file_length: u32,
+    pub map_sub_file: String, // this was DATA:scenarios\mp\2p_divide\2p_divide in a ToW rec
+    pub map_sub_name_length: u32,
+    pub map_sub_name: String, // this was 2p_divide in a ToW rec
+    pub map_sub_sub_file_length: u32,
+    pub map_sub_sub_file: String, // this was DATA:scenarios\mp\2p_divide in that ToW rec
     pub environment_data_count: u32,
     pub environment_data: Vec<EnvironmentData>,
     pub unknown_flag_8: u32, // 0x2?
     pub unknown_data_3: Vec<u8>,
+    pub season_length: u32,
+    pub season: String, // usually only when set to winter
+    pub unknown_byte: u8, // 0x1 in a test, but not sure really
     pub unknown_flag_9: u32, // 0x4?
     pub campaign_description_length: u32,
     pub campaign_description: String,
@@ -785,8 +797,7 @@ struct DATASDSCChunk {
     pub icon_data_block_2: Vec<IconData>,
     pub icon_data_block_3_length: u32,
     pub icon_data_block_3: Vec<IconData>,
-    pub location_data_count: u32, // 0x1 maybe
-    pub location_data: Vec<(u32, String)> // (location_length, location)
+    pub location_data: Option<LocationData> // only present in version 2020 (and maybe above)
 }
 
 impl Chunk for DATASDSCChunk {}
@@ -805,6 +816,26 @@ struct EnvironmentData {
     pub filename_length: u32,
     pub filename: String
 }
+
+// Only present in version 2020+ of SDSC chunk (not 2019)
+#[derive(Debug)]
+struct LocationData {
+    pub count: u32, // 0x1 maybe
+    pub data: Vec<(u32, String)> // (location_length, location)
+}
+
+fn parse_location_data(input: &[u8]) -> IResult<&[u8], LocationData> {
+    map(
+        count_n(le_u32, parse_utf8_variable(le_u32))
+        , |(count, data)| {
+            LocationData {
+                count,
+                data
+            }
+        }
+    )(input)
+}
+
 
 fn parse_environment_data(input: &[u8]) -> IResult<&[u8], EnvironmentData> {
     map(
@@ -836,31 +867,36 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                 le_u32,
                 le_u32,
                 le_u32,
+                t("map_file", parse_utf8_variable(le_u32)),
+                t("unknown_data_1", take(16usize)),
+                t("map_name", parse_utf16_variable(le_u32)),
+                t("map_name_localized", parse_utf16_variable(le_u32)),
+                t("map_description_length", parse_utf16_variable(le_u32)),
+                t("players", le_u32),
+                t("width", le_u32),
+                t("height", le_u32),
+                t("audio_data", parse_utf8_variable(le_u32)),
+                t("map_long_name", parse_utf16_variable(le_u32)),
+                t("unknown_data_2", take(16usize)),
                 parse_utf8_variable(le_u32),
-                take(16usize),
-                parse_utf16_variable(le_u32),
-                parse_utf16_variable(le_u32),
-                parse_utf16_variable(le_u32),
-                le_u32,
-                le_u32,
-                le_u32,
                 parse_utf8_variable(le_u32),
-                parse_utf16_variable(le_u32),
-                take(28usize),
-                count_n(le_u32, parse_environment_data),
-                le_u32,
                 tuple((
-                    take(18usize),
-                    le_u32,
-                    parse_utf16_variable(le_u32),
-                    le_u32,
-                    le_u32,
                     parse_utf8_variable(le_u32),
-                    le_u32,
-                    count_n(le_u32, parse_icon_data),
-                    count_n(le_u32, parse_icon_data),
-                    count_n(le_u32, parse_icon_data),
-                    count_n(le_u32, parse_utf8_variable(le_u32))
+                    count_n(le_u32, t("environment_data", parse_environment_data)),
+                    t("unknown_flag_8", le_u32),
+                    t("unknown_data_3", take(13usize)),
+                    t("season", parse_utf8_variable(le_u32)),
+                    t("unknown_byte", le_u8),
+                    t("unknown_flag_9", le_u32),
+                    t("campaign_description", parse_utf16_variable(le_u32)),
+                    t("unknown_length_maybe", le_u32),
+                    t("unknown_id_maybe", le_u32),
+                    t("unknown_data_5", parse_utf8_variable(le_u32)),
+                    t("unknown_flag_10", le_u32),
+                    count_n(le_u32, t("icon_data_1", parse_icon_data)),
+                    count_n(le_u32, t("icon_data_2", parse_icon_data)),
+                    count_n(le_u32, t("icon_data_3", parse_icon_data)),
+                    cond(header.version >= 0x7E4, parse_location_data)
                 ))
             )),
             |(
@@ -882,10 +918,15 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                 (audio_data_length, audio_data),
                 (map_long_name_length, map_long_name),
                 unknown_data_2,
-                (environment_data_count, environment_data),
-                unknown_flag_8,
+                (map_sub_file_length, map_sub_file),
+                (map_sub_name_length, map_sub_name),
                 (
+                    (map_sub_sub_file_length, map_sub_sub_file),
+                    (environment_data_count, environment_data),
+                    unknown_flag_8,
                     unknown_data_3,
+                    (season_length, season),
+                    unknown_byte,
                     unknown_flag_9,
                     (campaign_description_length, campaign_description),
                     unknown_length_maybe,
@@ -895,7 +936,7 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                     (icon_data_block_1_length, icon_data_block_1),
                     (icon_data_block_2_length, icon_data_block_2),
                     (icon_data_block_3_length, icon_data_block_3),
-                    (location_data_count, location_data)
+                    location_data
                 )
             )| {
                 Box::new(DATASDSCChunk {
@@ -924,10 +965,19 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                     map_long_name_length,
                     map_long_name,
                     unknown_data_2: unknown_data_2.to_vec(),
+                    map_sub_file_length,
+                    map_sub_file,
+                    map_sub_name_length,
+                    map_sub_name,
+                    map_sub_sub_file_length,
+                    map_sub_sub_file,
                     environment_data_count,
                     environment_data,
                     unknown_flag_8,
                     unknown_data_3: unknown_data_3.to_vec(),
+                    season_length,
+                    season,
+                    unknown_byte,
                     unknown_flag_9,
                     campaign_description_length,
                     campaign_description,
@@ -942,7 +992,6 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                     icon_data_block_2,
                     icon_data_block_3_length,
                     icon_data_block_3,
-                    location_data_count,
                     location_data
                 }) as Box<dyn Chunk>
             }
