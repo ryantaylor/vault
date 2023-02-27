@@ -15,19 +15,21 @@ use std::thread;
 use nom::IResult;
 use nom::branch::{alt};
 use nom::bytes::complete::{tag, take, take_while};
-use nom::combinator::{cut, map, map_res, map_parser, peek, rest_len, verify, cond};
-use nom::multi::{count, many0, many_till, length_value, many_m_n};
+use nom::combinator::{cut, map, map_res, map_parser, peek, rest_len, verify, cond, eof};
+use nom::multi::{count, many0, many1, many_till, length_value, many_m_n};
 use nom::number::complete::{le_u8, le_u16, le_u32, le_u64};
 use nom::sequence::{preceded, tuple, terminated};
 use nom::error::convert_error;
-use nom::dbg_dmp;
-use nom_trace::{Input, tr};
+// use nom::dbg_dmp;
+// use nom_trace::{Input, tr};
+use nom_locate::LocatedSpan;
+use nom_tracable::{cumulative_histogram, histogram, tracable_parser, TracableInfo};
 
 use result::Result;
 use error::Error;
 // use parser::{orig_le_u16, g_le_u8, g_le_u16, g_le_u32, g_le_u64, cbs_le_u16, match_utf8, match_version, match_terminated_utf16};
 
-use parser::{enforce_end_of_input, count_n, take_n, parse_utf8_fixed, parse_utf16_terminated, take_zeroes, verify_le_u32, verify_zero_u16, parse_utf8_variable, parse_utf16_variable};
+use parser::{count_n, take_n, parse_utf8_fixed, parse_utf16_terminated, take_zeroes, verify_le_u32, verify_zero_u16, parse_utf8_variable, parse_utf16_variable};
 
 const GAME_TYPE: &'static str = "COH2_REC";
 const CHUNKY_NAME: &'static str = "Relic Chunky";
@@ -35,14 +37,7 @@ const CHUNKY_NAME: &'static str = "Relic Chunky";
 const CHUNKY_TYPE: u32 = 0x1A0A0D;
 const CHUNKY_VERSION: u32 = 0x3;
 
-fn t<I,O,E,F>(name: &'static str, f: F) -> impl Fn(I) -> IResult<I,O,E>
-  where Input: From<I>,
-        F: Fn(I) -> IResult<I,O,E>,
-        I: Clone,
-        O: Debug,
-        E: Debug {
-  tr("default", name, f)
-}
+pub type Span<'a> = LocatedSpan<&'a [u8], TracableInfo>;
 
 pub fn parse(path: &Path) -> Option<NomReplay> {
     let mut file = File::open(path).unwrap();
@@ -54,15 +49,23 @@ pub fn parse(path: &Path) -> Option<NomReplay> {
         return None;
     }
 
-    match parse_replay(&buff) {
+    let info = TracableInfo::new().parser_width(64).fold("term");
+    let input: Span = LocatedSpan::new_extra(&buff, info);
+
+    let result = match parse_replay(input) {
         Ok((_, replay)) => Some(replay),
         Err(e)                  => {
-            print_trace!();
+            // print_trace!();
             println!("in error branch");
-            println!("{:#?}", e);
+            // println!("{:#?}", e);
             None
         }
-    }
+    };
+
+    histogram();
+    cumulative_histogram();
+
+    result
 }
 
 pub fn parse_directory(path: &Path) -> Result<Vec<NomReplay>, Error> {
@@ -127,11 +130,12 @@ pub struct NomReplay {
     pub actions: Vec<Box<dyn Action>>
 }
 
-fn parse_replay(input: &[u8]) -> IResult<&[u8], NomReplay> {
+#[tracable_parser]
+fn parse_replay(input: Span) -> IResult<Span, NomReplay> {
     map(
         tuple((
             parse_header,
-            many0(parse_chunky),
+            many1(parse_chunky),
             many0(parse_action)
         )),
         |(
@@ -155,7 +159,8 @@ pub struct Header {
     pub timestamp: String
 }
 
-fn parse_header(input: &[u8]) -> IResult<&[u8], Header> {
+#[tracable_parser]
+fn parse_header(input: Span) -> IResult<Span, Header> {
     map(
         tuple((
             preceded(verify_zero_u16, le_u16),
@@ -184,42 +189,31 @@ pub struct RelicChunky {
     pub signature: u32,
     pub major_version: u32,
     pub minor_version: u32, // maybe?
-    pub chunk_offset: u32, // bytes from start of chunky to start of first member chunk
-    pub unknown_offset: u32, // usually 0x1C
-    pub unknown_id: u32, // usually 0x1
     pub chunks: Vec<Box<dyn Chunk>>
 }
 
-fn parse_chunky(input: &[u8]) -> IResult<&[u8], RelicChunky> {
+#[tracable_parser]
+fn parse_chunky(input: Span) -> IResult<Span, RelicChunky> {
     map(
         tuple((
             tag("Relic Chunky"),
             verify_le_u32(0x1A0A0D),
-            verify_le_u32(0x3),
+            verify_le_u32(0x4),
             verify_le_u32(0x1),
-            le_u32,
-            le_u32,
-            le_u32,
-            many0(parse_chunk)
+            many1(parse_chunk)
         )),
         |(
             name,
             signature,
             major_version,
             minor_version,
-            chunk_offset,
-            unknown_offset,
-            unknown_id,
             chunks
         )| {
             RelicChunky {
-                name: String::from_utf8_lossy(name).into_owned(),
+                name: String::from_utf8_lossy(name.fragment()).into_owned(),
                 signature,
                 major_version,
                 minor_version,
-                chunk_offset,
-                unknown_offset,
-                unknown_id,
                 chunks
             }
         }
@@ -238,12 +232,11 @@ struct ChunkHeader {
     pub chunk_type: String,
     pub version: u32,
     pub length: u32,
-    pub name_length: u32,
-    pub flags: u32, // according to Copernicus
-    pub min_version: u32 // according to Copernicus
+    pub name_length: u32
 }
 
-fn parse_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
+#[tracable_parser]
+fn parse_chunk<'a>(input: Span<'a>) -> IResult<Span<'a>, Box<dyn Chunk>> {
     let (input, header) = parse_chunk_header(input)?;
 
     println!("parsing {}{}", header.chunk_kind, header.chunk_type);
@@ -264,7 +257,7 @@ fn parse_chunk(input: &[u8]) -> IResult<&[u8], Box<dyn Chunk>> {
             take(header.length),
             terminated(
                 parser(header),
-                enforce_end_of_input
+                eof
             )
         )
     )(input)
@@ -278,7 +271,8 @@ struct FOLDChunk {
 
 impl Chunk for FOLDChunk {}
 
-fn parse_folder_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+#[tracable_parser]
+fn parse_folder_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(Span<'a>) -> IResult<Span<'a>, Box<dyn Chunk>>> {
     Box::new(
         move |input| map(
             map_parser(
@@ -295,7 +289,8 @@ fn parse_folder_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResul
     )
 }
 
-fn parse_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+#[tracable_parser]
+fn parse_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(Span<'a>) -> IResult<Span<'a>, Box<dyn Chunk>>> {
     match header.version {
         1 => parse_simple_datadata_chunk(header),
         _ => parse_complex_datadata_chunk(header)
@@ -310,11 +305,12 @@ struct SimpleDATADATAChunk {
 
 impl Chunk for SimpleDATADATAChunk {}
 
-fn parse_simple_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+#[tracable_parser]
+fn parse_simple_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(Span<'a>) -> IResult<Span<'a>, Box<dyn Chunk>>> {
     Box::new(
         move |input| map(
             take(header.length),
-            |unknown: &[u8]| {
+            |unknown: Span| {
                 Box::new(SimpleDATADATAChunk {
                     header: header.clone(),
                     unknown: unknown.to_vec()
@@ -366,9 +362,10 @@ struct UnknownDATADATABlock {
     pub unknown_byte_stream: Vec<u8> // 32 bytes of unknown data
 }
 
-fn parse_unknown_datadata_block(input: &[u8]) -> IResult<&[u8], UnknownDATADATABlock> {
+#[tracable_parser]
+fn parse_unknown_datadata_block(input: Span) -> IResult<Span, UnknownDATADATABlock> {
     map(
-        tuple((
+        tuple::<Span, _, _, _>((
             le_u32,
             take(32usize)
         )),
@@ -384,7 +381,8 @@ fn parse_unknown_datadata_block(input: &[u8]) -> IResult<&[u8], UnknownDATADATAB
     )(input)
 }
 
-fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+#[tracable_parser]
+fn parse_complex_datadata_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(Span<'a>) -> IResult<Span<'a>, Box<dyn Chunk>>> {
     Box::new(
         move |input| map(
             tuple((
@@ -513,35 +511,36 @@ struct PlayerData {
     pub item_data: Vec<Box<dyn ItemData>>
 }
 
-fn parse_player_data(input: &[u8]) -> IResult<&[u8], PlayerData> {
+#[tracable_parser]
+fn parse_player_data(input: Span) -> IResult<Span, PlayerData> {
     map(
         tuple((
-            t("1", le_u8),
-            t("name", parse_utf16_variable(le_u32)),
-            t("team", le_u32),
-            t("faction", parse_utf8_variable(le_u32)),
-            t("2", le_u32),
-            t("3", le_u32),
-            t("game_mode", parse_utf8_variable(le_u32)),
-            t("4", le_u32),
-            t("5", le_u32),
-            t("6", le_u32),
-            t("7", le_u32),
-            t("8", le_u16),
+            le_u8,
+            parse_utf16_variable(le_u32),
+            le_u32,
+            parse_utf8_variable(le_u32),
+            le_u32,
+            le_u32,
+            parse_utf8_variable(le_u32),
+            le_u32,
+            le_u32,
+            le_u32,
+            le_u32,
+            le_u16,
             many_m_n(0, 3, preceded(
                 peek(verify(le_u16, |n: &u16| *n != 0x1)),
                 parse_item_data
             )),
-            t("9", le_u16),
-            t("10", le_u64),
-            t("steam_id", le_u64),
-            count(t("item_2", parse_item_data), 3),
-            count_n(le_u32, t("item_3", parse_item_data)),
-            count_n(le_u32, t("item_4", parse_item_data)),
-            t("11", le_u32),
+            le_u16,
+            le_u64,
+            le_u64,
+            count(parse_item_data, 3),
+            count_n(le_u32, parse_item_data),
+            count_n(le_u32, parse_item_data),
+            le_u32,
             tuple((
-                t("12", le_u32),
-                t("13", le_u32),
+                le_u32,
+                le_u32,
             ))
         )),
         |(
@@ -608,7 +607,8 @@ pub trait ItemData: Debug + Send {
     }
 }
 
-fn parse_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
+#[tracable_parser]
+fn parse_item_data(input: Span) -> IResult<Span, Box<dyn ItemData>> {
     alt((
         parse_player_item_data,
         parse_special_player_item_data,
@@ -630,9 +630,10 @@ struct PlayerItemData {
 
 impl ItemData for PlayerItemData {}
 
-fn parse_player_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
+#[tracable_parser]
+fn parse_player_item_data(input: Span) -> IResult<Span, Box<dyn ItemData>> {
     map(
-        tuple((
+        tuple::<Span, _, _, _>((
             verify(le_u16, |n: &u16| *n == 0x109),
             le_u32,
             le_u32,
@@ -671,9 +672,10 @@ struct SpecialPlayerItemData {
 
 impl ItemData for SpecialPlayerItemData {}
 
-fn parse_special_player_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
+#[tracable_parser]
+fn parse_special_player_item_data(input: Span) -> IResult<Span, Box<dyn ItemData>> {
     map(
-        tuple((
+        tuple::<Span, _, _, _>((
             verify(le_u16, |n: &u16| *n == 0x216),
             take(16usize),
             le_u32,
@@ -704,7 +706,8 @@ struct CPUItemData {
 
 impl ItemData for CPUItemData {}
 
-fn parse_cpu_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
+#[tracable_parser]
+fn parse_cpu_item_data(input: Span) -> IResult<Span, Box<dyn ItemData>> {
     map(
         tuple((
             verify(le_u16, |n: &u16| *n == 0x206),
@@ -732,7 +735,8 @@ struct EmptyItemData {
 
 impl ItemData for EmptyItemData {}
 
-fn parse_empty_item_data(input: &[u8]) -> IResult<&[u8], Box<dyn ItemData>> {
+#[tracable_parser]
+fn parse_empty_item_data(input: Span) -> IResult<Span, Box<dyn ItemData>> {
     map(
         verify(le_u16, |n: &u16| *n == 0x1),
         |item_type| {
@@ -824,7 +828,8 @@ struct LocationData {
     pub data: Vec<(u32, String)> // (location_length, location)
 }
 
-fn parse_location_data(input: &[u8]) -> IResult<&[u8], LocationData> {
+#[tracable_parser]
+fn parse_location_data(input: Span) -> IResult<Span, LocationData> {
     map(
         count_n(le_u32, parse_utf8_variable(le_u32))
         , |(count, data)| {
@@ -836,8 +841,8 @@ fn parse_location_data(input: &[u8]) -> IResult<&[u8], LocationData> {
     )(input)
 }
 
-
-fn parse_environment_data(input: &[u8]) -> IResult<&[u8], EnvironmentData> {
+#[tracable_parser]
+fn parse_environment_data(input: Span) -> IResult<Span, EnvironmentData> {
     map(
         tuple((
             le_u32,
@@ -856,7 +861,8 @@ fn parse_environment_data(input: &[u8]) -> IResult<&[u8], EnvironmentData> {
     )(input)
 }
 
-fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+#[tracable_parser]
+fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(Span<'a>) -> IResult<Span<'a>, Box<dyn Chunk>>> {
     Box::new(
         move |input| map(
             tuple((
@@ -867,35 +873,35 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
                 le_u32,
                 le_u32,
                 le_u32,
-                t("map_file", parse_utf8_variable(le_u32)),
-                t("unknown_data_1", take(16usize)),
-                t("map_name", parse_utf16_variable(le_u32)),
-                t("map_name_localized", parse_utf16_variable(le_u32)),
-                t("map_description_length", parse_utf16_variable(le_u32)),
-                t("players", le_u32),
-                t("width", le_u32),
-                t("height", le_u32),
-                t("audio_data", parse_utf8_variable(le_u32)),
-                t("map_long_name", parse_utf16_variable(le_u32)),
-                t("unknown_data_2", take(16usize)),
+                parse_utf8_variable(le_u32),
+                take(16usize),
+                parse_utf16_variable(le_u32),
+                parse_utf16_variable(le_u32),
+                parse_utf16_variable(le_u32),
+                le_u32,
+                le_u32,
+                le_u32,
+                parse_utf8_variable(le_u32),
+                parse_utf16_variable(le_u32),
+                take(16usize),
                 parse_utf8_variable(le_u32),
                 parse_utf8_variable(le_u32),
                 tuple((
                     parse_utf8_variable(le_u32),
-                    count_n(le_u32, t("environment_data", parse_environment_data)),
-                    t("unknown_flag_8", le_u32),
-                    t("unknown_data_3", take(13usize)),
-                    t("season", parse_utf8_variable(le_u32)),
-                    t("unknown_byte", le_u8),
-                    t("unknown_flag_9", le_u32),
-                    t("campaign_description", parse_utf16_variable(le_u32)),
-                    t("unknown_length_maybe", le_u32),
-                    t("unknown_id_maybe", le_u32),
-                    t("unknown_data_5", parse_utf8_variable(le_u32)),
-                    t("unknown_flag_10", le_u32),
-                    count_n(le_u32, t("icon_data_1", parse_icon_data)),
-                    count_n(le_u32, t("icon_data_2", parse_icon_data)),
-                    count_n(le_u32, t("icon_data_3", parse_icon_data)),
+                    count_n(le_u32, parse_environment_data),
+                    le_u32,
+                    take(13usize),
+                    parse_utf8_variable(le_u32),
+                    le_u8,
+                    le_u32,
+                    parse_utf16_variable(le_u32),
+                    le_u32,
+                    le_u32,
+                    parse_utf8_variable(le_u32),
+                    le_u32,
+                    count_n(le_u32, parse_icon_data),
+                    count_n(le_u32, parse_icon_data),
+                    count_n(le_u32, parse_icon_data),
                     cond(header.version >= 0x7E4, parse_location_data)
                 ))
             )),
@@ -999,7 +1005,8 @@ fn parse_datasdsc_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
     )
 }
 
-fn parse_icon_data(input: &[u8]) -> IResult<&[u8], IconData> {
+#[tracable_parser]
+fn parse_icon_data(input: Span) -> IResult<Span, IconData> {
     map(
         tuple((
             le_u32,
@@ -1033,7 +1040,8 @@ struct DATAPLASChunk {
 
 impl Chunk for DATAPLASChunk {}
 
-fn parse_dataplas_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IResult<&'a [u8], Box<dyn Chunk>>> {
+#[tracable_parser]
+fn parse_dataplas_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(Span<'a>) -> IResult<Span<'a>, Box<dyn Chunk>>> {
     Box::new(
         move |input| map(
             count_n(le_u32, le_u32),
@@ -1058,7 +1066,8 @@ fn parse_dataplas_chunk<'a>(header: ChunkHeader) -> Box<dyn Fn(&'a [u8]) -> IRes
 //     pub flags: u32 // according to Copernicus
 // }
 
-fn parse_chunk_header(input: &[u8]) -> IResult<&[u8], ChunkHeader> {
+#[tracable_parser]
+fn parse_chunk_header(input: Span) -> IResult<Span, ChunkHeader> {
     map(
         tuple((
             alt((
@@ -1068,8 +1077,6 @@ fn parse_chunk_header(input: &[u8]) -> IResult<&[u8], ChunkHeader> {
             cut(
                 tuple((
                     parse_utf8_fixed(4usize),
-                    le_u32,
-                    le_u32,
                     le_u32,
                     le_u32,
                     le_u32
@@ -1082,19 +1089,15 @@ fn parse_chunk_header(input: &[u8]) -> IResult<&[u8], ChunkHeader> {
                 chunk_type,
                 version,
                 length,
-                name_length,
-                flags,
-                min_version
+                name_length
             )
         )| {
             ChunkHeader {
-                chunk_kind: String::from_utf8_lossy(chunk_kind).into_owned(),
+                chunk_kind: String::from_utf8_lossy(chunk_kind.fragment()).into_owned(),
                 chunk_type: chunk_type.to_owned(),
                 version,
                 length,
-                name_length,
-                flags,
-                min_version
+                name_length
             }
         }
     )(input)
@@ -1106,7 +1109,8 @@ pub trait Action: Debug + Send {
     }
 }
 
-fn parse_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+#[tracable_parser]
+fn parse_action(input: Span) -> IResult<Span, Box<dyn Action>> {
     alt((
         parse_tick,
         parse_populated_chat_action,
@@ -1127,7 +1131,8 @@ struct Tick {
 
 impl Action for Tick {}
 
-fn parse_tick(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+#[tracable_parser]
+fn parse_tick(input: Span) -> IResult<Span, Box<dyn Action>> {
     map(
         tuple((
             verify(le_u32, |n: &u32| *n == 0),
@@ -1174,7 +1179,8 @@ struct Bundle {
     pub commands: Vec<Command>
 }
 
-fn parse_bundle(input: &[u8]) -> IResult<&[u8], Bundle> {
+#[tracable_parser]
+fn parse_bundle(input: Span) -> IResult<Span, Bundle> {
     let (input, (
         unknown_flag_1,
         unknown_flag_2,
@@ -1217,10 +1223,11 @@ struct Command {
     pub command_data: Vec<u8>
 }
 
-fn parse_command(input: &[u8]) -> IResult<&[u8], Command> {
+#[tracable_parser]
+fn parse_command(input: Span) -> IResult<Span, Command> {
     map(
         length_value(
-            peek(le_u8),
+            peek::<Span, _, _, _>(le_u8),
             tuple((
                 le_u8,
                 le_u8,
@@ -1293,7 +1300,8 @@ struct PopulatedChatAction {
 
 impl ChatAction for PopulatedChatAction {}
 
-fn parse_populated_chat_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+#[tracable_parser]
+fn parse_populated_chat_action(input: Span) -> IResult<Span, Box<dyn Action>> {
     map(
         tuple((
             verify(le_u32, |n: &u32| *n == 1),
@@ -1351,7 +1359,8 @@ struct EmptyChatAction {
 
 impl ChatAction for EmptyChatAction {}
 
-fn parse_empty_chat_action(input: &[u8]) -> IResult<&[u8], Box<dyn Action>> {
+#[tracable_parser]
+fn parse_empty_chat_action(input: Span) -> IResult<Span, Box<dyn Action>> {
     map(
         tuple((
             verify(le_u32, |n: &u32| *n == 1),

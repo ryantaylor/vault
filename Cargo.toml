@@ -19,9 +19,10 @@ crate-type = ["dylib", "rlib"]
 [dependencies]
 log = "0.3"
 rustc-serialize = "0.3"
-nom = "^5.0"
+nom = "^7.0"
 byteorder = "1"
-nom-trace = "0.2"
+nom-tracable = "0.8"
+nom_locate = "4"
 
 [dependencies.clippy]
 version = "^0.0"
@@ -36,6 +37,7 @@ version = "0.1"
 optional = true
 
 [features]
+trace = ["nom-tracable/trace"]
 ffi = ["libc"]
 dev = ["clippy"]
 parse-archive = ["zip"]
