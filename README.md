@@ -1,6 +1,6 @@
 # vault
 
-[![crates.io](http://meritbadge.herokuapp.com/vault)](https://crates.io/crates/vault) [![Build Status](https://travis-ci.org/ryantaylor/vault.svg?branch=master)](https://travis-ci.org/ryantaylor/vault) [![Coverage Status](https://coveralls.io/repos/ryantaylor/vault/badge.svg?branch=master&service=github)](https://coveralls.io/github/ryantaylor/vault?branch=master) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](http://ryantaylor.github.io/vault/vault/index.html)
+[![crates.io](http://meritbadge.herokuapp.com/vault)](https://crates.io/crates/vault) [![Build Status](https://travis-ci.org/ryantaylor/vault.svg?branch=master)](https://travis-ci.org/ryantaylor/vault) [![Coverage Status](https://coveralls.io/repos/ryantaylor/vault/badge.svg?branch=master&service=github)](https://coveralls.io/github/ryantaylor/vault?branch=master) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](http://ryantaylor.github.io/vault/v1.0.0/vault/index.html)
 
 `vault` is a Company of Heroes 2 replay parsing library written in [Rust](https://www.rust-lang.org/). It has evolved from work done by a number of individuals in the Company of Heroes community, most notably Seb and pingtoft, and has been helped along by the assistance of Relic Entertainment. This particular project is a rewrite and extension of a parser written by Seb, which itself was an extension of my original PHP port of pingtoft's C# Company of Heroes parsing code. Its goal is to provide a robust, complete, and flexible interface into Company of Heroes 2 replay files through a general library that can be used in a variety of environments and languages. It is also written to be fast and to take advantage of Rust's thread and memory safety features.
 
@@ -137,7 +137,7 @@ console.log(str);
 
 # Documentation
 
-Documentation for `vault` [can be viewed online](http://ryantaylor.github.io/vault/vault/index.html).
+Documentation for `vault` [can be viewed online](http://ryantaylor.github.io/vault/v1.0.0/vault/index.html).
 
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
