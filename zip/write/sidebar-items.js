@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["ZipWriter","Generator for ZIP files."]]});

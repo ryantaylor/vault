@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Config","This type contains option and configuration information for a call to one of `vault`'s parsing functions."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["BzCompressor","A compression stream which will have uncompressed data written to it and will write compressed data to an output stream."],["BzDecompressor","A compression stream which will have compressed data written to it and will write uncompressed data to an output stream."]]});

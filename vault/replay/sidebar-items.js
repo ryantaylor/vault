@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Replay","The main `Replay` type, contains all currently parsed replay data. Can be serialized to JSON for output using `rustc_serialize`."]]});

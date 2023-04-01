@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["CompressionMethod","Compression methods for the contents of a ZIP file."]]});
