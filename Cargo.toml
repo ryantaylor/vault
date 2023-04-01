@@ -1,39 +1,23 @@
 [package]
 name = "vault"
-version = "1.0.0"
-authors = ["Ryan Taylor <ryan@ryantaylordev.ca>"]
+version = "2.0.0"
+authors = ["Ryan Taylor <2320507+ryantaylor@users.noreply.github.com>"]
 
-description = "A parser for Company of Heroes 2 replay files. Valid for replays generated since UKF release (version 19545)."
-homepage = "http://ryantaylordev.ca"
+description = "A parser for Company of Heroes replay files."
+homepage = "https://github.com/ryantaylor/vault"
 repository = "https://github.com/ryantaylor/vault"
 readme = "README.md"
-keywords = ["coh", "coh2", "company", "heroes", "replay"]
+keywords = ["coh", "coh2", "coh3", "company", "heroes", "replay"]
 license = "MIT"
 
 exclude = ["replays/*", "build-doc.sh", ".travis.yml"]
 
-[lib]
-name = "vault"
-crate-type = ["dylib", "rlib"]
-
 [dependencies]
-log = "0.3"
-rustc-serialize = "0.3"
-
-[dependencies.clippy]
-version = "^0.0"
-optional = true
-
-[dependencies.libc]
-version = "0.2"
-optional = true
-
-[dependencies.zip]
-version = "0.1"
-optional = true
+byteorder = "1"
+magnus = { version = "0.5", optional = true }
+nom = "7"
+nom_locate = "4"
+nom-tracable = "0.9.0"
 
 [features]
-ffi = ["libc"]
-dev = ["clippy"]
-parse-archive = ["zip"]
-parse-all = ["parse-archive"]
+trace = ["nom-tracable/trace"]

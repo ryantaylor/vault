@@ -2,12 +2,18 @@
 
 extern crate vault;
 
-use std::path::Path;
+use vault::Replay;
 
 #[test]
-fn parse() {
-    let path_str = format!("{}/replays/bench.rec", env!("CARGO_MANIFEST_DIR"));
-    let path = Path::new(&path_str);
-    let replay = vault::parse_replay(&path, None).unwrap();
-    assert_eq!(replay.error, None);
+fn parse_success() {
+    let data = include_bytes!("/Users/ryantaylor/Downloads/release.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok())
+}
+
+#[test]
+fn parse_failure() {
+    let data = [1, 2, 3];
+    let replay = Replay::from_bytes(&data);
+    assert!(replay.is_err())
 }

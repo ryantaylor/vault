@@ -1,48 +1,136 @@
-//! A module containing a representation of a player entity in CoH2 replays.
+//! Representation of parsed player information.
 
-use std::string::String;
+use data::ticks::Tick;
+use data::Player as PlayerData;
+use message::{messages_from_data, Message};
+use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Display, Formatter};
 
-use item::Item;
+/// Game-specific player representation. Includes generally immutable information alongside data
+/// specific to the replay being parsed.
 
-/// This type represents a Company of Heroes 2 player entity as it appears in a CoH2 replay file.
-
-#[derive(Debug, RustcEncodable)]
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Player"))]
 pub struct Player {
-    /// Internal ID of player
-    pub id: u8,
-    /// Unicode name of player
-    pub name: String,
-    /// 64-bit Steam ID
-    pub steam_id: u64,
-    /// Steam ID as string because JS has trouble with true 64-bit ints
-    pub steam_id_str: String,
-    /// Team the player belongs to
-    pub team: u32,
-    /// String representation of the player's faction
-    pub faction: String,
-    /// If it can be found, the `server_id` of the player's commander
-    pub commander: u32,
-    /// A collection of the player's equipped items
-    pub items: Vec<Item>,
-    /// If it can be calculated, the player's commands per minute
-    pub cpm: f64,
+    name: String,
+    faction: Faction,
+    team: Team,
+    steam_id: u64,
+    profile_id: u64,
+    messages: Vec<Message>,
 }
 
 impl Player {
+    /// Name of the player at the time the replay was recorded. Note that the player may have
+    /// changed their name since time of recording. If attempting to uniquely identify players
+    /// across replay files, look at `Player::steam_id` and `Player::profile_id` instead. The string
+    /// is UTF-16 encoded.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+    /// The faction selected by the player in this match.
+    pub fn faction(&self) -> Faction {
+        self.faction
+    }
+    /// The team the player was assigned to. Currently only head-to-head matchups are supported
+    /// (max two teams).
+    pub fn team(&self) -> Team {
+        self.team
+    }
+    /// The Steam ID of the player. This ID can be used to uniquely identify a player between
+    /// replays, and connect them to their Steam profile.
+    pub fn steam_id(&self) -> u64 {
+        self.steam_id
+    }
+    /// The Relic profile ID of the player. This ID can be used to uniquely identify a player
+    /// between replays, and can be used to query statistical information about the player from
+    /// Relic's stats API.
+    pub fn profile_id(&self) -> u64 {
+        self.profile_id
+    }
+    /// A list of all messages sent by the player in the match. Sorted chronologically from first
+    /// to last.
+    pub fn messages(&self) -> Vec<Message> {
+        self.messages.clone()
+    }
+}
 
-    /// Constructs a new `Player` with empty initial data.
+pub fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
+    Player {
+        name: player_data.name.clone(),
+        faction: Faction::try_from(player_data.faction.as_ref()).unwrap(),
+        team: Team::try_from(player_data.team).unwrap(),
+        steam_id: str::parse(&player_data.steam_id).unwrap(),
+        profile_id: player_data.profile_id,
+        messages: messages_from_data(ticks, &player_data.name),
+    }
+}
 
-    pub fn new() -> Player {
-        Player {
-            id: 0xF,
-            name: String::new(),
-            steam_id: 0,
-            steam_id_str: "0".to_owned(),
-            team: 0,
-            faction: String::new(),
-            commander: 0,
-            items: Vec::with_capacity(12), // cmdr x3, intel x3, skin x3, decal, strike, faceplate
-            cpm: 0.0,
+// this is safe as Player does not contain any Ruby types
+#[cfg(feature = "magnus")]
+unsafe impl magnus::IntoValueFromNative for Player {}
+
+/// Company of Heroes 3 factions.
+
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Faction"))]
+pub enum Faction {
+    Americans,
+    British,
+    Wehrmacht,
+    AfrikaKorps,
+}
+
+impl Display for Faction {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Faction::Americans => write!(f, "americans"),
+            Faction::British => write!(f, "british_africa"),
+            Faction::Wehrmacht => write!(f, "germans"),
+            Faction::AfrikaKorps => write!(f, "afrika_korps"),
+        }
+    }
+}
+
+impl TryFrom<&str> for Faction {
+    type Error = String;
+
+    fn try_from(input: &str) -> Result<Faction, Self::Error> {
+        match input {
+            "americans" => Ok(Faction::Americans),
+            "british_africa" => Ok(Faction::British),
+            "germans" => Ok(Faction::Wehrmacht),
+            "afrika_korps" => Ok(Faction::AfrikaKorps),
+            _ => Err(format!("Invalid faction type {}!", input)),
+        }
+    }
+}
+
+/// Representation of a player's team membership.
+
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Team"))]
+pub enum Team {
+    First = 0,
+    Second = 1
+}
+
+impl Team {
+    /// Integer representation of the assigned team.
+    pub fn value(&self) -> usize {
+        *self as usize
+    }
+}
+
+impl TryFrom<u32> for Team {
+    type Error = String;
+
+    fn try_from(input: u32) -> Result<Team, Self::Error> {
+        match input {
+            0 => Ok(Team::First),
+            1 => Ok(Team::Second),
+            _ => Err(format!("Invalid team ID {}!", input)),
         }
     }
 }
