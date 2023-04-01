@@ -1,9 +1,14 @@
+//! Representation of parsed player information.
+
 use data::ticks::Tick;
 use data::Player as PlayerData;
 use message::{messages_from_data, Message};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+
+/// Game-specific player representation. Includes generally immutable information alongside data
+/// specific to the replay being parsed.
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Player"))]
@@ -17,21 +22,35 @@ pub struct Player {
 }
 
 impl Player {
+    /// Name of the player at the time the replay was recorded. Note that the player may have
+    /// changed their name since time of recording. If attempting to uniquely identify players
+    /// across replay files, look at `Player::steam_id` and `Player::profile_id` instead. The string
+    /// is UTF-16 encoded.
     pub fn name(&self) -> &str {
         &self.name
     }
+    /// The faction selected by the player in this match.
     pub fn faction(&self) -> Faction {
         self.faction
     }
+    /// The team the player was assigned to. Currently only head-to-head matchups are supported
+    /// (max two teams).
     pub fn team(&self) -> Team {
         self.team
     }
+    /// The Steam ID of the player. This ID can be used to uniquely identify a player between
+    /// replays, and connect them to their Steam profile.
     pub fn steam_id(&self) -> u64 {
         self.steam_id
     }
+    /// The Relic profile ID of the player. This ID can be used to uniquely identify a player
+    /// between replays, and can be used to query statistical information about the player from
+    /// Relic's stats API.
     pub fn profile_id(&self) -> u64 {
         self.profile_id
     }
+    /// A list of all messages sent by the player in the match. Sorted chronologically from first
+    /// to last.
     pub fn messages(&self) -> Vec<Message> {
         self.messages.clone()
     }
@@ -51,6 +70,8 @@ pub fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
 // this is safe as Player does not contain any Ruby types
 #[cfg(feature = "magnus")]
 unsafe impl magnus::IntoValueFromNative for Player {}
+
+/// Company of Heroes 3 factions.
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Faction"))]
@@ -86,13 +107,19 @@ impl TryFrom<&str> for Faction {
     }
 }
 
+/// Representation of a player's team membership.
+
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Team"))]
-pub struct Team(u32);
+pub enum Team {
+    First = 0,
+    Second = 1
+}
 
 impl Team {
-    pub fn value(&self) -> u32 {
-        self.0
+    /// Integer representation of the assigned team.
+    pub fn value(&self) -> usize {
+        *self as usize
     }
 }
 
@@ -101,8 +128,8 @@ impl TryFrom<u32> for Team {
 
     fn try_from(input: u32) -> Result<Team, Self::Error> {
         match input {
-            0 => Ok(Team(input)),
-            1 => Ok(Team(input)),
+            0 => Ok(Team::First),
+            1 => Ok(Team::Second),
             _ => Err(format!("Invalid team ID {}!", input)),
         }
     }

@@ -1,5 +1,11 @@
+//! Representation of parsed message information.
+
 use data::ticks::Tick;
 use data::ticks::Tick::Message as MessageEnum;
+
+/// Representation of a user-sent chat message in a Company of Heroes 3 replay. Messages are
+/// collected during command parsing and then associated with the `Player` instance that sent them.
+/// To access, see `Player::messages`.
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Message"))]
@@ -9,9 +15,14 @@ pub struct Message {
 }
 
 impl Message {
+    /// This value is the tick at which the message was found while parsing the replay, which
+    /// represents the time in the replay at which it was sent. Because CoH3's engine runs at 8
+    /// ticks per second, you can divide this value by 8 to get the number of seconds since the
+    /// replay began, which will tell you when this message was sent.
     pub fn tick(&self) -> u32 {
         self.tick
     }
+    /// UTF-16 encoded representation of the message sent by the player.
     pub fn message(&self) -> &str {
         &self.message
     }
