@@ -1,5 +1,5 @@
-use data::parser::parse_utf16_variable;
-use data::{ParserResult, Span};
+use crate::data::parser::parse_utf16_variable;
+use crate::data::{ParserResult, Span};
 use nom::combinator::{cut, map};
 use nom::number::complete::le_u32;
 use nom::sequence::tuple;

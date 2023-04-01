@@ -1,5 +1,5 @@
+use crate::data::Span;
 use byteorder::{LittleEndian, ReadBytesExt};
-use data::Span;
 use nom::bytes::complete::{take, take_while};
 use nom::combinator::{map, peek, verify};
 use nom::error::ParseError;

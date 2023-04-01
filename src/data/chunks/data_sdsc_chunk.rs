@@ -1,6 +1,6 @@
-use data::chunks::{Chunk, Chunk::DataSdsc, Header};
-use data::parser::{parse_utf16_variable, parse_utf8_variable};
-use data::{ParserResult, Span};
+use crate::data::chunks::{Chunk, Chunk::DataSdsc, Header};
+use crate::data::parser::{parse_utf16_variable, parse_utf8_variable};
+use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::{cut, map, map_parser};
 use nom::number::complete::le_u32;

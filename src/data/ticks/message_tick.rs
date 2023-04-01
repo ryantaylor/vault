@@ -1,5 +1,5 @@
-use data::ticks::{Message, Tick};
-use data::{ParserResult, Span};
+use crate::data::ticks::{Message, Tick};
+use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::{cut, flat_map, map, map_parser, peek};
 use nom::multi::many_m_n;

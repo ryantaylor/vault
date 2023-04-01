@@ -1,5 +1,5 @@
-use data::parser::{parse_utf16_terminated, parse_utf8_fixed, take_zeroes, verify_zero_u16};
-use data::{ParserResult, Span};
+use crate::data::parser::{parse_utf16_terminated, parse_utf8_fixed, take_zeroes, verify_zero_u16};
+use crate::data::{ParserResult, Span};
 use nom::combinator::map;
 use nom::number::complete::le_u16;
 use nom::sequence::{preceded, tuple};

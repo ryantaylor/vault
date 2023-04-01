@@ -15,11 +15,6 @@
 //! }
 //! ```
 
-extern crate byteorder;
-extern crate nom;
-extern crate nom_locate;
-extern crate nom_tracable;
-
 mod data;
 mod errors;
 mod map;

@@ -1,9 +1,9 @@
-use data::chunks::Chunk::{DataData, DataSdsc};
-use data::chunks::{Chunk, DataDataChunk, DataSdscChunk};
-use data::ticks::Tick::Command;
-use data::ticks::{CommandTick, Tick};
-use data::{Chunky, Header};
-use data::{ParserResult, Span};
+use crate::data::chunks::Chunk::{DataData, DataSdsc};
+use crate::data::chunks::{Chunk, DataDataChunk, DataSdscChunk};
+use crate::data::ticks::Tick::Command;
+use crate::data::ticks::{CommandTick, Tick};
+use crate::data::{Chunky, Header};
+use crate::data::{ParserResult, Span};
 use nom::combinator::eof;
 use nom::combinator::map;
 use nom::multi::many_till;

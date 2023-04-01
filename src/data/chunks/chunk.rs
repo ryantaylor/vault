@@ -1,5 +1,5 @@
-use data::chunks::{DataDataChunk, DataSdscChunk, FoldChunk, Header, TrashDataChunk};
-use data::{ParserResult, Span};
+use crate::data::chunks::{DataDataChunk, DataSdscChunk, FoldChunk, Header, TrashDataChunk};
+use crate::data::{ParserResult, Span};
 
 #[derive(Debug)]
 pub enum Chunk {

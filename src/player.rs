@@ -1,8 +1,10 @@
 //! Representation of parsed player information.
 
-use data::ticks::Tick;
-use data::Player as PlayerData;
-use message::{messages_from_data, Message};
+use crate::data::ticks::Tick;
+use crate::data::Player as PlayerData;
+use crate::message::{messages_from_data, Message};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -11,6 +13,7 @@ use std::fmt::{Display, Formatter};
 /// specific to the replay being parsed.
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Player"))]
 pub struct Player {
     name: String,
@@ -74,6 +77,7 @@ unsafe impl magnus::IntoValueFromNative for Player {}
 /// Company of Heroes 3 factions.
 
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Faction"))]
 pub enum Faction {
     Americans,
@@ -110,10 +114,11 @@ impl TryFrom<&str> for Faction {
 /// Representation of a player's team membership.
 
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Team"))]
 pub enum Team {
     First = 0,
-    Second = 1
+    Second = 1,
 }
 
 impl Team {

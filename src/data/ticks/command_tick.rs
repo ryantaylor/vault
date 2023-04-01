@@ -1,6 +1,6 @@
-use data::parser::verify_le_u32;
-use data::ticks::{Tick, Tick::Command};
-use data::{ParserResult, Span};
+use crate::data::parser::verify_le_u32;
+use crate::data::ticks::{Tick, Tick::Command};
+use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::{flat_map, map, map_parser};
 use nom::number::complete::{le_u32, le_u8};

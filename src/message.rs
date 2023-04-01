@@ -1,13 +1,16 @@
 //! Representation of parsed message information.
 
-use data::ticks::Tick;
-use data::ticks::Tick::Message as MessageEnum;
+use crate::data::ticks::Tick;
+use crate::data::ticks::Tick::Message as MessageEnum;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Representation of a user-sent chat message in a Company of Heroes 3 replay. Messages are
 /// collected during command parsing and then associated with the `Player` instance that sent them.
 /// To access, see `Player::messages`.
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Message"))]
 pub struct Message {
     tick: u32,
