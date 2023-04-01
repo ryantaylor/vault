@@ -11,11 +11,9 @@ impl Map {
     pub fn filename(&self) -> &str {
         &self.filename
     }
-
     pub fn localized_name_id(&self) -> &str {
         &self.localized_name_id
     }
-
     pub fn localized_description_id(&self) -> &str {
         &self.localized_description_id
     }

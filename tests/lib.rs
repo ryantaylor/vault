@@ -2,9 +2,18 @@
 
 extern crate vault;
 
+use vault::Replay;
+
 #[test]
-fn parse() {
+fn parse_success() {
     let data = include_bytes!("/Users/ryantaylor/Downloads/release.rec");
-    let replay = vault::parse_replay(data.to_vec());
-    println!("{:#?}", replay);
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok())
+}
+
+#[test]
+fn parse_failure() {
+    let data = [1, 2, 3];
+    let replay = Replay::from_bytes(&data);
+    assert!(replay.is_err())
 }

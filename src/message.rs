@@ -11,7 +11,6 @@ impl Message {
     pub fn tick(&self) -> u32 {
         self.tick
     }
-
     pub fn message(&self) -> &str {
         &self.message
     }

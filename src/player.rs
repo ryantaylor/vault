@@ -16,19 +16,15 @@ impl Player {
     pub fn name(&self) -> &str {
         &self.name
     }
-
     pub fn faction(&self) -> Faction {
         self.faction
     }
-
     pub fn steam_id(&self) -> u64 {
         self.steam_id
     }
-
     pub fn profile_id(&self) -> u64 {
         self.profile_id
     }
-
     pub fn messages(&self) -> &Vec<Message> {
         &self.messages
     }
