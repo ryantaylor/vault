@@ -19,7 +19,6 @@ extern crate byteorder;
 extern crate nom;
 extern crate nom_locate;
 extern crate nom_tracable;
-extern crate serde;
 
 mod data;
 mod errors;
