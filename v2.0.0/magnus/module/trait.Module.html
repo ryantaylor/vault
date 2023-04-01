@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Functions available on both classes and modules."><meta name="keywords" content="rust, rustlang, rust-lang, Module"><title>Module in magnus::module - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc trait"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../magnus/index.html"><div class="logo-container"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../magnus/index.html"><div class="logo-container"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><h2 class="location"><a href="#">Module</a></h2><div class="sidebar-elems"><section><h3><a href="#provided-methods">Provided Methods</a></h3><ul class="block"><li><a href="#method.ancestors">ancestors</a></li><li><a href="#method.const_get">const_get</a></li><li><a href="#method.const_set">const_set</a></li><li><a href="#method.define_alias">define_alias</a></li><li><a href="#method.define_attr">define_attr</a></li><li><a href="#method.define_class">define_class</a></li><li><a href="#method.define_error">define_error</a></li><li><a href="#method.define_method">define_method</a></li><li><a href="#method.define_module">define_module</a></li><li><a href="#method.define_private_method">define_private_method</a></li><li><a href="#method.define_protected_method">define_protected_method</a></li><li><a href="#method.include_module">include_module</a></li><li><a href="#method.is_inherited">is_inherited</a></li><li><a href="#method.prepend_module">prepend_module</a></li></ul><h3><a href="#implementors">Implementors</a></h3></section><h2><a href="index.html">In magnus::module</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Trait <a href="../index.html">magnus</a>::<wbr><a href="index.html">module</a>::<wbr><a class="trait" href="#">Module</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/magnus/module.rs.html#203-663">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><div class="item-decl"><pre class="rust trait"><code>pub trait Module: <a class="trait" href="../trait.Object.html" title="trait magnus::Object">Object</a> + <a class="trait" href="https://doc.rust-lang.org/1.67.1/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref">Deref</a>&lt;Target = <a class="struct" href="../value/struct.Value.html" title="struct magnus::value::Value">Value</a>&gt; + <a class="trait" href="../value/trait.ReprValue.html" title="trait magnus::value::ReprValue">ReprValue</a> + <a class="trait" href="https://doc.rust-lang.org/1.67.1/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> {
+<details class="rustdoc-toggle type-contents-toggle"><summary class="hideme"><span>Show 14 methods</span></summary>    fn <a href="#method.define_class" class="fn">define_class</a>&lt;T&gt;(self, name: T, superclass: <a class="struct" href="../class/struct.RClass.html" title="struct magnus::class::RClass">RClass</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../class/struct.RClass.html" title="struct magnus::class::RClass">RClass</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.define_module" class="fn">define_module</a>&lt;T&gt;(self, name: T) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="struct.RModule.html" title="struct magnus::module::RModule">RModule</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.define_error" class="fn">define_error</a>&lt;T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name: T,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;superclass: <a class="struct" href="../exception/struct.ExceptionClass.html" title="struct magnus::exception::ExceptionClass">ExceptionClass</a><br>&nbsp;&nbsp;&nbsp;&nbsp;) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../exception/struct.ExceptionClass.html" title="struct magnus::exception::ExceptionClass">ExceptionClass</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.include_module" class="fn">include_module</a>(self, module: <a class="struct" href="struct.RModule.html" title="struct magnus::module::RModule">RModule</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt; { ... }
+<span class="item-spacer"></span>    fn <a href="#method.prepend_module" class="fn">prepend_module</a>(self, module: <a class="struct" href="struct.RModule.html" title="struct magnus::module::RModule">RModule</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt; { ... }
+<span class="item-spacer"></span>    fn <a href="#method.const_set" class="fn">const_set</a>&lt;T, U&gt;(self, name: T, value: U) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="../trait.IntoValue.html" title="trait magnus::IntoValue">IntoValue</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.const_get" class="fn">const_get</a>&lt;T, U&gt;(self, name: T) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;U, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="../trait.TryConvert.html" title="trait magnus::TryConvert">TryConvert</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.is_inherited" class="fn">is_inherited</a>&lt;T&gt;(self, other: T) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.bool.html">bool</a><br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/1.67.1/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref">Deref</a>&lt;Target = <a class="struct" href="../value/struct.Value.html" title="struct magnus::value::Value">Value</a>&gt; + <a class="trait" href="trait.Module.html" title="trait magnus::module::Module">Module</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.ancestors" class="fn">ancestors</a>(self) -&gt; <a class="struct" href="../struct.RArray.html" title="struct magnus::RArray">RArray</a> { ... }
+<span class="item-spacer"></span>    fn <a href="#method.define_method" class="fn">define_method</a>&lt;T, M&gt;(self, name: T, func: M) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M: <a class="trait" href="../method/trait.Method.html" title="trait magnus::method::Method">Method</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.define_private_method" class="fn">define_private_method</a>&lt;M&gt;(self, name: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.str.html">str</a>, func: M) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M: <a class="trait" href="../method/trait.Method.html" title="trait magnus::method::Method">Method</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.define_protected_method" class="fn">define_protected_method</a>&lt;M&gt;(self, name: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.str.html">str</a>, func: M) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;M: <a class="trait" href="../method/trait.Method.html" title="trait magnus::method::Method">Method</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.define_attr" class="fn">define_attr</a>&lt;T&gt;(self, name: T, rw: <a class="enum" href="enum.Attr.html" title="enum magnus::module::Attr">Attr</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a></span>,
+    { ... }
+<span class="item-spacer"></span>    fn <a href="#method.define_alias" class="fn">define_alias</a>&lt;T, U&gt;(self, dst: T, src: U) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a></span>,
+    { ... }
+</details>}</code></pre></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Functions available on both classes and modules.</p>
+</div></details><h2 id="provided-methods" class="small-section-header">Provided Methods<a href="#provided-methods" class="anchor">§</a></h2><div class="methods"><details class="rustdoc-toggle method-toggle" open><summary><section id="method.define_class" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#216-231">source</a><h4 class="code-header">fn <a href="#method.define_class" class="fn">define_class</a>&lt;T&gt;(self, name: T, superclass: <a class="struct" href="../class/struct.RClass.html" title="struct magnus::class::RClass">RClass</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../class/struct.RClass.html" title="struct magnus::class::RClass">RClass</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,</span></h4></section></summary><div class="docblock"><p>Define a class in <code>self</code>’s scope.</p>
+<h5 id="examples"><a href="#examples">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, define_module, Module};
+
+<span class="kw">let </span>outer = define_module(<span class="string">&quot;Outer&quot;</span>).unwrap();
+<span class="kw">let </span>inner = outer.define_class(<span class="string">&quot;Inner&quot;</span>, class::object()).unwrap();
+<span class="macro">assert!</span>(inner.is_kind_of(class::class()));</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.define_module" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#245-256">source</a><h4 class="code-header">fn <a href="#method.define_module" class="fn">define_module</a>&lt;T&gt;(self, name: T) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="struct.RModule.html" title="struct magnus::module::RModule">RModule</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,</span></h4></section></summary><div class="docblock"><p>Define a module in <code>self</code>’s scope.</p>
+<h5 id="examples-1"><a href="#examples-1">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, define_module, Module};
+
+<span class="kw">let </span>outer = define_module(<span class="string">&quot;Outer&quot;</span>).unwrap();
+<span class="kw">let </span>inner = outer.define_module(<span class="string">&quot;Inner&quot;</span>).unwrap();
+<span class="macro">assert!</span>(inner.is_kind_of(class::module()));</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.define_error" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#270-276">source</a><h4 class="code-header">fn <a href="#method.define_error" class="fn">define_error</a>&lt;T&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;self,<br>&nbsp;&nbsp;&nbsp;&nbsp;name: T,<br>&nbsp;&nbsp;&nbsp;&nbsp;superclass: <a class="struct" href="../exception/struct.ExceptionClass.html" title="struct magnus::exception::ExceptionClass">ExceptionClass</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../exception/struct.ExceptionClass.html" title="struct magnus::exception::ExceptionClass">ExceptionClass</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,</span></h4></section></summary><div class="docblock"><p>Define an exception class in <code>self</code>’s scope.</p>
+<h5 id="examples-2"><a href="#examples-2">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{exception, define_module, Module};
+
+<span class="kw">let </span>outer = define_module(<span class="string">&quot;Outer&quot;</span>).unwrap();
+<span class="kw">let </span>inner = outer.define_error(<span class="string">&quot;InnerError&quot;</span>, exception::standard_error()).unwrap();
+<span class="macro">assert!</span>(inner.is_inherited(exception::standard_error()));</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.include_module" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#302-308">source</a><h4 class="code-header">fn <a href="#method.include_module" class="fn">include_module</a>(self, module: <a class="struct" href="struct.RModule.html" title="struct magnus::module::RModule">RModule</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Include <code>module</code> into <code>self</code>.</p>
+<p>Effectively makes <code>module</code> the superclass of <code>self</code>. See also
+<a href="trait.Module.html#method.prepend_module"><code>prepend_module</code></a>.</p>
+<h5 id="examples-3"><a href="#examples-3">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, function, Module, RClass, RModule};
+
+<span class="kw">fn </span>example() -&gt; i64 {
+    <span class="number">42
+</span>}
+
+<span class="kw">let </span>module = RModule::new();
+module.define_method(<span class="string">&quot;example&quot;</span>, <span class="macro">function!</span>(example, <span class="number">0</span>)).unwrap();
+
+<span class="kw">let </span>class = RClass::new(class::object()).unwrap();
+class.include_module(module);
+
+<span class="kw">let </span>obj = class.new_instance(()).unwrap();
+<span class="macro">assert_eq!</span>(obj.funcall::&lt;<span class="kw">_</span>, <span class="kw">_</span>, i64&gt;(<span class="string">&quot;example&quot;</span>, ()).unwrap(), <span class="number">42</span>);</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.prepend_module" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#345-351">source</a><h4 class="code-header">fn <a href="#method.prepend_module" class="fn">prepend_module</a>(self, module: <a class="struct" href="struct.RModule.html" title="struct magnus::module::RModule">RModule</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;</h4></section></summary><div class="docblock"><p>Prepend <code>self</code> with <code>module</code>.</p>
+<p>Similar to <a href="trait.Module.html#method.include_module"><code>include_module</code></a>, but inserts
+<code>module</code> as if it were a subclass in the inheritance chain.</p>
+<h5 id="examples-4"><a href="#examples-4">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{call_super, eval, function, Error, Module, RClass, RModule};
+
+<span class="kw">fn </span>super_example() -&gt; i64 {
+    <span class="number">40
+</span>}
+
+<span class="kw">fn </span>example() -&gt; <span class="prelude-ty">Result</span>&lt;i64, Error&gt; {
+    <span class="prelude-val">Ok</span>(call_super::&lt;<span class="kw">_</span>, i64&gt;(())<span class="question-mark">? </span>+ <span class="number">2</span>)
+}
+
+<span class="kw">let </span>module = RModule::new();
+module.define_method(<span class="string">&quot;example&quot;</span>, <span class="macro">function!</span>(example, <span class="number">0</span>)).unwrap();
+
+<span class="kw">let </span>class: RClass = eval(<span class="string">r#&quot;
+    class Example
+      def example
+        40
+      end
+    end
+    Example
+&quot;#</span>).unwrap();
+class.prepend_module(module);
+
+<span class="kw">let </span>obj = class.new_instance(()).unwrap();
+<span class="macro">assert_eq!</span>(obj.funcall::&lt;<span class="kw">_</span>, <span class="kw">_</span>, i64&gt;(<span class="string">&quot;example&quot;</span>, ()).unwrap(), <span class="number">42</span>);</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.const_set" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#365-377">source</a><h4 class="code-header">fn <a href="#method.const_set" class="fn">const_set</a>&lt;T, U&gt;(self, name: T, value: U) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="../trait.IntoValue.html" title="trait magnus::IntoValue">IntoValue</a>,</span></h4></section></summary><div class="docblock"><p>Set the value for the constant <code>name</code> within <code>self</code>’s scope.</p>
+<h5 id="examples-5"><a href="#examples-5">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, eval, Module, RClass, Value};
+
+class::array().const_set(<span class="string">&quot;EXAMPLE&quot;</span>, <span class="number">42</span>).unwrap();
+
+<span class="macro">assert_eq!</span>(eval::&lt;i64&gt;(<span class="string">&quot;Array::EXAMPLE&quot;</span>).unwrap(), <span class="number">42</span>);</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.const_get" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#396-406">source</a><h4 class="code-header">fn <a href="#method.const_get" class="fn">const_get</a>&lt;T, U&gt;(self, name: T) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;U, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="../trait.TryConvert.html" title="trait magnus::TryConvert">TryConvert</a>,</span></h4></section></summary><div class="docblock"><p>Get the value for the constant <code>name</code> within <code>self</code>’s scope.</p>
+<h5 id="examples-6"><a href="#examples-6">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, eval, Module, RClass, Value};
+
+eval::&lt;Value&gt;(<span class="string">&quot;
+    class Example
+      VALUE = 42
+    end
+&quot;</span>).unwrap();
+
+<span class="kw">let </span>class = class::object().const_get::&lt;<span class="kw">_</span>, RClass&gt;(<span class="string">&quot;Example&quot;</span>).unwrap();
+<span class="macro">assert_eq!</span>(class.const_get::&lt;<span class="kw">_</span>, i64&gt;(<span class="string">&quot;VALUE&quot;</span>).unwrap(), <span class="number">42</span>);</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.is_inherited" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#423-434">source</a><h4 class="code-header">fn <a href="#method.is_inherited" class="fn">is_inherited</a>&lt;T&gt;(self, other: T) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.bool.html">bool</a><span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/1.67.1/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref">Deref</a>&lt;Target = <a class="struct" href="../value/struct.Value.html" title="struct magnus::value::Value">Value</a>&gt; + <a class="trait" href="trait.Module.html" title="trait magnus::module::Module">Module</a>,</span></h4></section></summary><div class="docblock"><p>Returns whether or not <code>self</code> inherits from <code>other</code>.</p>
+<p>Classes including a module are considered to inherit from that module.</p>
+<h5 id="examples-7"><a href="#examples-7">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, eval, Module, RClass};
+
+<span class="kw">let </span>a = RClass::new(class::object()).unwrap();
+<span class="kw">let </span>b = RClass::new(a).unwrap();
+<span class="macro">assert!</span>(b.is_inherited(a));
+<span class="macro">assert!</span>(!a.is_inherited(b));</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.ancestors" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#449-451">source</a><h4 class="code-header">fn <a href="#method.ancestors" class="fn">ancestors</a>(self) -&gt; <a class="struct" href="../struct.RArray.html" title="struct magnus::RArray">RArray</a></h4></section></summary><div class="docblock"><p>Return the classes and modules <code>self</code> inherits, includes, or prepends.</p>
+<h5 id="examples-8"><a href="#examples-8">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, eval, Module};
+
+<span class="kw">let </span>ary = class::string().ancestors();
+
+<span class="kw">let </span>res: bool = <span class="macro">eval!</span>(<span class="string">&quot;ary == [String, Comparable, Object, Kernel, BasicObject]&quot;</span>, ary).unwrap();
+<span class="macro">assert!</span>(res);</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.define_method" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#470-489">source</a><h4 class="code-header">fn <a href="#method.define_method" class="fn">define_method</a>&lt;T, M&gt;(self, name: T, func: M) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;M: <a class="trait" href="../method/trait.Method.html" title="trait magnus::method::Method">Method</a>,</span></h4></section></summary><div class="docblock"><p>Define a method in <code>self</code>’s scope.</p>
+<h5 id="examples-9"><a href="#examples-9">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, eval, method, Module};
+
+<span class="kw">fn </span>escape_unicode(s: String) -&gt; String {
+    s.escape_unicode().to_string()
+}
+
+class::string().define_method(<span class="string">&quot;escape_unicode&quot;</span>, <span class="macro">method!</span>(escape_unicode, <span class="number">0</span>)).unwrap();
+
+<span class="kw">let </span>res = eval::&lt;bool&gt;(<span class="string">r#&quot;&quot;🤖\etest&quot;.escape_unicode == &quot;\\u{1f916}\\u{1b}\\u{74}\\u{65}\\u{73}\\u{74}&quot;&quot;#</span>).unwrap();
+<span class="macro">assert!</span>(res);</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.define_private_method" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#522-540">source</a><h4 class="code-header">fn <a href="#method.define_private_method" class="fn">define_private_method</a>&lt;M&gt;(self, name: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.str.html">str</a>, func: M) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;M: <a class="trait" href="../method/trait.Method.html" title="trait magnus::method::Method">Method</a>,</span></h4></section></summary><div class="docblock"><p>Define a private method in <code>self</code>’s scope.</p>
+<h5 id="examples-10"><a href="#examples-10">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, eval, exception, function, Module, Value};
+
+<span class="kw">fn </span>percent_encode(c: char) -&gt; String {
+    <span class="kw">if </span>c.is_ascii_alphanumeric() || c == <span class="string">&#39;-&#39; </span>|| c == <span class="string">&#39;_&#39; </span>|| c == <span class="string">&#39;.&#39; </span>|| c == <span class="string">&#39;~&#39; </span>{
+        String::from(c)
+    } <span class="kw">else </span>{
+        <span class="macro">format!</span>(<span class="string">&quot;%{:X}&quot;</span>, c <span class="kw">as </span>u32)
+    }
+}
+
+class::string().define_private_method(<span class="string">&quot;percent_encode_char&quot;</span>, <span class="macro">function!</span>(percent_encode, <span class="number">1</span>)).unwrap();
+
+eval::&lt;Value&gt;(<span class="string">r#&quot;
+    class String
+      def percent_encode
+        chars.map {|c| percent_encode_char(c)}.join(&quot;&quot;)
+      end
+    end
+&quot;#</span>).unwrap();
+
+<span class="kw">let </span>res = eval::&lt;bool&gt;(<span class="string">r#&quot;&quot;foo bar&quot;.percent_encode == &quot;foo%20bar&quot;&quot;#</span>).unwrap();
+<span class="macro">assert!</span>(res);
+
+<span class="macro">assert!</span>(eval::&lt;bool&gt;(<span class="string">r#&quot;&quot; &quot;.percent_encode_char(&quot; &quot;)&quot;#</span>).unwrap_err().is_kind_of(exception::no_method_error()));</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.define_protected_method" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#576-594">source</a><h4 class="code-header">fn <a href="#method.define_protected_method" class="fn">define_protected_method</a>&lt;M&gt;(self, name: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.str.html">str</a>, func: M) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;M: <a class="trait" href="../method/trait.Method.html" title="trait magnus::method::Method">Method</a>,</span></h4></section></summary><div class="docblock"><p>Define a protected method in <code>self</code>’s scope.</p>
+<h5 id="examples-11"><a href="#examples-11">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, eval, exception, method, Module, Value};
+
+<span class="kw">fn </span>escape_unicode(s: String) -&gt; String {
+    s.escape_unicode().to_string()
+}
+
+<span class="kw">fn </span>is_invisible(c: char) -&gt; bool {
+    c.is_control() || c.is_whitespace()
+}
+
+class::string().define_method(<span class="string">&quot;escape_unicode&quot;</span>, <span class="macro">method!</span>(escape_unicode, <span class="number">0</span>)).unwrap();
+class::string().define_protected_method(<span class="string">&quot;invisible?&quot;</span>, <span class="macro">method!</span>(is_invisible, <span class="number">0</span>)).unwrap();
+
+eval::&lt;Value&gt;(<span class="string">r#&quot;
+    class String
+      def escape_invisible
+        chars.map {|c| c.invisible? ? c.escape_unicode : c}.join(&quot;&quot;)
+      end
+    end
+&quot;#</span>).unwrap();
+
+<span class="kw">let </span>res: bool = <span class="macro">eval!</span>(<span class="string">r#&quot;
+    &quot;🤖\tfoo bar&quot;.escape_invisible == &quot;🤖\\u{9}foo\\u{20}bar&quot;
+&quot;#</span>).unwrap();
+<span class="macro">assert!</span>(res);
+
+<span class="macro">assert!</span>(eval::&lt;bool&gt;(<span class="string">r#&quot;&quot; &quot;.invisible?&quot;#</span>).unwrap_err().is_kind_of(exception::no_method_error()));</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.define_attr" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#613-629">source</a><h4 class="code-header">fn <a href="#method.define_attr" class="fn">define_attr</a>&lt;T&gt;(self, name: T, rw: <a class="enum" href="enum.Attr.html" title="enum magnus::module::Attr">Attr</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,</span></h4></section></summary><div class="docblock"><p>Define public accessor methods for the attribute <code>name</code>.</p>
+<p><code>name</code> should be <strong>without</strong> the preceding <code>@</code>.</p>
+<h5 id="examples-12"><a href="#examples-12">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, Attr, Module, RClass, Value};
+
+<span class="kw">let </span>class = RClass::new(class::object()).unwrap();
+class.define_attr(<span class="string">&quot;example&quot;</span>, Attr::ReadWrite).unwrap();
+
+<span class="kw">let </span>obj = class.new_instance(()).unwrap();
+<span class="kw">let _</span>: Value = obj.funcall(<span class="string">&quot;example=&quot;</span>, (<span class="number">42</span>,)).unwrap();
+<span class="macro">assert_eq!</span>(obj.funcall::&lt;<span class="kw">_</span>, <span class="kw">_</span>, i64&gt;(<span class="string">&quot;example&quot;</span>, ()).unwrap(), <span class="number">42</span>);</code></pre></div>
+</div></details><details class="rustdoc-toggle method-toggle" open><summary><section id="method.define_alias" class="method has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#650-662">source</a><h4 class="code-header">fn <a href="#method.define_alias" class="fn">define_alias</a>&lt;T, U&gt;(self, dst: T, src: U) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.67.1/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.67.1/std/primitive.unit.html">()</a>, <a class="enum" href="../error/enum.Error.html" title="enum magnus::error::Error">Error</a>&gt;<span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;U: <a class="trait" href="../value/trait.IntoId.html" title="trait magnus::value::IntoId">IntoId</a>,</span></h4></section></summary><div class="docblock"><p>Alias the method <code>src</code> of <code>self</code> as <code>dst</code>.</p>
+<h5 id="examples-13"><a href="#examples-13">Examples</a></h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>magnus::{class, function, Module, RClass};
+
+<span class="kw">fn </span>example() -&gt; i64 {
+    <span class="number">42
+</span>}
+
+<span class="kw">let </span>class = RClass::new(class::object()).unwrap();
+class.define_method(<span class="string">&quot;example&quot;</span>, <span class="macro">function!</span>(example, <span class="number">0</span>)).unwrap();
+class.define_alias(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;example&quot;</span>).unwrap();
+
+<span class="kw">let </span>obj = class.new_instance(()).unwrap();
+<span class="macro">assert_eq!</span>(obj.funcall::&lt;<span class="kw">_</span>, <span class="kw">_</span>, i64&gt;(<span class="string">&quot;test&quot;</span>, ()).unwrap(), <span class="number">42</span>);</code></pre></div>
+</div></details></div><h2 id="implementors" class="small-section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-Module-for-RClass" class="impl has-srclink"><a class="srclink rightside" href="../../src/magnus/class.rs.html#183">source</a><a href="#impl-Module-for-RClass" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Module.html" title="trait magnus::module::Module">Module</a> for <a class="struct" href="../class/struct.RClass.html" title="struct magnus::class::RClass">RClass</a></h3></section><section id="impl-Module-for-ExceptionClass" class="impl has-srclink"><a class="srclink rightside" href="../../src/magnus/exception.rs.html#214">source</a><a href="#impl-Module-for-ExceptionClass" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Module.html" title="trait magnus::module::Module">Module</a> for <a class="struct" href="../exception/struct.ExceptionClass.html" title="struct magnus::exception::ExceptionClass">ExceptionClass</a></h3></section><section id="impl-Module-for-RModule" class="impl has-srclink"><a class="srclink rightside" href="../../src/magnus/module.rs.html#175">source</a><a href="#impl-Module-for-RModule" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="trait.Module.html" title="trait magnus::module::Module">Module</a> for <a class="struct" href="struct.RModule.html" title="struct magnus::module::RModule">RModule</a></h3></section></div><script src="../../implementors/magnus/module/trait.Module.js" async></script></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="magnus" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

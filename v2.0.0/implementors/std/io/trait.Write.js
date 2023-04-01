@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"magnus":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.67.1/std/io/trait.Write.html\" title=\"trait std::io::Write\">Write</a> for <a class=\"struct\" href=\"magnus/r_string/struct.RString.html\" title=\"struct magnus::r_string::RString\">RString</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

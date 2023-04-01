@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Opts","Options for creating [`RRegexp`]."],["RRegexp","A Value pointer to a RRegexp struct, Ruby’s internal representation of regular expressions."]]};

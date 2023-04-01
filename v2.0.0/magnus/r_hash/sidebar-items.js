@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["ForEach","Iteration state for [`RHash::foreach`]."]],"struct":[["RHash","A Value pointer to a RHash struct, Ruby’s internal representation of Hash objects."]]};

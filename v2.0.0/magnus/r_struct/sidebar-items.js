@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["define_struct","Define a Ruby Struct class."]],"struct":[["RStruct","A Value pointer to a RStruct struct, Ruby’s internal representation of ‘Structs’."]]};
