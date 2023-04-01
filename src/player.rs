@@ -10,6 +10,7 @@ use std::fmt::{Display, Formatter};
 pub struct Player {
     name: String,
     faction: Faction,
+    team: Team,
     steam_id: u64,
     profile_id: u64,
     messages: Vec<Message>,
@@ -21,6 +22,9 @@ impl Player {
     }
     pub fn faction(&self) -> Faction {
         self.faction
+    }
+    pub fn team_id(&self) -> Team {
+        self.team
     }
     pub fn steam_id(&self) -> u64 {
         self.steam_id
@@ -37,6 +41,7 @@ pub fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
     Player {
         name: player_data.name.clone(),
         faction: Faction::try_from(player_data.faction.as_ref()).unwrap(),
+        team: Team::try_from(player_data.team).unwrap(),
         steam_id: str::parse(&player_data.steam_id).unwrap(),
         profile_id: player_data.profile_id,
         messages: messages_from_data(ticks, &player_data.name),
@@ -77,6 +82,28 @@ impl TryFrom<&str> for Faction {
             "germans" => Ok(Faction::Wehrmacht),
             "afrika_korps" => Ok(Faction::AfrikaKorps),
             _ => Err(format!("Invalid faction type {}!", input)),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Team"))]
+pub struct Team(u32);
+
+impl Team {
+    pub fn value(&self) -> u32 {
+        self.0
+    }
+}
+
+impl TryFrom<u32> for Team {
+    type Error = String;
+
+    fn try_from(input: u32) -> Result<Team, Self::Error> {
+        match input {
+            0 => Ok(Team(input)),
+            1 => Ok(Team(input)),
+            _ => Err(format!("Invalid team ID {}!", input)),
         }
     }
 }
