@@ -74,11 +74,7 @@ puts replay.version
 
 Note that all classes must be bound to the `Vault` namespace, with class names matching their Rust counterparts. For an example of this functionality in action, see [vault-rb](https://github.com/ryantaylor/vault-rb).
 
-## Company of Heroes 2
-
-`vault` has been rewritten from scratch to better support future development, which means Company of Heroes 2 parsing support has been deprecated. [The CoH2 parser and usage instructions can be found here](https://github.com/ryantaylor/vault/tree/v1.0.0). CoH2 replay parsing will continue to work with v1.0.0 of `vault`.
-
-# Serde
+## Serde
 
 `vault` implements [serde](https://serde.rs/)'s `Serialize` and `Deserialize` traits for all data structures that make up a parsed replay. These can be accessed via the `serde` feature:
 
@@ -103,6 +99,10 @@ fn main() {
     let deserialized: Replay = serde_json::from_str(&serialized).unwrap();
 }
 ```
+
+## Company of Heroes 2
+
+`vault` has been rewritten from scratch to better support future development, which means Company of Heroes 2 parsing support has been deprecated. [The CoH2 parser and usage instructions can be found here](https://github.com/ryantaylor/vault/tree/v1.0.0). CoH2 replay parsing will continue to work with v1.0.0 of `vault`.
 
 # Documentation
 
