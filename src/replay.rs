@@ -6,6 +6,7 @@ use player::{player_from_data, Player};
 use ParseError;
 
 #[derive(Debug)]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Replay"))]
 pub struct Replay {
     version: u16,
     timestamp: String,
