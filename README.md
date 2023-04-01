@@ -1,6 +1,6 @@
 # vault
 
-[![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](http://ryantaylor.github.io/vault/v2.0.0/vault/index.html)
+[![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/2.1.0/vault/)
 
 `vault` is a Company of Heroes replay parsing library written in [Rust](https://www.rust-lang.org/). It has been completely rewritten for Company of Heroes 3 to provide a more intuitive interface while simplifying the code and leveraging [nom](https://github.com/rust-bakery/nom)'s parser combinators to enable clean, fast parsing of Company of Heroes 3 replay files.
 
@@ -78,9 +78,35 @@ Note that all classes must be bound to the `Vault` namespace, with class names m
 
 `vault` has been rewritten from scratch to better support future development, which means Company of Heroes 2 parsing support has been deprecated. [The CoH2 parser and usage instructions can be found here](https://github.com/ryantaylor/vault/tree/v1.0.0). CoH2 replay parsing will continue to work with v1.0.0 of `vault`.
 
+# Serde
+
+`vault` implements [serde](https://serde.rs/)'s `Serialize` and `Deserialize` traits for all data structures that make up a parsed replay. These can be accessed via the `serde` feature:
+
+`Cargo.toml`:
+
+```toml
+[dependencies]
+vault = { version = "2", features = ["serde"] }
+```
+
+`src/main.rs`:
+
+```rust
+fn main() {
+    let data = include_bytes!("/path/to/replay.rec");
+    let replay = vault::Replay::from_bytes(data).unwrap();
+
+    // Convert the Replay to a JSON string.
+    let serialized = serde_json::to_string(&replay).unwrap();
+
+    // Convert the JSON string back to a Replay.
+    let deserialized: Replay = serde_json::from_str(&serialized).unwrap();
+}
+```
+
 # Documentation
 
-Documentation for `vault` [can be viewed online](http://ryantaylor.github.io/vault/v2.0.0/vault/index.html).
+Documentation for `vault` [can be viewed online](https://docs.rs/vault/2.1.0/vault/).
 
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
