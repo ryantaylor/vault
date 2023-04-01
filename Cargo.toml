@@ -7,7 +7,7 @@ description = "A parser for Company of Heroes replay files."
 homepage = "https://github.com/ryantaylor/vault"
 repository = "https://github.com/ryantaylor/vault"
 readme = "README.md"
-keywords = ["coh", "coh2", "coh3", "company", "heroes", "replay"]
+keywords = ["coh", "coh3", "company", "heroes", "replay"]
 license = "MIT"
 
 exclude = ["replays/*", "build-doc.sh", ".travis.yml"]
