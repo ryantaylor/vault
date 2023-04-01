@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Player","This type represents a Company of Heroes 2 player entity as it appears in a CoH2 replay file."]]});

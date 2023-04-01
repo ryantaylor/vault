@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Map","This type represents a Company of Heroes 2 map as presented in a CoH2 replay file."]]});
