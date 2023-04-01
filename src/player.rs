@@ -23,7 +23,7 @@ impl Player {
     pub fn faction(&self) -> Faction {
         self.faction
     }
-    pub fn team_id(&self) -> Team {
+    pub fn team(&self) -> Team {
         self.team
     }
     pub fn steam_id(&self) -> u64 {
