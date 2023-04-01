@@ -1,5 +1,5 @@
-use data::parser::parse_utf8_fixed;
-use data::{ParserResult, Span};
+use crate::data::parser::parse_utf8_fixed;
+use crate::data::{ParserResult, Span};
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::combinator::{cut, map};

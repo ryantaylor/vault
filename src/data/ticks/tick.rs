@@ -1,5 +1,5 @@
-use data::ticks::{CommandTick, MessageTick};
-use data::{ParserResult, Span};
+use crate::data::ticks::{CommandTick, MessageTick};
+use crate::data::{ParserResult, Span};
 use nom::branch::alt;
 
 #[derive(Debug)]

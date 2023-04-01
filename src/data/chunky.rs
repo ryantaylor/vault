@@ -1,5 +1,5 @@
-use data::parser::verify_le_u32;
-use data::{ParserResult, Span};
+use crate::data::parser::verify_le_u32;
+use crate::data::{ParserResult, Span};
 use nom::bytes::complete::tag;
 use nom::combinator::map;
 use nom::sequence::tuple;

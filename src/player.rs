@@ -1,8 +1,8 @@
 //! Representation of parsed player information.
 
-use data::ticks::Tick;
-use data::Player as PlayerData;
-use message::{messages_from_data, Message};
+use crate::data::ticks::Tick;
+use crate::data::Player as PlayerData;
+use crate::message::{messages_from_data, Message};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
@@ -113,7 +113,7 @@ impl TryFrom<&str> for Faction {
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Team"))]
 pub enum Team {
     First = 0,
-    Second = 1
+    Second = 1,
 }
 
 impl Team {

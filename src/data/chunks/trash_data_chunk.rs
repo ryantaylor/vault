@@ -1,5 +1,5 @@
-use data::chunks::{Chunk, Chunk::Data, Header};
-use data::{ParserResult, Span};
+use crate::data::chunks::{Chunk, Chunk::Data, Header};
+use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::map;
 

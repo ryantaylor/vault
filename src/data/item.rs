@@ -1,4 +1,4 @@
-use data::{ParserResult, Span};
+use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::{cut, flat_map, map, peek};
 use nom::number::complete::le_u32;

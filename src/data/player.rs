@@ -1,6 +1,6 @@
-use data::parser::{parse_utf16_variable, parse_utf8_variable};
-use data::Item;
-use data::{ParserResult, Span};
+use crate::data::parser::{parse_utf16_variable, parse_utf8_variable};
+use crate::data::Item;
+use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::{cut, map};
 use nom::multi::many_m_n;

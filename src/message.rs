@@ -1,7 +1,7 @@
 //! Representation of parsed message information.
 
-use data::ticks::Tick;
-use data::ticks::Tick::Message as MessageEnum;
+use crate::data::ticks::Tick;
+use crate::data::ticks::Tick::Message as MessageEnum;
 
 /// Representation of a user-sent chat message in a Company of Heroes 3 replay. Messages are
 /// collected during command parsing and then associated with the `Player` instance that sent them.
