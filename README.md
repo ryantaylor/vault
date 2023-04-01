@@ -1,6 +1,6 @@
 # vault
 
-[![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](http://ryantaylor.github.io/vault/vault/index.html)
+[![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](http://ryantaylor.github.io/vault/v2.0.0/vault/index.html)
 
 `vault` is a Company of Heroes replay parsing library written in [Rust](https://www.rust-lang.org/). It has been completely rewritten for Company of Heroes 3 to provide a more intuitive interface while simplifying the code and leveraging [nom](https://github.com/rust-bakery/nom)'s parser combinators to enable clean, fast parsing of Company of Heroes 3 replay files.
 
@@ -80,7 +80,7 @@ Note that all classes must be bound to the `Vault` namespace, with class names m
 
 # Documentation
 
-Documentation for `vault` [can be viewed online](http://ryantaylor.github.io/vault/vault/index.html).
+Documentation for `vault` [can be viewed online](http://ryantaylor.github.io/vault/v2.0.0/vault/index.html).
 
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
