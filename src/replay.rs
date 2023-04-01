@@ -6,12 +6,15 @@ use crate::player::{player_from_data, Player};
 use crate::ParseError;
 use nom_locate::LocatedSpan;
 use nom_tracable::TracableInfo;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// A complete representation of all information able to be parsed from a Company of Heroes 3
 /// replay. Note that parsing is not yet exhaustive, and iterative improvements will be made to
 /// pull more information from replay files over time.
 
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Replay"))]
 pub struct Replay {
     version: u16,

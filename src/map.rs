@@ -1,11 +1,14 @@
 //! Representation of parsed map information.
 
 use crate::data::chunks::DataSdscChunk;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Representation of all map-related information that can be parsed from a Company of Heroes 3
 /// replay
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Map"))]
 pub struct Map {
     filename: String,
