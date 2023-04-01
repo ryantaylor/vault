@@ -33,8 +33,8 @@ impl Replay {
     pub fn matchhistory_id(&self) -> u64 {
         self.matchhistory_id
     }
-    pub fn map(&self) -> &Map {
-        &self.map
+    pub fn map(&self) -> Map {
+        self.map.clone()
     }
     pub fn map_filename(&self) -> &str {
         self.map.filename()
@@ -45,8 +45,8 @@ impl Replay {
     pub fn map_localized_description_id(&self) -> &str {
         self.map.localized_description_id()
     }
-    pub fn players(&self) -> &Vec<Player> {
-        &self.players
+    pub fn players(&self) -> Vec<Player> {
+        self.players.clone()
     }
     pub fn length(&self) -> usize {
         self.length

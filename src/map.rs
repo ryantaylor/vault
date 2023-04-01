@@ -1,6 +1,6 @@
 use data::chunks::DataSdscChunk;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Map"))]
 pub struct Map {
     filename: String,
