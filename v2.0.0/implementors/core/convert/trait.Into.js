@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"rb_sys":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.67.1/core/convert/trait.Into.html\" title=\"trait core::convert::Into\">Into</a>&lt;<a class=\"primitive\" href=\"https://doc.rust-lang.org/1.67.1/std/primitive.u64.html\">u64</a>&gt; for <a class=\"enum\" href=\"rb_sys/bindings/enum.ruby_special_consts.html\" title=\"enum rb_sys::bindings::ruby_special_consts\">ruby_special_consts</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

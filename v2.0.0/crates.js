@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["bytecount","byteorder","magnus","magnus_macros","memchr","minimal_lexical","nom","nom_locate","nom_tracable","nom_tracable_macros","proc_macro2","quote","rb_sys","serde","serde_derive","syn","unicode_ident","vault"];
+window.ALL_CRATES = ["bytecount","byteorder","memchr","minimal_lexical","nom","nom_locate","nom_tracable","nom_tracable_macros","proc_macro2","quote","syn","unicode_ident","vault"];

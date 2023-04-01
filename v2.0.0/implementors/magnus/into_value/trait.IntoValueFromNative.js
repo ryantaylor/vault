@@ -1,4 +1,0 @@
-(function() {var implementors = {
-"magnus":[],
-"vault":[["impl <a class=\"trait\" href=\"magnus/into_value/trait.IntoValueFromNative.html\" title=\"trait magnus::into_value::IntoValueFromNative\">IntoValueFromNative</a> for <a class=\"struct\" href=\"vault/struct.Message.html\" title=\"struct vault::Message\">Message</a>"],["impl <a class=\"trait\" href=\"magnus/into_value/trait.IntoValueFromNative.html\" title=\"trait magnus::into_value::IntoValueFromNative\">IntoValueFromNative</a> for <a class=\"struct\" href=\"vault/struct.Player.html\" title=\"struct vault::Player\">Player</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

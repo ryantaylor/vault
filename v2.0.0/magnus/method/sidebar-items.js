@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"trait":[["BlockReturn","Trait marking types that can be returned to Ruby from a block."],["InitReturn","Trait marking types that can be returned to Ruby from a library `init` function."],["Method","Trait implemented for function pointers that can be registed as Ruby methods."],["ReturnValue","Trait marking types that can be returned to Ruby."]]};
