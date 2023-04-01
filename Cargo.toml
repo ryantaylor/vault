@@ -12,10 +12,6 @@ license = "MIT"
 
 exclude = ["replays/*", "build-doc.sh", ".travis.yml"]
 
-[lib]
-name = "vault"
-crate-type = ["dylib", "rlib"]
-
 [dependencies]
 byteorder = "1"
 magnus = { version = "0.5", optional = true }

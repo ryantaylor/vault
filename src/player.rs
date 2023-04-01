@@ -4,6 +4,7 @@ use message::{messages_from_data, Message};
 use std::convert::TryFrom;
 
 #[derive(Debug)]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Player"))]
 pub struct Player {
     name: String,
     faction: Faction,

@@ -2,6 +2,7 @@ use data::ticks::Tick;
 use data::ticks::Tick::Message as MessageEnum;
 
 #[derive(Debug)]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Message"))]
 pub struct Message {
     tick: u32,
     message: String,
