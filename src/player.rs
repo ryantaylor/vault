@@ -26,9 +26,7 @@ impl Player {
     pub fn profile_id(&self) -> u64 {
         self.profile_id
     }
-    pub fn messages(&self) -> &Vec<Message> {
-        &self.messages
-    }
+    pub fn messages(&self) -> Vec<Message> { self.messages.clone() }
 }
 
 pub fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
@@ -41,7 +39,12 @@ pub fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
     }
 }
 
+// this is safe as Player does not contain any Ruby types
+#[cfg(feature = "magnus")]
+unsafe impl magnus::IntoValueFromNative for Player {}
+
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Faction"))]
 pub enum Faction {
     Americans,
     British,

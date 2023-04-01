@@ -49,3 +49,7 @@ pub fn messages_from_data(data: Vec<&Tick>, player_name: &str) -> Vec<Message> {
         })
         .collect()
 }
+
+// this is safe as Message does not contain any Ruby types
+#[cfg(feature = "magnus")]
+unsafe impl magnus::IntoValueFromNative for Message {}
