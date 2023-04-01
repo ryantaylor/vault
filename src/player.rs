@@ -2,6 +2,8 @@ use data::ticks::Tick;
 use data::Player as PlayerData;
 use message::{messages_from_data, Message};
 use std::convert::TryFrom;
+use std::fmt;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Player"))]
@@ -26,7 +28,9 @@ impl Player {
     pub fn profile_id(&self) -> u64 {
         self.profile_id
     }
-    pub fn messages(&self) -> Vec<Message> { self.messages.clone() }
+    pub fn messages(&self) -> Vec<Message> {
+        self.messages.clone()
+    }
 }
 
 pub fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
@@ -50,6 +54,17 @@ pub enum Faction {
     British,
     Wehrmacht,
     AfrikaKorps,
+}
+
+impl Display for Faction {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Faction::Americans => write!(f, "americans"),
+            Faction::British => write!(f, "british_africa"),
+            Faction::Wehrmacht => write!(f, "germans"),
+            Faction::AfrikaKorps => write!(f, "afrika_korps"),
+        }
+    }
 }
 
 impl TryFrom<&str> for Faction {
