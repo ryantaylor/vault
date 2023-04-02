@@ -6,9 +6,19 @@ use vault::Replay;
 
 #[test]
 fn parse_success() {
-    let data = include_bytes!("/Users/ryantaylor/Downloads/release.rec");
+    let data = include_bytes!("../replays/USvDAK_v10612.rec");
     let replay = Replay::from_bytes(data);
-    assert!(replay.is_ok())
+    assert!(replay.is_ok());
+    let unwrapped = replay.unwrap();
+    assert!(unwrapped.version() == 10612);
+    assert!(
+        unwrapped
+            .players()
+            .iter()
+            .map(|player| { player.name() })
+            .collect::<Vec<&str>>()
+            == vec!["madhax", "Quixalotl"]
+    );
 }
 
 #[test]
