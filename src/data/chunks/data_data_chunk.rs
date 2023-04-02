@@ -90,7 +90,6 @@ impl DataDataChunk {
         le_u32(input)
     }
 
-    #[tracable_parser]
     fn parse_players(version: u16) -> impl FnMut(Span) -> ParserResult<Vec<Player>> {
         move |input: Span| length_count(le_u32, Player::parse_player(version))(input)
     }
