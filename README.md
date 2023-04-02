@@ -104,6 +104,12 @@ fn main() {
 
 `vault` has been rewritten from scratch to better support future development, which means Company of Heroes 2 parsing support has been deprecated. [The CoH2 parser and usage instructions can be found here](https://github.com/ryantaylor/vault/tree/v1.0.0). CoH2 replay parsing will continue to work with v1.0.0 of `vault`.
 
+# Compatibility
+
+Official minimum supported Rust version is 1.61.0, because this is the version magnus requires. However, building without Ruby bindings should be fine on any compiler version that supports Rust 2021, though this isn't officially supported.
+
+Ruby bindings have some additional compatibility requirements, such as libclang and minimum Ruby version requirements. For more information see [magnus compatibility](https://github.com/matsadler/magnus#compatibility).
+
 # Documentation
 
 Documentation for `vault` [can be viewed online](https://docs.rs/vault/2.1.1/vault/).
