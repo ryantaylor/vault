@@ -1,0 +1,305 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+LittleEndian();
+
+local uint16 global_version = 0;
+
+struct HEADER {
+    uint16 zero;
+    global_version = ReadShort();
+    uint16 version;
+    char name[];
+    wstring timestamp;
+};
+
+HEADER h;
+
+while(ReadUShort() == 0)
+    FSkip(2);
+
+struct CHUNKY {
+    char name[12];
+    uint32 signature;
+    uint32 major_version;
+    uint32 minor_version;
+};
+
+CHUNKY c;
+
+struct CHUNKHEADER {
+    char kind[4];
+    char type[4];
+    uint32 version;
+    uint32 length;
+    uint32 name_length;
+};
+
+struct ITEM {
+    uint32 count;
+    uint32 id_a;
+    if (id_a == 0) {
+        uint32 sublength_maybe;
+        uint32 id_a_actual;
+    }
+    uint16 player_id_a;
+    char zeroes_a[5];
+    uint32 id_b;
+    uint16 player_id_b;
+    char zeroes_b[5];
+    uint16 flag_a;
+    uint32 length;
+    local uint32 start = FTell();
+    uint64 iteminstance_id;
+    uint64 some_flag;
+    uint64 itemdefinition_id;
+    uint64 profile_id;
+    uint32 durability;
+    uint32 durability_type;
+    ubyte some_other_flag;
+    uint32 metadata_length;
+    char metadata[metadata_length];
+    uint64 some_crazy_number;
+    uint64 itemlocation_id;
+    char rest_data[length - (FTell() - start)];
+};
+
+uint32 GetItemCount(char faction[])
+{
+    if (global_version < 10000) {
+        if (faction == "british_africa")
+            return 21;
+        else if (faction == "americans")
+            return 22;
+        else
+            return 25;
+    } else {
+        if (faction == "british_africa")
+            return 21;
+        else if (faction == "americans")
+            return 22;
+        else if (faction == "germans")
+            return 25;
+        else
+            return 28;
+    }
+}
+
+struct PLAYER {
+    ubyte byte_flag;
+    uint32 name_length;
+    wchar_t name[name_length];
+    uint32 team;
+    uint32 second_flag;
+    ubyte small_flag;
+    uint32 faction_length;
+    char faction[faction_length];
+    uint32 length_maybe;
+    uint32 another_flag;
+    uint32 ai_length;
+    char ai[ai_length];
+    uint32 max_one;
+    uint32 zero_one;
+    char maxes[20];
+    uint32 zero_two;
+    uint32 one_one;
+    uint32 zero_three;
+    uint64 profile_id;
+    ubyte short_zero;
+    uint32 steam_id_length;
+    wchar_t steam_id[steam_id_length];
+    uint32 zero_five;
+    uint32 flag_a;
+    uint32 flag_b;
+    uint32 flag_c;
+    uint16 flag_d;
+    ITEM items[GetItemCount(faction)] <optimize=false>;
+    uint32 zero_six;
+};
+
+struct DATADATACHUNK {
+    CHUNKHEADER header;
+    local uint32 start = FTell();
+    if(header.version == 1)
+        char data[header.length];
+    else {
+        uint32 opponent_type;
+        char data[6];
+        uint32 num_players;
+        PLAYER players[num_players] <optimize=false>;
+        uint32 length_a;
+        char data_a[length_a];
+        uint32 zero_a;
+        uint64 matchhistory_id;
+        uint32 some_flag_probs_not_length;
+        char data_b[20];
+        uint32 resource_section_length;
+        char resource_section[resource_section_length];
+        uint32 one_a;
+        uint32 option_resources_length;
+        char option_resources[option_resources_length];
+        uint32 zero_c;
+        uint32 section_tickets_length;
+        char section_tickets[section_tickets_length];
+        uint32 one_b;
+        uint32 option_tickets_length;
+        char option_tickets[option_tickets_length];
+        uint32 flag_b;
+        uint32 zero_d;
+        uint32 zero_e;
+        uint32 zero_f;
+        uint32 some_string_length;
+        char some_string[some_string_length];
+        FSeek(start + header.length);
+    }
+        
+};
+
+struct DATAPLASCHUNK {
+    CHUNKHEADER header;
+    char data[header.length];
+};
+
+struct DATAGRIFCHUNK {
+    CHUNKHEADER header;
+    char data[header.length];
+};
+
+struct DATASAVPCHUNK {
+    CHUNKHEADER header;
+    char data[header.length];
+};
+
+struct DATASDSCCHUNK {
+    CHUNKHEADER header;
+    local uint32 start = FTell();
+    char data[121];
+    uint32 map_file_length;
+    char map_file[map_file_length];
+    uint32 map_name_length;
+    wchar_t map_name[map_name_length];
+    uint32 zero_a;
+    uint32 map_description_length;
+    wchar_t map_description[map_description_length];
+    char rest_data[header.length - (FTell() - start)];
+};
+
+struct FOLDPOSTCHUNK {
+    CHUNKHEADER header;
+    DATADATACHUNK data_chunk;
+};
+
+struct FOLDINFOCHUNK {
+    CHUNKHEADER header;
+    DATADATACHUNK data_chunk;
+    DATAPLASCHUNK plas_chunk;
+    DATAGRIFCHUNK grif_chunk;
+    DATASAVPCHUNK savp_chunk;
+    DATASDSCCHUNK sdsc_chunk;
+};
+
+struct TICK_BUNDLE_PART {
+    ubyte bundle_part_length;
+    ubyte some_zero_maybe;
+    ubyte action_type;
+    ubyte base_location;
+    ubyte some_id;
+    ubyte player_id;
+    uint16 current_num_of_tick_size_maybe;
+    uint16 some_num;
+    ubyte command_type;
+    ubyte target_id_maybe;
+    ubyte command_sub_id;
+    char data[bundle_part_length - 12];
+};
+
+struct CMD_BUILDSQUAD {
+    char zeroes[6];
+    uint32 some_nonsense;
+    uint16 maybe_one;
+    uint16 maybe_zero;
+    uint32 maybe_thousand;
+    uint32 kinda_zero;
+    char lotta_stuff[7];
+    uint32 pgbid;
+    uint32 maybe_thousand_again;
+    ubyte zero_byte;
+};
+
+struct TICK_BUNDLE {
+    uint32 bundle_num;
+    uint32 some_num;
+    uint32 bundle_length;
+    uint16 checksum;
+    ubyte action_type;
+    ubyte base_location;
+    ubyte some_player_id_part_maybe;
+    ubyte player_id;
+    local uint32 start = FTell();
+    switch (action_type) {
+        case 3: CMD_BUILDSQUAD build_squad_action; break;
+        default: break;
+    }
+    char remainder[bundle_length - (FTell() - start) - 6];
+};
+
+struct TICK {
+    uint32 tick_type;
+    uint32 tick_size;
+    ubyte some_id;
+    uint32 tick_id;
+    uint32 some_big_num;
+    uint32 bundle_size;
+    TICK_BUNDLE bundles[bundle_size] <optimize=false>;
+};
+
+struct MESSAGE_BODY {
+    uint32 name_length;
+    wchar_t player_name[name_length];
+    uint32 message_length;
+    wchar_t message[message_length];
+};
+
+struct MESSAGE {
+    uint32 tick_type;
+    uint32 tick_size;
+    uint32 num_messages;
+    uint32 message_length;
+    
+    if (num_messages == 0) {
+        char data[message_length];
+    } else {
+        uint32 some_flag;
+        uint32 some_other_flag;
+        uint32 some_third_flag;
+    }
+
+    local int i = 0;
+    for (i = 0; i < num_messages; i++) {
+        MESSAGE_BODY body;
+    }
+};
+
+struct TICKS {
+    while (!FEof()) {
+        if (ReadUInt() == 0) TICK tick;
+        else MESSAGE message;
+    }
+};
+
+FOLDPOSTCHUNK f;
+
+CHUNKY c2;
+
+FOLDINFOCHUNK f2;
+
+TICKS ticks;
