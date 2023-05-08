@@ -1,6 +1,6 @@
 # vault
 
-[![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/2.1.1/vault/)
+[![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/3.0.0/vault/)
 
 `vault` is a Company of Heroes replay parsing library written in [Rust](https://www.rust-lang.org/). It has been completely rewritten for Company of Heroes 3 to provide a more intuitive interface while simplifying the code and leveraging [nom](https://github.com/rust-bakery/nom)'s parser combinators to enable clean, fast parsing of Company of Heroes 3 replay files.
 
@@ -16,7 +16,7 @@ If you are writing a Rust application, you can use `vault` from [crates.io](http
 
 ```toml
 [dependencies]
-vault = "2"
+vault = "3"
 ```
 
 `src/main.rs`:
@@ -37,7 +37,7 @@ fn main() {
 
 ```toml
 [dependencies]
-vault = { version = "2", features = ["magnus"] }
+vault = { version = "3", features = ["magnus"] }
 ```
 
 `src/lib.rs`:
@@ -47,7 +47,7 @@ use magnus::{class, define_module, exception, function, method, prelude::*, Erro
 
 #[magnus::init]
 fn init() -> Result<(), Error> {
-    let module = define_module("Vault")?;
+    let module = define_module("VaultCoh")?;
 
     let replay = module.define_class("Replay", class::object())?;
     replay.define_singleton_method("from_bytes", function!(from_bytes, 1))?;
@@ -68,11 +68,11 @@ fn from_bytes(input: Vec<u8>) -> Result<vault::Replay, Error> {
 require 'vault'
 
 bytes = File.open('/path/to/replay.rec').read.unpack('C*')
-replay = Vault::Replay.from_bytes(bytes)
+replay = VaultCoh::Replay.from_bytes(bytes)
 puts replay.version
 ```
 
-Note that all classes must be bound to the `Vault` namespace, with class names matching their Rust counterparts. For an example of this functionality in action, see [vault-rb](https://github.com/ryantaylor/vault-rb).
+Note that all classes must be bound to the `VaultCoh` namespace, with class names matching their Rust counterparts. For an example of this functionality in action, see [vault-rb](https://github.com/ryantaylor/vault-rb).
 
 ## Serde
 
@@ -82,7 +82,7 @@ Note that all classes must be bound to the `Vault` namespace, with class names m
 
 ```toml
 [dependencies]
-vault = { version = "2", features = ["serde"] }
+vault = { version = "3", features = ["serde"] }
 ```
 
 `src/main.rs`:

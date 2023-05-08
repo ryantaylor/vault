@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Map"))]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Map"))]
 pub struct Map {
     filename: String,
     localized_name_id: String,

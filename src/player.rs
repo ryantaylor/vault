@@ -14,7 +14,7 @@ use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Player"))]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Player"))]
 pub struct Player {
     name: String,
     faction: Faction,
@@ -78,7 +78,7 @@ unsafe impl magnus::IntoValueFromNative for Player {}
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Faction"))]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Faction"))]
 pub enum Faction {
     Americans,
     British,
@@ -115,7 +115,7 @@ impl TryFrom<&str> for Faction {
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Team"))]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Team"))]
 pub enum Team {
     First = 0,
     Second = 1,
