@@ -1,14 +1,15 @@
 //------------------------------------------------
 //--- 010 Editor v13.0.1 Binary Template
 //
-//      File: 
-//   Authors: 
-//   Version: 
-//   Purpose: 
-//  Category: 
-// File Mask: 
+//      File: CoH3Rec.bt
+//   Authors: Ryan Taylor
+//   Version: 0.1.0
+//   Purpose: Parse Company of Heroes 3 replay files.
+//  Category: Game
+// File Mask: *.rec
 //  ID Bytes: 
 //   History: 
+//   0.1.0 2023-04-16 Ryan Taylor: Initial submission
 //------------------------------------------------
 LittleEndian();
 
