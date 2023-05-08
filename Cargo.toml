@@ -11,7 +11,7 @@ readme = "README.md"
 keywords = ["coh", "coh3", "company", "heroes", "replay"]
 license = "MIT"
 
-exclude = ["replays/*", "build-doc.sh", ".travis.yml"]
+exclude = ["replays/*", "build-doc.sh", ".travis.yml", "CoH3Rec.bt"]
 
 [dependencies]
 byteorder = "1"
