@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Message"))]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Message"))]
 pub struct Message {
     tick: u32,
     message: String,

@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "magnus", magnus::wrap(class = "Vault::Replay"))]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Replay"))]
 pub struct Replay {
     version: u16,
     timestamp: String,
