@@ -31,7 +31,7 @@ pub fn command_from_data(data: &CommandData, tick: i32) -> (u8, Command) {
     }
 }
 
-pub fn commands_from_data(data: &Vec<&Tick>, player_id: u32) -> Vec<Command> {
+pub fn commands_from_data(data: &[&Tick], player_id: u32) -> Vec<Command> {
     let mut tick_count = 0;
 
     data.iter()
