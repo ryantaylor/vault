@@ -1,11 +1,9 @@
 use crate::data::commands::CommandData;
-use crate::data::parser::verify_le_u32;
-use crate::data::ticks::Tick;
 use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
-use nom::combinator::{flat_map, map, map_parser};
+use nom::combinator::map;
 use nom::multi::length_value;
-use nom::number::complete::{le_u32, le_u8};
+use nom::number::complete::le_u32;
 use nom::sequence::tuple;
 use nom_tracable::tracable_parser;
 

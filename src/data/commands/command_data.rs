@@ -1,4 +1,3 @@
-use crate::data::commands::CommandData::UnknownCommandData;
 use crate::data::commands::{BuildSquad, Unknown};
 use crate::data::{ParserResult, Span};
 use nom::branch::alt;

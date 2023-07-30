@@ -2,7 +2,7 @@ use crate::data::chunks::{Chunk, Chunk::DataData, Header, TrashDataChunk};
 use crate::data::parser::parse_utf8_variable;
 use crate::data::{ParserResult, Player, Span};
 use nom::bytes::complete::take;
-use nom::combinator::{cut, flat_map, map, map_parser};
+use nom::combinator::{cut, map, map_parser};
 use nom::multi::{length_count, length_data};
 use nom::number::complete::{le_u32, le_u64};
 use nom::sequence::tuple;

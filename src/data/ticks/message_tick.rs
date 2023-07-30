@@ -1,7 +1,6 @@
 use crate::data::ticks::{Message, Tick};
 use crate::data::{ParserResult, Span};
-use nom::bytes::complete::take;
-use nom::combinator::{cut, flat_map, map, map_parser, peek};
+use nom::combinator::{cut, map, peek};
 use nom::multi::{length_data, length_value, many_m_n};
 use nom::number::complete::le_u32;
 use nom::sequence::tuple;

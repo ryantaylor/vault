@@ -32,7 +32,9 @@ impl Unknown {
     }
     /// This value identifies the type of the command (build, move, stop, etc.). Commands with
     /// similar functionality can be grouped by this value.
-    pub fn action_type(&self) -> u8 { self.action_type }
+    pub fn action_type(&self) -> u8 {
+        self.action_type
+    }
 }
 
 pub fn from_data(data: &UnknownData, tick: i32) -> Unknown {
