@@ -10,6 +10,7 @@ use nom::IResult;
 
 #[derive(Debug)]
 pub struct Player {
+    pub id: u32,
     pub name: String,
     pub team: u32,
     pub faction: String,
@@ -27,7 +28,8 @@ impl Player {
                     take(1u32),
                     Self::parse_name,
                     Self::parse_team,
-                    take(5u32),
+                    le_u32,
+                    take(1u32),
                     Self::parse_faction,
                     take(8u32),
                     Self::parse_ai,
@@ -37,14 +39,17 @@ impl Player {
                     Self::parse_steam_id,
                     take(18u32),
                 )),
-                |(_, name, team, _, faction, _, ai_type, _, profile_id, _, steam_id, _)| Player {
-                    name,
-                    team,
-                    faction,
-                    ai_type,
-                    steam_id,
-                    profile_id,
-                    items: vec![],
+                |(_, name, team, id, _, faction, _, ai_type, _, profile_id, _, steam_id, _)| {
+                    Player {
+                        id,
+                        name,
+                        team,
+                        faction,
+                        ai_type,
+                        steam_id,
+                        profile_id,
+                        items: vec![],
+                    }
                 },
             ))(input)?;
 

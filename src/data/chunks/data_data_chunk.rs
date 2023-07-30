@@ -3,7 +3,7 @@ use crate::data::parser::parse_utf8_variable;
 use crate::data::{ParserResult, Player, Span};
 use nom::bytes::complete::take;
 use nom::combinator::{cut, flat_map, map, map_parser};
-use nom::multi::length_count;
+use nom::multi::{length_count, length_data};
 use nom::number::complete::{le_u32, le_u64};
 use nom::sequence::tuple;
 use nom_tracable::tracable_parser;
@@ -35,7 +35,7 @@ impl DataDataChunk {
                     Self::parse_opponent_type,
                     take(6u32),
                     Self::parse_players(version),
-                    flat_map(le_u32, take),
+                    length_data(le_u32),
                     take(4u32),
                     le_u64,
                     take(4u32),

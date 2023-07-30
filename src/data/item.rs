@@ -1,6 +1,7 @@
 use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::{cut, flat_map, map, peek};
+use nom::multi::length_data;
 use nom::number::complete::le_u32;
 use nom::sequence::tuple;
 
@@ -16,7 +17,7 @@ impl Item {
                 take(4u32),
                 Self::parse_sublength,
                 take(20u32),
-                flat_map(le_u32, take),
+                length_data(le_u32),
             )),
             |(_, _, _, data)| Item {
                 data: data.to_vec(),

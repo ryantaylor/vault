@@ -2,7 +2,7 @@ use crate::data::ticks::{Message, Tick};
 use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::{cut, flat_map, map, map_parser, peek};
-use nom::multi::many_m_n;
+use nom::multi::{length_data, length_value, many_m_n};
 use nom::number::complete::le_u32;
 use nom::sequence::tuple;
 
@@ -16,10 +16,7 @@ pub struct MessageTick {
 impl MessageTick {
     pub fn parse_tick(input: Span) -> ParserResult<Tick> {
         map(
-            tuple((
-                le_u32,
-                map_parser(flat_map(le_u32, take), Self::parse_message),
-            )),
+            tuple((le_u32, length_value(le_u32, Self::parse_message))),
             |(tick_type, messages)| {
                 Tick::Message(MessageTick {
                     tick_type,
@@ -41,7 +38,7 @@ impl MessageTick {
     }
 
     fn parse_empty_message(input: Span) -> ParserResult<Vec<Message>> {
-        cut(map(tuple((le_u32, flat_map(le_u32, take))), |(_, _)| {
+        cut(map(tuple((le_u32, length_data(le_u32))), |(_, _)| {
             Vec::new()
         }))(input)
     }
