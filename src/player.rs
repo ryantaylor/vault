@@ -1,6 +1,6 @@
 //! Representation of parsed player information.
 
-use crate::commands::{commands_from_data, Command};
+use crate::commands::{commands_from_data, BuildSquad, Command};
 use crate::data::ticks::Tick;
 use crate::data::Player as PlayerData;
 use crate::message::{messages_from_data, Message};
@@ -64,6 +64,21 @@ impl Player {
     /// first to last.
     pub fn commands(&self) -> Vec<Command> {
         self.commands.clone()
+    }
+
+    /// A list of only build-related commands executed by the player in the match. A build command
+    /// is any that enqueues the construction of a new unit. Sorted chronologically from first to
+    /// last.
+    pub fn build_commands(&self) -> Vec<BuildSquad> {
+        self.commands
+            .clone()
+            .into_iter()
+            .filter(|command| matches!(command, Command::BuildSquadCommand(_)))
+            .map(|entry| match entry {
+                Command::BuildSquadCommand(command) => command,
+                _ => panic!(),
+            })
+            .collect()
     }
 }
 
