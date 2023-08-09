@@ -10,7 +10,6 @@ use nom_tracable::tracable_parser;
 
 #[derive(Debug)]
 pub struct BuildSquad {
-    pub base_location: u8,
     pub player_id: u8,
     pub pgbid: u32,
 }
@@ -23,14 +22,11 @@ impl BuildSquad {
                 take(2u32),
                 Self::verify_action_type,
                 le_u8,
-                take(1u32),
-                le_u8,
-                take(29u32),
+                take(31u32),
                 le_u32,
             )),
-            |(_, _, base_location, _, player_id, _, pgbid)| {
+            |(_, _, player_id, _, pgbid)| {
                 BuildSquadData(BuildSquad {
-                    base_location,
                     player_id,
                     pgbid,
                 })

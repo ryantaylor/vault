@@ -10,7 +10,6 @@ use nom_tracable::tracable_parser;
 #[derive(Debug)]
 pub struct Unknown {
     pub action_type: u8,
-    pub base_location: u8,
     pub player_id: u8,
 }
 
@@ -18,11 +17,10 @@ impl Unknown {
     #[tracable_parser]
     pub fn parse_command(input: Span) -> ParserResult<CommandData> {
         map(
-            tuple((take(2u32), le_u8, le_u8, take(1u32), le_u8)),
-            |(_, action_type, base_location, _, player_id)| {
+            tuple((take(2u32), le_u8, le_u8)),
+            |(_, action_type, player_id)| {
                 UnknownCommandData(Unknown {
                     action_type,
-                    base_location,
                     player_id,
                 })
             },
