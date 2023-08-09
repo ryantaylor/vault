@@ -82,7 +82,7 @@ impl Player {
     }
 }
 
-pub fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
+pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
     Player {
         name: player_data.name.clone(),
         faction: Faction::try_from(player_data.faction.as_ref()).unwrap(),
