@@ -14,9 +14,15 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Command"))]
 pub enum Command {
-    #[cfg_attr(feature = "magnus", magnus(class = "VaultCoh::Commands::BuildSquadCommand"))]
+    #[cfg_attr(
+        feature = "magnus",
+        magnus(class = "VaultCoh::Commands::BuildSquadCommand")
+    )]
     BuildSquadCommand(BuildSquad),
-    #[cfg_attr(feature = "magnus", magnus(class = "VaultCoh::Commands::UnknownCommand"))]
+    #[cfg_attr(
+        feature = "magnus",
+        magnus(class = "VaultCoh::Commands::UnknownCommand")
+    )]
     UnknownCommand(Unknown),
 }
 

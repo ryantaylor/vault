@@ -25,12 +25,7 @@ impl BuildSquad {
                 take(31u32),
                 le_u32,
             )),
-            |(_, _, player_id, _, pgbid)| {
-                BuildSquadData(BuildSquad {
-                    player_id,
-                    pgbid,
-                })
-            },
+            |(_, _, player_id, _, pgbid)| BuildSquadData(BuildSquad { player_id, pgbid }),
         )(input)
     }
 
