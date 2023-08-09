@@ -14,8 +14,30 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Command"))]
 pub enum Command {
+    #[cfg_attr(feature = "magnus", magnus(class = "VaultCoh::Commands::BuildSquadCommand"))]
     BuildSquadCommand(BuildSquad),
+    #[cfg_attr(feature = "magnus", magnus(class = "VaultCoh::Commands::UnknownCommand"))]
     UnknownCommand(Unknown),
+}
+
+impl Command {
+    #[cfg(feature = "magnus")]
+    pub fn extract_build_squad(&self) -> BuildSquad {
+        if let BuildSquadCommand(command) = self {
+            command.clone()
+        } else {
+            panic!()
+        }
+    }
+
+    #[cfg(feature = "magnus")]
+    pub fn extract_unknown(&self) -> Unknown {
+        if let UnknownCommand(command) = self {
+            command.clone()
+        } else {
+            panic!()
+        }
+    }
 }
 
 pub fn command_from_data(data: &CommandData, tick: i32) -> (u8, Command) {
@@ -62,3 +84,7 @@ pub fn commands_from_data(data: &[&Tick], player_id: u32) -> Vec<Command> {
         })
         .collect()
 }
+
+// this is safe as Command does not contain any Ruby types
+#[cfg(feature = "magnus")]
+unsafe impl magnus::IntoValueFromNative for Command {}

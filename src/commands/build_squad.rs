@@ -47,3 +47,7 @@ pub fn from_data(data: &BuildSquadData, tick: i32) -> BuildSquad {
         pbgid: data.pgbid,
     }
 }
+
+// this is safe as BuildSquad does not contain any Ruby types
+#[cfg(feature = "magnus")]
+unsafe impl magnus::IntoValueFromNative for BuildSquad {}

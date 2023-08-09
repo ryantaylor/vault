@@ -43,3 +43,7 @@ pub fn from_data(data: &UnknownData, tick: i32) -> Unknown {
         action_type: data.action_type,
     }
 }
+
+// this is safe as Unknown does not contain any Ruby types
+#[cfg(feature = "magnus")]
+unsafe impl magnus::IntoValueFromNative for Unknown {}
