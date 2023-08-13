@@ -1,8 +1,9 @@
+use nom::branch::alt;
 use crate::data::chunks::{Chunk, Chunk::DataSdsc, Header};
-use crate::data::parser::{parse_utf16_variable, parse_utf8_variable};
+use crate::data::parser::{parse_utf16_variable, parse_utf8_variable, verify_le_u32};
 use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
-use nom::combinator::{cut, map, map_parser};
+use nom::combinator::{cut, map, map_parser, success};
 use nom::number::complete::le_u32;
 use nom::sequence::tuple;
 use nom_tracable::tracable_parser;
@@ -25,7 +26,7 @@ impl DataSdscChunk {
                     take(121u32),
                     Self::parse_map_file,
                     Self::parse_map_identifier,
-                    take(4u32),
+                    alt((verify_le_u32(0u32), success(0u32))),
                     Self::parse_map_identifier,
                 )),
                 |(_, map_file, map_name, _, map_description)| {

@@ -27,3 +27,13 @@ fn parse_failure() {
     let replay = Replay::from_bytes(&data);
     assert!(replay.is_err())
 }
+
+#[test]
+fn parse_weird_description() {
+    let data = include_bytes!("../replays/weird_description.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+    let unwrapped = replay.unwrap();
+    assert_eq!(unwrapped.map().localized_name_id(), "Twin Beaches ML");
+    assert_eq!(unwrapped.map().localized_description_id(), "TB ML");
+}
