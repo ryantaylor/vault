@@ -1,11 +1,14 @@
 //! Wrapper for Company of Heroes 3 player commands.
 
 use crate::commands::build_squad::from_data as build_squad_from_data;
+use crate::commands::select_battlegroup::from_data as select_battlegroup_from_data;
 use crate::commands::unknown::from_data as unknown_from_data;
-use crate::commands::Command::{BuildSquadCommand, UnknownCommand};
-use crate::commands::{BuildSquad, Unknown};
+use crate::commands::Command::{BuildSquadCommand, SelectBattlegroupCommand, UnknownCommand};
+use crate::commands::{BuildSquad, SelectBattlegroup, Unknown};
 use crate::data::commands::CommandData;
-use crate::data::commands::CommandData::{BuildSquadData, UnknownCommandData};
+use crate::data::commands::CommandData::{
+    BuildSquadData, SelectBattlegroupData, UnknownCommandData
+};
 use crate::data::ticks::Tick;
 use crate::data::ticks::Tick::Command as CommandEnum;
 #[cfg(feature = "serde")]
@@ -28,6 +31,11 @@ pub enum Command {
     BuildSquadCommand(BuildSquad),
     #[cfg_attr(
         feature = "magnus",
+        magnus(class = "VaultCoh::Commands::SelectBattlegroupCommand")
+    )]
+    SelectBattlegroupCommand(SelectBattlegroup),
+    #[cfg_attr(
+        feature = "magnus",
         magnus(class = "VaultCoh::Commands::UnknownCommand")
     )]
     UnknownCommand(Unknown),
@@ -37,6 +45,15 @@ impl Command {
     #[cfg(feature = "magnus")]
     pub fn extract_build_squad(&self) -> BuildSquad {
         if let BuildSquadCommand(command) = self {
+            command.clone()
+        } else {
+            panic!()
+        }
+    }
+
+    #[cfg(feature = "magnus")]
+    pub fn extract_select_battlegroup(&self) -> SelectBattlegroup {
+        if let SelectBattlegroupCommand(command) = self {
             command.clone()
         } else {
             panic!()
@@ -58,6 +75,10 @@ pub(crate) fn command_from_data(data: &CommandData, tick: i32) -> (u8, Command) 
         BuildSquadData(build_squad) => (
             build_squad.player_id,
             BuildSquadCommand(build_squad_from_data(build_squad, tick)),
+        ),
+        SelectBattlegroupData(select_battlegroup) => (
+            select_battlegroup.player_id,
+            SelectBattlegroupCommand(select_battlegroup_from_data(select_battlegroup, tick)),
         ),
         UnknownCommandData(unknown) => (
             unknown.player_id,
