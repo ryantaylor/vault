@@ -1,7 +1,7 @@
-use nom::branch::alt;
 use crate::data::chunks::{Chunk, Chunk::DataSdsc, Header};
 use crate::data::parser::{parse_utf16_variable, parse_utf8_variable, verify_le_u32};
 use crate::data::{ParserResult, Span};
+use nom::branch::alt;
 use nom::bytes::complete::take;
 use nom::combinator::{cut, map, map_parser, success};
 use nom::number::complete::le_u32;
