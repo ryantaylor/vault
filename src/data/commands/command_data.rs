@@ -5,9 +5,9 @@ use nom_tracable::tracable_parser;
 
 #[derive(Debug)]
 pub enum CommandData {
-    BuildSquadData(BuildSquad),
-    SelectBattlegroupData(SelectBattlegroup),
-    UnknownCommandData(Unknown),
+    BuildSquad(BuildSquad),
+    SelectBattlegroup(SelectBattlegroup),
+    Unknown(Unknown),
 }
 
 impl CommandData {

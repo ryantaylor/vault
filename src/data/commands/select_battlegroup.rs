@@ -1,5 +1,4 @@
 use crate::data::commands::CommandData;
-use crate::data::commands::CommandData::SelectBattlegroupData;
 use crate::data::parser::verify_le_u8;
 use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
@@ -26,7 +25,7 @@ impl SelectBattlegroup {
                 le_u32,
             )),
             |(_, _, player_id, _, pgbid)| {
-                SelectBattlegroupData(SelectBattlegroup { player_id, pgbid })
+                CommandData::SelectBattlegroup(SelectBattlegroup { player_id, pgbid })
             },
         )(input)
     }

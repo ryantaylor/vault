@@ -79,9 +79,9 @@ impl Player {
         self.commands
             .clone()
             .into_iter()
-            .filter(|command| matches!(command, Command::BuildSquadCommand(_)))
+            .filter(|command| matches!(command, Command::BuildSquad(_)))
             .map(|entry| match entry {
-                Command::BuildSquadCommand(command) => command,
+                Command::BuildSquad(command) => command,
                 _ => panic!(),
             })
             .collect()
@@ -103,9 +103,9 @@ pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> P
     player.battlegroup = match player
         .commands
         .iter()
-        .find(|&command| matches!(command, Command::SelectBattlegroupCommand(_)))
+        .find(|&command| matches!(command, Command::SelectBattlegroup(_)))
     {
-        Some(Command::SelectBattlegroupCommand(command)) => Some(command.pbgid()),
+        Some(Command::SelectBattlegroup(command)) => Some(command.pbgid()),
         Some(_) => panic!(),
         None => None,
     };
