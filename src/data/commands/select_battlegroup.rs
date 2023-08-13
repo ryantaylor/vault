@@ -8,12 +8,12 @@ use nom::sequence::tuple;
 use nom_tracable::tracable_parser;
 
 #[derive(Debug)]
-pub struct BuildSquad {
+pub struct SelectBattlegroup {
     pub player_id: u8,
     pub pgbid: u32,
 }
 
-impl BuildSquad {
+impl SelectBattlegroup {
     #[tracable_parser]
     pub fn parse_command(input: Span) -> ParserResult<CommandData> {
         map(
@@ -24,11 +24,13 @@ impl BuildSquad {
                 take(31u32),
                 le_u32,
             )),
-            |(_, _, player_id, _, pgbid)| CommandData::BuildSquad(BuildSquad { player_id, pgbid }),
+            |(_, _, player_id, _, pgbid)| {
+                CommandData::SelectBattlegroup(SelectBattlegroup { player_id, pgbid })
+            },
         )(input)
     }
 
     fn verify_action_type(input: Span) -> ParserResult<u8> {
-        verify_le_u8(3u8)(input)
+        verify_le_u8(136u8)(input)
     }
 }

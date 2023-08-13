@@ -37,3 +37,17 @@ fn parse_weird_description() {
     assert_eq!(unwrapped.map().localized_name_id(), "Twin Beaches ML");
     assert_eq!(unwrapped.map().localized_description_id(), "TB ML");
 }
+
+#[test]
+fn parse_battlegroup() {
+    let data = include_bytes!("../replays/USvDAK_v10612.rec");
+    let replay = Replay::from_bytes(data).unwrap();
+    assert_eq!(
+        replay
+            .players()
+            .iter()
+            .map(|player| { player.battlegroup() })
+            .collect::<Vec<Option<u32>>>(),
+        vec![Some(2072430), Some(196934)]
+    );
+}

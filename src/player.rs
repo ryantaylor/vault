@@ -20,6 +20,7 @@ pub struct Player {
     name: String,
     faction: Faction,
     team: Team,
+    battlegroup: Option<u32>,
     steam_id: u64,
     profile_id: u64,
     messages: Vec<Message>,
@@ -42,6 +43,11 @@ impl Player {
     /// (max two teams).
     pub fn team(&self) -> Team {
         self.team
+    }
+    /// The pbgid of the battlegroup the player selected, or `None` if no battlegroup was selected.
+    /// For details on what this ID represents please see `SelectBattlegroup::pbgid`.
+    pub fn battlegroup(&self) -> Option<u32> {
+        self.battlegroup
     }
     /// The Steam ID of the player. This ID can be used to uniquely identify a player between
     /// replays, and connect them to their Steam profile.
@@ -73,9 +79,9 @@ impl Player {
         self.commands
             .clone()
             .into_iter()
-            .filter(|command| matches!(command, Command::BuildSquadCommand(_)))
+            .filter(|command| matches!(command, Command::BuildSquad(_)))
             .map(|entry| match entry {
-                Command::BuildSquadCommand(command) => command,
+                Command::BuildSquad(command) => command,
                 _ => panic!(),
             })
             .collect()
@@ -83,7 +89,7 @@ impl Player {
 }
 
 pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
-    Player {
+    let mut player = Player {
         name: player_data.name.clone(),
         faction: Faction::try_from(player_data.faction.as_ref()).unwrap(),
         team: Team::try_from(player_data.team).unwrap(),
@@ -91,7 +97,20 @@ pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> P
         profile_id: player_data.profile_id,
         messages: messages_from_data(&ticks, &player_data.name),
         commands: commands_from_data(&ticks, player_data.id),
-    }
+        battlegroup: None,
+    };
+
+    player.battlegroup = match player
+        .commands
+        .iter()
+        .find(|&command| matches!(command, Command::SelectBattlegroup(_)))
+    {
+        Some(Command::SelectBattlegroup(command)) => Some(command.pbgid()),
+        Some(_) => panic!(),
+        None => None,
+    };
+
+    player
 }
 
 // this is safe as Player does not contain any Ruby types

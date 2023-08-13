@@ -1,5 +1,4 @@
 use crate::data::commands::CommandData;
-use crate::data::commands::CommandData::UnknownCommandData;
 use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
 use nom::combinator::map;
@@ -19,7 +18,7 @@ impl Unknown {
         map(
             tuple((take(2u32), le_u8, le_u8)),
             |(_, action_type, player_id)| {
-                UnknownCommandData(Unknown {
+                CommandData::Unknown(Unknown {
                     action_type,
                     player_id,
                 })

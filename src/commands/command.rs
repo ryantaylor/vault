@@ -1,13 +1,15 @@
 //! Wrapper for Company of Heroes 3 player commands.
 
 use crate::commands::build_squad::from_data as build_squad_from_data;
+use crate::commands::select_battlegroup::from_data as select_battlegroup_from_data;
 use crate::commands::unknown::from_data as unknown_from_data;
-use crate::commands::Command::{BuildSquadCommand, UnknownCommand};
-use crate::commands::{BuildSquad, Unknown};
+use crate::commands::{
+    BuildSquad as BuildSquadCommand, SelectBattlegroup as SelectBattlegroupCommand,
+    Unknown as UnknownCommand,
+};
 use crate::data::commands::CommandData;
-use crate::data::commands::CommandData::{BuildSquadData, UnknownCommandData};
 use crate::data::ticks::Tick;
-use crate::data::ticks::Tick::Command as CommandEnum;
+use crate::Command::{BuildSquad, SelectBattlegroup, Unknown};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -25,18 +27,23 @@ pub enum Command {
         feature = "magnus",
         magnus(class = "VaultCoh::Commands::BuildSquadCommand")
     )]
-    BuildSquadCommand(BuildSquad),
+    BuildSquad(BuildSquadCommand),
+    #[cfg_attr(
+        feature = "magnus",
+        magnus(class = "VaultCoh::Commands::SelectBattlegroupCommand")
+    )]
+    SelectBattlegroup(SelectBattlegroupCommand),
     #[cfg_attr(
         feature = "magnus",
         magnus(class = "VaultCoh::Commands::UnknownCommand")
     )]
-    UnknownCommand(Unknown),
+    Unknown(UnknownCommand),
 }
 
 impl Command {
     #[cfg(feature = "magnus")]
-    pub fn extract_build_squad(&self) -> BuildSquad {
-        if let BuildSquadCommand(command) = self {
+    pub fn extract_build_squad(&self) -> BuildSquadCommand {
+        if let BuildSquad(command) = self {
             command.clone()
         } else {
             panic!()
@@ -44,8 +51,17 @@ impl Command {
     }
 
     #[cfg(feature = "magnus")]
-    pub fn extract_unknown(&self) -> Unknown {
-        if let UnknownCommand(command) = self {
+    pub fn extract_select_battlegroup(&self) -> SelectBattlegroupCommand {
+        if let SelectBattlegroup(command) = self {
+            command.clone()
+        } else {
+            panic!()
+        }
+    }
+
+    #[cfg(feature = "magnus")]
+    pub fn extract_unknown(&self) -> UnknownCommand {
+        if let Unknown(command) = self {
             command.clone()
         } else {
             panic!()
@@ -55,14 +71,17 @@ impl Command {
 
 pub(crate) fn command_from_data(data: &CommandData, tick: i32) -> (u8, Command) {
     match data {
-        BuildSquadData(build_squad) => (
+        CommandData::BuildSquad(build_squad) => (
             build_squad.player_id,
-            BuildSquadCommand(build_squad_from_data(build_squad, tick)),
+            BuildSquad(build_squad_from_data(build_squad, tick)),
         ),
-        UnknownCommandData(unknown) => (
-            unknown.player_id,
-            UnknownCommand(unknown_from_data(unknown, tick)),
+        CommandData::SelectBattlegroup(select_battlegroup) => (
+            select_battlegroup.player_id,
+            SelectBattlegroup(select_battlegroup_from_data(select_battlegroup, tick)),
         ),
+        CommandData::Unknown(unknown) => {
+            (unknown.player_id, Unknown(unknown_from_data(unknown, tick)))
+        }
     }
 }
 
@@ -74,7 +93,7 @@ pub(crate) fn commands_from_data(data: &[&Tick], player_id: u32) -> Vec<Command>
             tick_count += 1;
 
             match tick {
-                CommandEnum(command_tick) => command_tick
+                Tick::Command(command_tick) => command_tick
                     .bundles
                     .iter()
                     .map(|bundle| {
