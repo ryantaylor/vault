@@ -188,7 +188,7 @@ struct DATASDSCCHUNK {
     char map_file[map_file_length];
     uint32 map_name_length;
     wchar_t map_name[map_name_length];
-    uint32 zero_a;
+    if (ReadUInt() == 0) uint32 zero_a;
     uint32 map_description_length;
     wchar_t map_description[map_description_length];
     char rest_data[header.length - (FTell() - start)];
