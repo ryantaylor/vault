@@ -10,14 +10,14 @@ fn parse_success() {
     let replay = Replay::from_bytes(data);
     assert!(replay.is_ok());
     let unwrapped = replay.unwrap();
-    assert!(unwrapped.version() == 10612);
-    assert!(
+    assert_eq!(unwrapped.version(), 10612);
+    assert_eq!(
         unwrapped
             .players()
             .iter()
             .map(|player| { player.name() })
-            .collect::<Vec<&str>>()
-            == vec!["madhax", "Quixalotl"]
+            .collect::<Vec<&str>>(),
+        vec!["madhax", "Quixalotl"]
     );
 }
 

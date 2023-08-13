@@ -92,7 +92,7 @@ impl Replay {
     }
 }
 
-pub fn replay_from_data(data: &ReplayData) -> Replay {
+pub(crate) fn replay_from_data(data: &ReplayData) -> Replay {
     Replay {
         version: data.header.version,
         timestamp: data.header.timestamp.clone(),

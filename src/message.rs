@@ -31,7 +31,7 @@ impl Message {
     }
 }
 
-pub fn messages_from_data(data: Vec<&Tick>, player_name: &str) -> Vec<Message> {
+pub(crate) fn messages_from_data(data: &[&Tick], player_name: &str) -> Vec<Message> {
     let mut tick_count = 0;
 
     data.iter()

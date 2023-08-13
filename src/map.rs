@@ -38,7 +38,7 @@ impl Map {
     }
 }
 
-pub fn map_from_data(data: &DataSdscChunk) -> Map {
+pub(crate) fn map_from_data(data: &DataSdscChunk) -> Map {
     Map {
         filename: data.map_file.clone(),
         localized_name_id: data.map_name.clone(),

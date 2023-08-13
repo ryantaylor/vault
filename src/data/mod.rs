@@ -4,6 +4,7 @@ use nom_tracable::TracableInfo;
 
 pub mod chunks;
 mod chunky;
+pub mod commands;
 mod header;
 mod item;
 mod parser;

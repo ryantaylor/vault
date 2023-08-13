@@ -1,5 +1,6 @@
 //! Representation of parsed player information.
 
+use crate::commands::{commands_from_data, BuildSquad, Command};
 use crate::data::ticks::Tick;
 use crate::data::Player as PlayerData;
 use crate::message::{messages_from_data, Message};
@@ -22,6 +23,7 @@ pub struct Player {
     steam_id: u64,
     profile_id: u64,
     messages: Vec<Message>,
+    commands: Vec<Command>,
 }
 
 impl Player {
@@ -57,16 +59,38 @@ impl Player {
     pub fn messages(&self) -> Vec<Message> {
         self.messages.clone()
     }
+
+    /// A list of all commands executed by the player in the match. Sorted chronologically from
+    /// first to last.
+    pub fn commands(&self) -> Vec<Command> {
+        self.commands.clone()
+    }
+
+    /// A list of only build-related commands executed by the player in the match. A build command
+    /// is any that enqueues the construction of a new unit. Sorted chronologically from first to
+    /// last.
+    pub fn build_commands(&self) -> Vec<BuildSquad> {
+        self.commands
+            .clone()
+            .into_iter()
+            .filter(|command| matches!(command, Command::BuildSquadCommand(_)))
+            .map(|entry| match entry {
+                Command::BuildSquadCommand(command) => command,
+                _ => panic!(),
+            })
+            .collect()
+    }
 }
 
-pub fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
+pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
     Player {
         name: player_data.name.clone(),
         faction: Faction::try_from(player_data.faction.as_ref()).unwrap(),
         team: Team::try_from(player_data.team).unwrap(),
         steam_id: str::parse(&player_data.steam_id).unwrap(),
         profile_id: player_data.profile_id,
-        messages: messages_from_data(ticks, &player_data.name),
+        messages: messages_from_data(&ticks, &player_data.name),
+        commands: commands_from_data(&ticks, player_data.id),
     }
 }
 
