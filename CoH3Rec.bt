@@ -96,11 +96,11 @@ uint32 GetItemCount(char faction[])
 }
 
 struct PLAYER {
-    ubyte byte_flag;
+    ubyte is_human;
     uint32 name_length;
     wchar_t name[name_length];
     uint32 team;
-    uint32 second_flag;
+    uint32 id;
     ubyte small_flag;
     uint32 faction_length;
     char faction[faction_length];
@@ -123,7 +123,8 @@ struct PLAYER {
     uint32 flag_b;
     uint32 flag_c;
     uint16 flag_d;
-    ITEM items[GetItemCount(faction)] <optimize=false>;
+    if (is_human == 1) ITEM items[GetItemCount(faction)] <optimize=false>;
+    else char data[44];
     uint32 zero_six;
 };
 
@@ -242,9 +243,9 @@ struct TICK_BUNDLE {
     uint32 bundle_length;
     uint16 checksum;
     ubyte action_type;
-    ubyte base_location;
-    ubyte some_player_id_part_maybe;
     ubyte player_id;
+    ubyte some_player_id_part_maybe;
+    ubyte base_location;
     local uint32 start = FTell();
     switch (action_type) {
         case 3: CMD_BUILDSQUAD build_squad_action; break;
