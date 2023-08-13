@@ -30,8 +30,8 @@ impl SelectBattlegroup {
         self.tick
     }
     /// Internal ID that uniquely identifies the battlegroup selected. This value can be matched to
-    /// CoH3 attribute files in order to determine the unit being built. Note that, while rare, it
-    /// is possible that this value may change between patches for the same battlegroup.
+    /// CoH3 attribute files in order to determine the battlegroup being selected. Note that, while
+    /// rare, it is possible that this value may change between patches for the same battlegroup.
     pub fn pbgid(&self) -> u32 {
         self.pbgid
     }
