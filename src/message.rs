@@ -56,7 +56,7 @@ pub(crate) fn messages_from_data(data: &[&Tick], player_name: &str) -> Vec<Messa
                 _ => vec![None],
             }
         })
-        .filter(|entry| matches!(entry, Some(_)))
+        .filter(|entry| entry.is_some())
         .map(|entry| match entry {
             Some(message) => message,
             None => panic!(),

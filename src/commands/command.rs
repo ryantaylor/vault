@@ -109,7 +109,7 @@ pub(crate) fn commands_from_data(data: &[&Tick], player_id: u32) -> Vec<Command>
                 _ => vec![None],
             }
         })
-        .filter(|entry| matches!(entry, Some(_)))
+        .filter(|entry| entry.is_some())
         .map(|entry| match entry {
             Some(command) => command,
             None => panic!(),

@@ -95,12 +95,9 @@ impl Replay {
     }
 
     pub fn commands(&self) -> impl Iterator<Item = &CommandTick> {
-        self.ticks
-            .iter()
-            .filter(|tick| matches!(tick, Command(_)))
-            .map(|tick| match tick {
-                Command(command) => command,
-                _ => panic!(),
-            })
+        self.ticks.iter().filter_map(|tick| match tick {
+            Command(command) => Some(command),
+            _ => None,
+        })
     }
 }

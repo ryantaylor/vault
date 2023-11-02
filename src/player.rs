@@ -79,10 +79,9 @@ impl Player {
         self.commands
             .clone()
             .into_iter()
-            .filter(|command| matches!(command, Command::BuildSquad(_)))
-            .map(|entry| match entry {
-                Command::BuildSquad(command) => command,
-                _ => panic!(),
+            .filter_map(|entry| match entry {
+                Command::BuildSquad(command) => Some(command),
+                _ => None,
             })
             .collect()
     }
