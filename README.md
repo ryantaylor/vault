@@ -1,6 +1,6 @@
 # vault
 
-[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/4.0.0/vault/)
+[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/5.0.0/vault/)
 
 `vault` is a Company of Heroes replay parsing library written in [Rust](https://www.rust-lang.org/). It has been completely rewritten for Company of Heroes 3 to provide a more intuitive interface while simplifying the code and leveraging [nom](https://github.com/rust-bakery/nom)'s parser combinators to enable clean, fast parsing of Company of Heroes 3 replay files.
 
@@ -16,7 +16,7 @@ If you are writing a Rust application, you can use `vault` from [crates.io](http
 
 ```toml
 [dependencies]
-vault = "4"
+vault = "5"
 ```
 
 `src/main.rs`:
@@ -106,13 +106,13 @@ fn main() {
 
 # Compatibility
 
-Official minimum supported Rust version is 1.61.0, because this is the version magnus requires. However, building without Ruby bindings should be fine on any compiler version that supports Rust 2021, though this isn't officially supported.
+Official minimum supported Rust version is 1.65.0, because this is the version magnus requires. However, building without Ruby bindings should be fine on any compiler version that supports Rust 2021, though this isn't officially supported.
 
 Ruby bindings have some additional compatibility requirements, such as libclang and minimum Ruby version requirements. For more information see [magnus compatibility](https://github.com/matsadler/magnus#compatibility).
 
 # Documentation
 
-Documentation for `vault` [can be viewed online](https://docs.rs/vault/4.0.0/vault/).
+Documentation for `vault` [can be viewed online](https://docs.rs/vault/5.0.0/vault/).
 
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
