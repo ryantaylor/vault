@@ -45,7 +45,7 @@ pub enum Command {
     SelectBattlegroupAbility(SelectBattlegroupAbilityCommand),
     #[cfg_attr(
         feature = "magnus",
-        magnus(class = "VaultCoh::Commands::UseBattlegroupCommand")
+        magnus(class = "VaultCoh::Commands::UseBattlegroupAbilityCommand")
     )]
     UseBattlegroupAbility(UseBattlegroupAbilityCommand),
     #[cfg_attr(
