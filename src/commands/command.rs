@@ -2,14 +2,19 @@
 
 use crate::commands::build_squad::from_data as build_squad_from_data;
 use crate::commands::select_battlegroup::from_data as select_battlegroup_from_data;
+use crate::commands::select_battlegroup_ability::from_data as select_battlegroup_ability_from_data;
 use crate::commands::unknown::from_data as unknown_from_data;
+use crate::commands::use_battlegroup_ability::from_data as use_battlegroup_ability_from_data;
 use crate::commands::{
     BuildSquad as BuildSquadCommand, SelectBattlegroup as SelectBattlegroupCommand,
-    Unknown as UnknownCommand,
+    SelectBattlegroupAbility as SelectBattlegroupAbilityCommand, Unknown as UnknownCommand,
+    UseBattlegroupAbility as UseBattlegroupAbilityCommand,
 };
 use crate::data::commands::CommandData;
 use crate::data::ticks::Tick;
-use crate::Command::{BuildSquad, SelectBattlegroup, Unknown};
+use crate::Command::{
+    BuildSquad, SelectBattlegroup, SelectBattlegroupAbility, Unknown, UseBattlegroupAbility,
+};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -33,6 +38,16 @@ pub enum Command {
         magnus(class = "VaultCoh::Commands::SelectBattlegroupCommand")
     )]
     SelectBattlegroup(SelectBattlegroupCommand),
+    #[cfg_attr(
+        feature = "magnus",
+        magnus(class = "VaultCoh::Commands::SelectBattlegroupAbilityCommand")
+    )]
+    SelectBattlegroupAbility(SelectBattlegroupAbilityCommand),
+    #[cfg_attr(
+        feature = "magnus",
+        magnus(class = "VaultCoh::Commands::UseBattlegroupCommand")
+    )]
+    UseBattlegroupAbility(UseBattlegroupAbilityCommand),
     #[cfg_attr(
         feature = "magnus",
         magnus(class = "VaultCoh::Commands::UnknownCommand")
@@ -60,6 +75,24 @@ impl Command {
     }
 
     #[cfg(feature = "magnus")]
+    pub fn extract_select_battlegroup_ability(&self) -> SelectBattlegroupAbilityCommand {
+        if let SelectBattlegroupAbility(command) = self {
+            command.clone()
+        } else {
+            panic!()
+        }
+    }
+
+    #[cfg(feature = "magnus")]
+    pub fn extract_use_battlegroup_ability(&self) -> UseBattlegroupAbilityCommand {
+        if let UseBattlegroupAbility(command) = self {
+            command.clone()
+        } else {
+            panic!()
+        }
+    }
+
+    #[cfg(feature = "magnus")]
     pub fn extract_unknown(&self) -> UnknownCommand {
         if let Unknown(command) = self {
             command.clone()
@@ -78,6 +111,20 @@ pub(crate) fn command_from_data(data: &CommandData, tick: i32) -> (u8, Command) 
         CommandData::SelectBattlegroup(select_battlegroup) => (
             select_battlegroup.player_id,
             SelectBattlegroup(select_battlegroup_from_data(select_battlegroup, tick)),
+        ),
+        CommandData::SelectBattlegroupAbility(select_battlegroup_ability) => (
+            select_battlegroup_ability.player_id,
+            SelectBattlegroupAbility(select_battlegroup_ability_from_data(
+                select_battlegroup_ability,
+                tick,
+            )),
+        ),
+        CommandData::UseBattlegroupAbility(use_battlegroup_ability) => (
+            use_battlegroup_ability.player_id,
+            UseBattlegroupAbility(use_battlegroup_ability_from_data(
+                use_battlegroup_ability,
+                tick,
+            )),
         ),
         CommandData::Unknown(unknown) => {
             (unknown.player_id, Unknown(unknown_from_data(unknown, tick)))

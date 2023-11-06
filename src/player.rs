@@ -85,6 +85,24 @@ impl Player {
             })
             .collect()
     }
+
+    /// A list of only battlegroup-related commands executed by the player in the match. A
+    /// battlegroup command is any that involves the select or use of battlegroups and their
+    /// abilities.
+    pub fn battlegroup_commands(&self) -> Vec<Command> {
+        self.commands
+            .clone()
+            .into_iter()
+            .filter(|entry| {
+                matches!(
+                    entry,
+                    Command::SelectBattlegroup(_)
+                        | Command::SelectBattlegroupAbility(_)
+                        | Command::UseBattlegroupAbility(_)
+                )
+            })
+            .collect()
+    }
 }
 
 pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {

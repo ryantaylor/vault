@@ -1,6 +1,6 @@
 # vault
 
-[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/5.0.0/vault/)
+[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/5.1.0/vault/)
 
 `vault` is a Company of Heroes replay parsing library written in [Rust](https://www.rust-lang.org/). It has been completely rewritten for Company of Heroes 3 to provide a more intuitive interface while simplifying the code and leveraging [nom](https://github.com/rust-bakery/nom)'s parser combinators to enable clean, fast parsing of Company of Heroes 3 replay files.
 
@@ -37,7 +37,7 @@ fn main() {
 
 ```toml
 [dependencies]
-vault = { version = "4", features = ["magnus"] }
+vault = { version = "5", features = ["magnus"] }
 ```
 
 `src/lib.rs`:
@@ -82,7 +82,7 @@ Note that all classes must be bound to the `VaultCoh` namespace, with class name
 
 ```toml
 [dependencies]
-vault = { version = "4", features = ["serde"] }
+vault = { version = "5", features = ["serde"] }
 ```
 
 `src/main.rs`:
@@ -108,11 +108,11 @@ fn main() {
 
 Official minimum supported Rust version is 1.65.0, because this is the version magnus requires. However, building without Ruby bindings should be fine on any compiler version that supports Rust 2021, though this isn't officially supported.
 
-Ruby bindings have some additional compatibility requirements, such as libclang and minimum Ruby version requirements. For more information see [magnus compatibility](https://github.com/matsadler/magnus#compatibility).
+Ruby bindings have some additional compatibility requirements, such as `libclang` and minimum Ruby version requirements. For more information see [magnus compatibility](https://github.com/matsadler/magnus#compatibility).
 
 # Documentation
 
-Documentation for `vault` [can be viewed online](https://docs.rs/vault/5.0.0/vault/).
+Documentation for `vault` [can be viewed online](https://docs.rs/vault/5.1.0/vault/).
 
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 

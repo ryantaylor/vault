@@ -1,4 +1,6 @@
-use crate::data::commands::{BuildSquad, SelectBattlegroup, Unknown};
+use crate::data::commands::{
+    BuildSquad, SelectBattlegroup, SelectBattlegroupAbility, Unknown, UseBattlegroupAbility,
+};
 use crate::data::{ParserResult, Span};
 use nom::branch::alt;
 use nom_tracable::tracable_parser;
@@ -7,6 +9,8 @@ use nom_tracable::tracable_parser;
 pub enum CommandData {
     BuildSquad(BuildSquad),
     SelectBattlegroup(SelectBattlegroup),
+    SelectBattlegroupAbility(SelectBattlegroupAbility),
+    UseBattlegroupAbility(UseBattlegroupAbility),
     Unknown(Unknown),
 }
 
@@ -15,6 +19,8 @@ impl CommandData {
     pub fn parse(input: Span) -> ParserResult<CommandData> {
         alt((
             BuildSquad::parse_command,
+            UseBattlegroupAbility::parse_command,
+            SelectBattlegroupAbility::parse_command,
             SelectBattlegroup::parse_command,
             Unknown::parse_command,
         ))(input)

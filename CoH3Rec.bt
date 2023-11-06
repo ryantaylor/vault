@@ -3,12 +3,13 @@
 //
 //      File: CoH3Rec.bt
 //   Authors: Ryan Taylor
-//   Version: 0.1.0
+//   Version: 0.2.0
 //   Purpose: Parse Company of Heroes 3 replay files.
 //  Category: Game
 // File Mask: *.rec
 //  ID Bytes: 
 //   History: 
+//   0.2.0 2023-04-16 Ryan Taylor: Additional command parsing
 //   0.1.0 2023-04-16 Ryan Taylor: Initial submission
 //------------------------------------------------
 LittleEndian();
@@ -140,7 +141,8 @@ struct DATADATACHUNK {
         PLAYER players[num_players] <optimize=false>;
         uint32 length_a;
         char data_a[length_a];
-        uint32 zero_a;
+        uint32 length_c;
+        char data_c[length_c];
         uint64 matchhistory_id;
         uint32 some_flag_probs_not_length;
         char data_b[20];
@@ -237,6 +239,21 @@ struct CMD_BUILDSQUAD {
     ubyte zero_byte;
 };
 
+struct CMD_USEBATTLEGROUPABILITY {
+    char data[29];
+    uint32 pgbid;
+};
+
+struct CMD_SELECTBATTLEGROUP {
+    char data[29];
+    uint32 pgbid;
+};
+
+struct CMD_SELECTBATTLEGROUPABILITY {
+    char data[29];
+    uint32 pgbid;
+};
+
 struct TICK_BUNDLE {
     uint32 bundle_num;
     uint32 some_num;
@@ -249,6 +266,9 @@ struct TICK_BUNDLE {
     local uint32 start = FTell();
     switch (action_type) {
         case 3: CMD_BUILDSQUAD build_squad_action; break;
+        case 132: CMD_USEBATTLEGROUPABILITY use_battlegroup_ability_action; break;
+        case 136: CMD_SELECTBATTLEGROUP select_battlegroup_action; break;
+        case 137: CMD_SELECTBATTLEGROUPABILITY select_battlegroup_ability_action; break;
         default: break;
     }
     char remainder[bundle_length - (FTell() - start) - 6];

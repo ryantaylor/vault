@@ -12,7 +12,8 @@ use serde::{Deserialize, Serialize};
 /// corresponding patch version and track unit cancellation as well.
 ///
 /// Commands are collected during tick parsing and then associated with the `Player` instance that
-/// sent them. To access, see `Player::commands`.
+/// sent them. To access, see `Player::commands`. To quickly access all of a player's build
+/// commands, see `Player::build_commands`.
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
