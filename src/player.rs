@@ -93,11 +93,13 @@ impl Player {
         self.commands
             .clone()
             .into_iter()
-            .filter(|entry| match entry {
-                Command::SelectBattlegroup(_) => true,
-                Command::SelectBattlegroupAbility(_) => true,
-                Command::UseBattlegroupAbility(_) => true,
-                _ => false,
+            .filter(|entry| {
+                matches!(
+                    entry,
+                    Command::SelectBattlegroup(_)
+                        | Command::SelectBattlegroupAbility(_)
+                        | Command::UseBattlegroupAbility(_)
+                )
             })
             .collect()
     }

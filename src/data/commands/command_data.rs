@@ -1,4 +1,6 @@
-use crate::data::commands::{BuildSquad, SelectBattlegroup, SelectBattlegroupAbility, UseBattlegroupAbility, Unknown};
+use crate::data::commands::{
+    BuildSquad, SelectBattlegroup, SelectBattlegroupAbility, Unknown, UseBattlegroupAbility,
+};
 use crate::data::{ParserResult, Span};
 use nom::branch::alt;
 use nom_tracable::tracable_parser;

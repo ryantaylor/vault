@@ -10,5 +10,5 @@ pub(crate) use crate::commands::command::commands_from_data;
 pub use crate::commands::command::Command;
 pub use crate::commands::select_battlegroup::SelectBattlegroup;
 pub use crate::commands::select_battlegroup_ability::SelectBattlegroupAbility;
-pub use crate::commands::use_battlegroup_ability::UseBattlegroupAbility;
 pub use crate::commands::unknown::Unknown;
+pub use crate::commands::use_battlegroup_ability::UseBattlegroupAbility;
