@@ -3,12 +3,13 @@
 //
 //      File: CoH3Rec.bt
 //   Authors: Ryan Taylor
-//   Version: 0.1.0
+//   Version: 0.2.0
 //   Purpose: Parse Company of Heroes 3 replay files.
 //  Category: Game
 // File Mask: *.rec
 //  ID Bytes: 
 //   History: 
+//   0.2.0 2023-04-16 Ryan Taylor: Additional command parsing
 //   0.1.0 2023-04-16 Ryan Taylor: Initial submission
 //------------------------------------------------
 LittleEndian();
