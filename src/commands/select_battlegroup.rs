@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 ///
 /// Commands are collected during tick parsing and then associated with the `Player` instance that
 /// sent them. To access, see `Player::commands`. To quickly access a player's selected battlegroup
-/// without having to extract it from the player's commands, see `Player::battlegroup`.
+/// without having to extract it from the player's commands, see `Player::battlegroup`. To access
+/// all of a player's battlegroup-related commands, see `Player::battlegroup_commands`.
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
