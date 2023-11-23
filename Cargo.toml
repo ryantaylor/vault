@@ -1,6 +1,6 @@
 [package]
 name = "vault"
-version = "5.1.1"
+version = "6.0.0"
 edition = "2021"
 authors = ["Ryan Taylor <2320507+ryantaylor@users.noreply.github.com>"]
 

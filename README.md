@@ -1,6 +1,6 @@
 # vault
 
-[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/5.1.1/vault/)
+[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/6.0.0/vault/)
 
 `vault` is a Company of Heroes replay parsing library written in [Rust](https://www.rust-lang.org/). It has been completely rewritten for Company of Heroes 3 to provide a more intuitive interface while simplifying the code and leveraging [nom](https://github.com/rust-bakery/nom)'s parser combinators to enable clean, fast parsing of Company of Heroes 3 replay files.
 
@@ -16,7 +16,7 @@ If you are writing a Rust application, you can use `vault` from [crates.io](http
 
 ```toml
 [dependencies]
-vault = "5"
+vault = "6"
 ```
 
 `src/main.rs`:
@@ -37,7 +37,7 @@ fn main() {
 
 ```toml
 [dependencies]
-vault = { version = "5", features = ["magnus"] }
+vault = { version = "6", features = ["magnus"] }
 ```
 
 `src/lib.rs`:
@@ -82,7 +82,7 @@ Note that all classes must be bound to the `VaultCoh` namespace, with class name
 
 ```toml
 [dependencies]
-vault = { version = "5", features = ["serde"] }
+vault = { version = "6", features = ["serde"] }
 ```
 
 `src/main.rs`:
@@ -112,7 +112,7 @@ Ruby bindings have some additional compatibility requirements, such as `libclang
 
 # Documentation
 
-Documentation for `vault` [can be viewed online](https://docs.rs/vault/5.1.0/vault/).
+Documentation for `vault` [can be viewed online](https://docs.rs/vault/6.0.0/vault/).
 
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
