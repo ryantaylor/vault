@@ -1,19 +1,22 @@
 //! Wrapper for Company of Heroes 3 player commands.
 
+use crate::commands::build_global_upgrade::from_data as build_global_upgrade_from_data;
 use crate::commands::build_squad::from_data as build_squad_from_data;
 use crate::commands::select_battlegroup::from_data as select_battlegroup_from_data;
 use crate::commands::select_battlegroup_ability::from_data as select_battlegroup_ability_from_data;
 use crate::commands::unknown::from_data as unknown_from_data;
 use crate::commands::use_battlegroup_ability::from_data as use_battlegroup_ability_from_data;
 use crate::commands::{
-    BuildSquad as BuildSquadCommand, SelectBattlegroup as SelectBattlegroupCommand,
+    BuildGlobalUpgrade as BuildGlobalUpgradeCommand, BuildSquad as BuildSquadCommand,
+    SelectBattlegroup as SelectBattlegroupCommand,
     SelectBattlegroupAbility as SelectBattlegroupAbilityCommand, Unknown as UnknownCommand,
     UseBattlegroupAbility as UseBattlegroupAbilityCommand,
 };
 use crate::data::commands::CommandData;
 use crate::data::ticks::Tick;
 use crate::Command::{
-    BuildSquad, SelectBattlegroup, SelectBattlegroupAbility, Unknown, UseBattlegroupAbility,
+    BuildGlobalUpgrade, BuildSquad, SelectBattlegroup, SelectBattlegroupAbility, Unknown,
+    UseBattlegroupAbility,
 };
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -28,6 +31,11 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Command"))]
 pub enum Command {
+    #[cfg_attr(
+        feature = "magnus",
+        magnus(class = "VaultCoh::Commands::BuildGlobalUpgradeCommand")
+    )]
+    BuildGlobalUpgrade(BuildGlobalUpgradeCommand),
     #[cfg_attr(
         feature = "magnus",
         magnus(class = "VaultCoh::Commands::BuildSquadCommand")
@@ -56,6 +64,15 @@ pub enum Command {
 }
 
 impl Command {
+    #[cfg(feature = "magnus")]
+    pub fn extract_build_global_upgrade(&self) -> BuildGlobalUpgradeCommand {
+        if let BuildGlobalUpgrade(command) = self {
+            command.clone()
+        } else {
+            panic!()
+        }
+    }
+
     #[cfg(feature = "magnus")]
     pub fn extract_build_squad(&self) -> BuildSquadCommand {
         if let BuildSquad(command) = self {
@@ -104,6 +121,10 @@ impl Command {
 
 pub(crate) fn command_from_data(data: &CommandData, tick: i32) -> (u8, Command) {
     match data {
+        CommandData::BuildGlobalUpgrade(build_global_upgrade) => (
+            build_global_upgrade.player_id,
+            BuildGlobalUpgrade(build_global_upgrade_from_data(build_global_upgrade, tick)),
+        ),
         CommandData::BuildSquad(build_squad) => (
             build_squad.player_id,
             BuildSquad(build_squad_from_data(build_squad, tick)),
