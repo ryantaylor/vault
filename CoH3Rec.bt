@@ -183,6 +183,26 @@ struct DATASAVPCHUNK {
     char data[header.length];
 };
 
+struct DATAMTYPCHUNK {
+    CHUNKHEADER header;
+    char data[header.length];
+};
+
+struct DATAREPLCHUNK {
+    CHUNKHEADER header;
+    char data[header.length];
+};
+
+struct DATALOCSCHUNK {
+    CHUNKHEADER header;
+    char data[header.length];
+};
+
+struct DATAAUTOCHUNK {
+    CHUNKHEADER header;
+    char data[header.length];
+};
+
 struct DATASDSCCHUNK {
     CHUNKHEADER header;
     local uint32 start = FTell();
@@ -208,6 +228,12 @@ struct FOLDINFOCHUNK {
     DATAPLASCHUNK plas_chunk;
     DATAGRIFCHUNK grif_chunk;
     DATASAVPCHUNK savp_chunk;
+    if (global_version >= 19802) {
+        DATAMTYPCHUNK mtyp_chunk;
+        DATAREPLCHUNK repl_chunk;
+        DATALOCSCHUNK locs_chunk;
+        DATAAUTOCHUNK auto_chunk;
+    }
     DATASDSCCHUNK sdsc_chunk;
 };
 
@@ -254,6 +280,11 @@ struct CMD_SELECTBATTLEGROUPABILITY {
     uint32 pgbid;
 };
 
+struct CMD_GLOBALUPDGRADE {
+    char data[29];
+    uint32 pgbid;
+};
+
 struct TICK_BUNDLE {
     uint32 bundle_num;
     uint32 some_num;
@@ -266,6 +297,7 @@ struct TICK_BUNDLE {
     local uint32 start = FTell();
     switch (action_type) {
         case 3: CMD_BUILDSQUAD build_squad_action; break;
+        case 16: CMD_GLOBALUPDGRADE global_upgrade_action; break;
         case 132: CMD_USEBATTLEGROUPABILITY use_battlegroup_ability_action; break;
         case 136: CMD_SELECTBATTLEGROUP select_battlegroup_action; break;
         case 137: CMD_SELECTBATTLEGROUPABILITY select_battlegroup_ability_action; break;
