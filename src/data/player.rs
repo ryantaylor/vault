@@ -94,7 +94,7 @@ impl Player {
     ) -> IResult<Span<'a>, Vec<Item>> {
         if player.human == 0 {
             let (input, _) = take(44u32)(input)?;
-            return Ok((input, vec![]))
+            return Ok((input, vec![]));
         }
 
         cut(many_m_n(

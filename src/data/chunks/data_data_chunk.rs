@@ -18,13 +18,8 @@ impl Option {
     #[tracable_parser]
     pub fn parse_option(input: Span) -> ParserResult<Option> {
         map(
-            tuple((
-                parse_utf8_variable(le_u32),
-                le_u32
-            )),
-            |((_, name), value)| {
-                Option { name, value }
-            },
+            tuple((parse_utf8_variable(le_u32), le_u32)),
+            |((_, name), value)| Option { name, value },
         )(input)
     }
 }
@@ -103,12 +98,6 @@ impl DataDataChunk {
 
     #[tracable_parser]
     fn parse_options_length(input: Span) -> ParserResult<u32> {
-        fold_many_m_n(
-            2,
-            2,
-            le_u32,
-            || -> u32 { 1 },
-            |acc: u32, item| { acc * item }
-        )(input)
+        fold_many_m_n(2, 2, le_u32, || -> u32 { 1 }, |acc: u32, item| acc * item)(input)
     }
 }
