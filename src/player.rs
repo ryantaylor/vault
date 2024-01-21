@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+use crate::data::commands::{Raw, raw_from_data};
 
 /// Game-specific player representation. Includes generally immutable information alongside data
 /// specific to the replay being parsed.
@@ -18,13 +19,15 @@ use std::fmt::{Display, Formatter};
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Player"))]
 pub struct Player {
     name: String,
+    human: bool,
     faction: Faction,
     team: Team,
     battlegroup: Option<u32>,
-    steam_id: u64,
-    profile_id: u64,
+    steam_id: Option<u64>,
+    profile_id: Option<u64>,
     messages: Vec<Message>,
     commands: Vec<Command>,
+    raw_command_data: Vec<Raw>,
 }
 
 impl Player {
@@ -49,15 +52,15 @@ impl Player {
     pub fn battlegroup(&self) -> Option<u32> {
         self.battlegroup
     }
-    /// The Steam ID of the player. This ID can be used to uniquely identify a player between
-    /// replays, and connect them to their Steam profile.
-    pub fn steam_id(&self) -> u64 {
+    /// The Steam ID of the player, or `None` if the player is AI. This ID can be used to uniquely
+    /// identify a player between replays, and connect them to their Steam profile.
+    pub fn steam_id(&self) -> Option<u64> {
         self.steam_id
     }
-    /// The Relic profile ID of the player. This ID can be used to uniquely identify a player
-    /// between replays, and can be used to query statistical information about the player from
-    /// Relic's stats API.
-    pub fn profile_id(&self) -> u64 {
+    /// The Relic profile ID of the player, or `None` if the player is AI. This ID can be used to
+    /// uniquely identify a player between replays, and can be used to query statistical information
+    /// about the player from Relic's stats API.
+    pub fn profile_id(&self) -> Option<u64> {
         self.profile_id
     }
     /// A list of all messages sent by the player in the match. Sorted chronologically from first
@@ -105,19 +108,30 @@ impl Player {
             })
             .collect()
     }
+
+    pub fn raw_command_data(&self) -> Vec<Raw> {
+        self.raw_command_data.clone()
+    }
 }
 
 pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
     let mut player = Player {
         name: player_data.name.clone(),
+        human: player_data.human != 0,
         faction: Faction::try_from(player_data.faction.as_ref()).unwrap(),
         team: Team::try_from(player_data.team).unwrap(),
-        steam_id: str::parse(&player_data.steam_id).unwrap(),
-        profile_id: player_data.profile_id,
+        steam_id: None,
+        profile_id: None,
         messages: messages_from_data(&ticks, &player_data.name),
         commands: commands_from_data(&ticks, player_data.id),
         battlegroup: None,
+        raw_command_data: raw_from_data(&ticks, player_data.id)
     };
+
+    if player.human {
+        player.steam_id = Some(str::parse(&player_data.steam_id).unwrap());
+        player.profile_id = Some(player_data.profile_id);
+    }
 
     player.battlegroup = match player
         .commands
@@ -130,6 +144,12 @@ pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> P
     };
 
     player
+}
+
+impl Display for Player {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 // this is safe as Player does not contain any Ruby types
