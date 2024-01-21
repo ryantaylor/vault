@@ -29,6 +29,23 @@ fn parse_failure() {
 }
 
 #[test]
+fn parse_success_ai() {
+    let data = include_bytes!("../replays/vs_ai.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+    let unwrapped = replay.unwrap();
+    assert_eq!(unwrapped.version(), 21283);
+    assert_eq!(
+        unwrapped
+            .players()
+            .iter()
+            .map(|player| { player.name() })
+            .collect::<Vec<&str>>(),
+        vec!["Janne252", "CPU - Standard"]
+    );
+}
+
+#[test]
 fn parse_weird_description() {
     let data = include_bytes!("../replays/weird_description.rec");
     let replay = Replay::from_bytes(data);
