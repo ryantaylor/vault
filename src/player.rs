@@ -36,7 +36,7 @@ impl Player {
     pub fn name(&self) -> &str {
         &self.name
     }
-    // Whether or not the player was a human or an AI/CPU player.
+    /// Whether or not the player was a human or an AI/CPU player.
     pub fn human(&self) -> bool {
         self.human
     }
