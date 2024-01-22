@@ -2,6 +2,7 @@
 
 extern crate vault;
 
+use uuid::{uuid, Uuid};
 use vault::Replay;
 
 #[test]
@@ -19,6 +20,7 @@ fn parse_success() {
             .collect::<Vec<&str>>(),
         vec!["madhax", "Quixalotl"]
     );
+    assert_eq!(unwrapped.mod_uuid(), Uuid::nil());
 }
 
 #[test]
@@ -42,6 +44,10 @@ fn parse_success_ai() {
             .map(|player| { player.name() })
             .collect::<Vec<&str>>(),
         vec!["Janne252", "CPU - Standard"]
+    );
+    assert_eq!(
+        unwrapped.mod_uuid(),
+        uuid!("385d9810-96ba-4ece-9040-8281db65174e")
     );
 }
 
