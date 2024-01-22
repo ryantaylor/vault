@@ -8,6 +8,7 @@ use nom_locate::LocatedSpan;
 use nom_tracable::TracableInfo;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 /// A complete representation of all information able to be parsed from a Company of Heroes 3
 /// replay. Note that parsing is not yet exhaustive, and iterative improvements will be made to
@@ -20,6 +21,7 @@ pub struct Replay {
     version: u16,
     timestamp: String,
     matchhistory_id: u64,
+    mod_uuid: Uuid,
     map: Map,
     players: Vec<Player>,
     length: usize,
@@ -63,6 +65,11 @@ impl Replay {
     pub fn matchhistory_id(&self) -> u64 {
         self.matchhistory_id
     }
+    /// The UUID of the base game mod this replay ran on. If no mod was used, this will be a nil
+    /// UUID (all zeroes).
+    pub fn mod_uuid(&self) -> Uuid {
+        self.mod_uuid
+    }
     /// Map information for this match.
     pub fn map(&self) -> Map {
         self.map.clone()
@@ -97,6 +104,7 @@ pub(crate) fn replay_from_data(data: &ReplayData) -> Replay {
         version: data.header.version,
         timestamp: data.header.timestamp.clone(),
         matchhistory_id: data.game_data().matchhistory_id,
+        mod_uuid: data.game_data().mod_uuid,
         map: map_from_data(data.map_data()),
         length: data.commands().count(),
         players: data

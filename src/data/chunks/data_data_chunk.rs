@@ -1,12 +1,15 @@
 use crate::data::chunks::{Chunk, Chunk::DataData, Header, TrashDataChunk};
 use crate::data::parser::parse_utf8_variable;
 use crate::data::{ParserResult, Player, Span};
-use nom::bytes::complete::take;
+use byteorder::{LittleEndian, ReadBytesExt};
+use nom::bytes::complete::{tag, take, take_while};
+use nom::character::{is_digit, is_hex_digit};
 use nom::combinator::{cut, map, map_parser};
-use nom::multi::{fold_many_m_n, length_count, length_data};
+use nom::multi::{fold_many_m_n, length_count, length_data, length_value};
 use nom::number::complete::{le_u32, le_u64};
-use nom::sequence::tuple;
+use nom::sequence::{separated_pair, tuple};
 use nom_tracable::tracable_parser;
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct Option {
@@ -31,7 +34,8 @@ pub struct DataDataChunk {
     pub players: Vec<Player>,
     pub matchhistory_id: u64,
     pub options: Vec<Option>,
-    pub unknown_string: String,
+    pub mod_uuid: Uuid,
+    pub unknown_number: u32,
 }
 
 impl DataDataChunk {
@@ -54,7 +58,7 @@ impl DataDataChunk {
                     take(16u32),
                     length_count(Self::parse_options_length, Option::parse_option),
                     take(12u32),
-                    Self::parse_resource_string,
+                    Self::parse_mod_info,
                 )),
                 |(
                     opponent_type,
@@ -66,7 +70,7 @@ impl DataDataChunk {
                     _,
                     options,
                     _,
-                    unknown_string,
+                    (mod_uuid, unknown_number),
                 )| {
                     DataData(DataDataChunk {
                         header: header.clone(),
@@ -74,7 +78,8 @@ impl DataDataChunk {
                         players,
                         matchhistory_id,
                         options,
-                        unknown_string,
+                        mod_uuid,
+                        unknown_number,
                     })
                 },
             ),
@@ -91,13 +96,26 @@ impl DataDataChunk {
     }
 
     #[tracable_parser]
-    fn parse_resource_string(input: Span) -> ParserResult<String> {
-        let (input, (_, section_resources)) = parse_utf8_variable(le_u32)(input)?;
-        Ok((input, section_resources))
+    fn parse_options_length(input: Span) -> ParserResult<u32> {
+        fold_many_m_n(2, 2, le_u32, || -> u32 { 1 }, |acc: u32, item| acc * item)(input)
     }
 
     #[tracable_parser]
-    fn parse_options_length(input: Span) -> ParserResult<u32> {
-        fold_many_m_n(2, 2, le_u32, || -> u32 { 1 }, |acc: u32, item| acc * item)(input)
+    fn parse_mod_info(input: Span) -> ParserResult<(Uuid, u32)> {
+        length_value(
+            le_u32,
+            map(
+                separated_pair(take_while(is_hex_digit), tag(":"), take_while(is_digit)),
+                |(mod_uuid, unknown_number): (Span, Span)| {
+                    (
+                        Uuid::try_parse_ascii(&mod_uuid).unwrap(),
+                        unknown_number
+                            .into_fragment()
+                            .read_u32::<LittleEndian>()
+                            .unwrap(),
+                    )
+                },
+            ),
+        )(input)
     }
 }
