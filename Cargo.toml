@@ -1,6 +1,6 @@
 [package]
 name = "vault"
-version = "7.0.0"
+version = "7.1.0"
 edition = "2021"
 authors = ["Ryan Taylor <2320507+ryantaylor@users.noreply.github.com>"]
 
@@ -20,6 +20,7 @@ nom = "7"
 nom_locate = "4"
 nom-tracable = "0.9"
 serde = { version = "1.0", features = ["derive"], optional = true }
+uuid = { version = "1", features = ["serde"] }
 
 [features]
 trace = ["nom-tracable/trace"]
