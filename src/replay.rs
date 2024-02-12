@@ -140,13 +140,21 @@ fn matchhistory_id_from_data(data: &ReplayData) -> Option<u64> {
     }
 }
 
+/// Company of Heroes 3 game types
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::GameType"))]
 pub enum GameType {
+    /// Local games against AI opponents
     Skirmish,
+    /// Networked games that couldn't be more specifically defined; includes both custom and
+    /// automatch games from before patch 1.4.0
     Multiplayer,
+    /// Ranked automatch games, detectable post patch 1.4.0
     Automatch,
+    /// Custom games against human opponents, AI opponents, or a mix of both, detectable post patch
+    /// 1.4.0
     Custom,
 }
 
