@@ -1,10 +1,13 @@
-use crate::data::chunks::{DataDataChunk, DataSdscChunk, FoldChunk, Header, TrashDataChunk};
+use crate::data::chunks::{
+    DataAutoChunk, DataDataChunk, DataSdscChunk, FoldChunk, Header, TrashDataChunk,
+};
 use crate::data::{ParserResult, Span};
 
 #[derive(Debug)]
 pub enum Chunk {
     Fold(FoldChunk),
     Data(TrashDataChunk),
+    DataAuto(DataAutoChunk),
     DataData(DataDataChunk),
     DataSdsc(DataSdscChunk),
 }
@@ -16,6 +19,7 @@ impl Chunk {
 
             return match &header.chunk_kind as &str {
                 "DATA" => match &header.chunk_type as &str {
+                    "AUTO" => DataAutoChunk::parse(input, header),
                     "DATA" => DataDataChunk::parse(input, header, version),
                     "SDSC" => DataSdscChunk::parse(input, header),
                     _ => TrashDataChunk::parse(input, header),
