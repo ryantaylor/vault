@@ -140,7 +140,7 @@ fn matchhistory_id_from_data(data: &ReplayData) -> Option<u64> {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::GameType"))]
 pub enum GameType {
