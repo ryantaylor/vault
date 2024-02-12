@@ -1,5 +1,5 @@
-use crate::data::chunks::Chunk::{DataData, DataSdsc};
-use crate::data::chunks::{Chunk, DataDataChunk, DataSdscChunk};
+use crate::data::chunks::Chunk::{DataAuto, DataData, DataSdsc};
+use crate::data::chunks::{Chunk, DataAutoChunk, DataDataChunk, DataSdscChunk};
 use crate::data::ticks::Tick::Command;
 use crate::data::ticks::{CommandTick, Tick};
 use crate::data::{Chunky, Header};
@@ -72,6 +72,18 @@ impl Replay {
 
         match data_chunk {
             DataData(data) => data,
+            _ => panic!(),
+        }
+    }
+
+    pub fn automatch_data(&self) -> Option<&DataAutoChunk> {
+        match self
+            .data_chunks()
+            .iter()
+            .find(|chunk| matches!(chunk, DataAuto(_)))
+        {
+            Some(DataAuto(chunk)) => Some(chunk),
+            None => None,
             _ => panic!(),
         }
     }

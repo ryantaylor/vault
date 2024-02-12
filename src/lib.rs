@@ -30,4 +30,5 @@ pub use crate::message::Message;
 pub use crate::player::Faction;
 pub use crate::player::Player;
 pub use crate::player::Team;
+pub use crate::replay::GameType;
 pub use crate::replay::Replay;

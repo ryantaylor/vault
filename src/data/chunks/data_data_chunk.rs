@@ -32,6 +32,7 @@ pub struct DataDataChunk {
     pub header: Header,
     pub opponent_type: u32,
     pub players: Vec<Player>,
+    pub skirmish: bool,
     pub matchhistory_id: u64,
     pub options: Vec<Option>,
     pub mod_uuid: Uuid,
@@ -53,7 +54,7 @@ impl DataDataChunk {
                     take(6u32),
                     Self::parse_players(version),
                     length_data(le_u32),
-                    length_data(le_u32),
+                    Self::parse_skirmish_flag,
                     le_u64,
                     take(16u32),
                     length_count(Self::parse_options_length, Option::parse_option),
@@ -65,7 +66,7 @@ impl DataDataChunk {
                     _,
                     players,
                     _,
-                    _,
+                    skirmish,
                     matchhistory_id,
                     _,
                     options,
@@ -76,6 +77,7 @@ impl DataDataChunk {
                         header: header.clone(),
                         opponent_type,
                         players,
+                        skirmish,
                         matchhistory_id,
                         options,
                         mod_uuid,
@@ -98,6 +100,11 @@ impl DataDataChunk {
     #[tracable_parser]
     fn parse_options_length(input: Span) -> ParserResult<u32> {
         fold_many_m_n(2, 2, le_u32, || -> u32 { 1 }, |acc: u32, item| acc * item)(input)
+    }
+
+    #[tracable_parser]
+    fn parse_skirmish_flag(input: Span) -> ParserResult<bool> {
+        map(parse_utf8_variable(le_u32), |(_, id)| !id.is_empty())(input)
     }
 
     #[tracable_parser]
