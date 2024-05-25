@@ -1,5 +1,6 @@
 //! Representation of parsed replay information.
 
+use crate::data::chunks::DataAutoChunk;
 use crate::data::{Replay as ReplayData, Span};
 use crate::map::{map_from_data, Map};
 use crate::player::{player_from_data, Player};
@@ -8,6 +9,9 @@ use nom_locate::LocatedSpan;
 use nom_tracable::TracableInfo;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use std::fmt;
+use std::fmt::{Display, Formatter};
+use uuid::Uuid;
 
 /// A complete representation of all information able to be parsed from a Company of Heroes 3
 /// replay. Note that parsing is not yet exhaustive, and iterative improvements will be made to
@@ -19,7 +23,9 @@ use serde::{Deserialize, Serialize};
 pub struct Replay {
     version: u16,
     timestamp: String,
-    matchhistory_id: u64,
+    game_type: GameType,
+    matchhistory_id: Option<u64>,
+    mod_uuid: Uuid,
     map: Map,
     players: Vec<Player>,
     length: usize,
@@ -57,11 +63,27 @@ impl Replay {
     pub fn timestamp(&self) -> &str {
         &self.timestamp
     }
+    /// The type of game this replay represents. Note that this information is parsed on a best-
+    /// effort basis and therefore may not always be correct. Also note that it's currently not
+    /// known if there's a way to differentiate between automatch and custom games for replays
+    /// recorded before the replay system release in patch 1.4.0. Games played before that patch
+    /// will be marked as either `Skirmish` (for local AI games) or `Multiplayer` (for networked
+    /// custom or automatch games). Games recorded on or after patch 1.4.0 will properly
+    /// differentiate between `Custom` and `Automatch` games.
+    pub fn game_type(&self) -> GameType {
+        self.game_type
+    }
     /// The ID used by Relic to track this match on their internal servers. This ID can be matched
     /// with an ID of the same name returned by Relic's CoH3 stats API, enabling linkage between
-    /// replay files and statistical information for a match.
-    pub fn matchhistory_id(&self) -> u64 {
+    /// replay files and statistical information for a match. When the game type is `Skirmish`,
+    /// there is no ID assigned by Relic, so this will be `None`.
+    pub fn matchhistory_id(&self) -> Option<u64> {
         self.matchhistory_id
+    }
+    /// The UUID of the base game mod this replay ran on. If no mod was used, this will be a nil
+    /// UUID (all zeroes).
+    pub fn mod_uuid(&self) -> Uuid {
+        self.mod_uuid
     }
     /// Map information for this match.
     pub fn map(&self) -> Map {
@@ -92,11 +114,13 @@ impl Replay {
     }
 }
 
-pub(crate) fn replay_from_data(data: &ReplayData) -> Replay {
+fn replay_from_data(data: &ReplayData) -> Replay {
     Replay {
         version: data.header.version,
         timestamp: data.header.timestamp.clone(),
-        matchhistory_id: data.game_data().matchhistory_id,
+        game_type: game_type_from_data(data),
+        matchhistory_id: matchhistory_id_from_data(data),
+        mod_uuid: data.game_data().mod_uuid,
         map: map_from_data(data.map_data()),
         length: data.commands().count(),
         players: data
@@ -105,5 +129,54 @@ pub(crate) fn replay_from_data(data: &ReplayData) -> Replay {
             .iter()
             .map(|player| player_from_data(player, data.ticks()))
             .collect(),
+    }
+}
+
+fn matchhistory_id_from_data(data: &ReplayData) -> Option<u64> {
+    if game_type_from_data(data) == GameType::Skirmish {
+        None
+    } else {
+        Some(data.game_data().matchhistory_id)
+    }
+}
+
+/// Company of Heroes 3 game types
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::GameType"))]
+pub enum GameType {
+    /// Local games against AI opponents
+    Skirmish,
+    /// Networked games that couldn't be more specifically defined; includes both custom and
+    /// automatch games from before patch 1.4.0
+    Multiplayer,
+    /// Ranked automatch games, detectable post patch 1.4.0
+    Automatch,
+    /// Custom games against human opponents, AI opponents, or a mix of both, detectable post patch
+    /// 1.4.0
+    Custom,
+}
+
+impl Display for GameType {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            GameType::Skirmish => write!(f, "skirmish"),
+            GameType::Multiplayer => write!(f, "multiplayer"),
+            GameType::Automatch => write!(f, "automatch"),
+            GameType::Custom => write!(f, "custom"),
+        }
+    }
+}
+
+fn game_type_from_data(data: &ReplayData) -> GameType {
+    if data.game_data().skirmish {
+        GameType::Skirmish
+    } else {
+        match data.automatch_data() {
+            Some(DataAutoChunk { automatch: true }) => GameType::Automatch,
+            Some(DataAutoChunk { automatch: false }) => GameType::Custom,
+            None => GameType::Multiplayer,
+        }
     }
 }

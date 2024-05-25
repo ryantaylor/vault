@@ -38,6 +38,10 @@ impl Player {
     pub fn name(&self) -> &str {
         &self.name
     }
+    /// Whether or not the player was a human or an AI/CPU player.
+    pub fn human(&self) -> bool {
+        self.human
+    }
     /// The faction selected by the player in this match.
     pub fn faction(&self) -> Faction {
         self.faction

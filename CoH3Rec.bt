@@ -129,6 +129,12 @@ struct PLAYER {
     uint32 zero_six;
 };
 
+struct OPTIONCONFIG {
+    uint32 name_length;
+    char name[name_length];
+    uint32 value;
+};
+
 struct DATADATACHUNK {
     CHUNKHEADER header;
     local uint32 start = FTell();
@@ -145,19 +151,12 @@ struct DATADATACHUNK {
         char data_c[length_c];
         uint64 matchhistory_id;
         uint32 some_flag_probs_not_length;
-        char data_b[20];
-        uint32 resource_section_length;
-        char resource_section[resource_section_length];
-        uint32 one_a;
-        uint32 option_resources_length;
-        char option_resources[option_resources_length];
-        uint32 zero_c;
-        uint32 section_tickets_length;
-        char section_tickets[section_tickets_length];
-        uint32 one_b;
-        uint32 option_tickets_length;
-        char option_tickets[option_tickets_length];
-        uint32 flag_b;
+        uint32 usually_zero;
+        uint32 usually_one;
+        uint32 one_or_zero;
+        uint32 option_group_count;
+        uint32 options_per_group;
+        OPTIONCONFIG options[option_group_count * options_per_group] <optimize=false>;
         uint32 zero_d;
         uint32 zero_e;
         uint32 zero_f;
