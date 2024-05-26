@@ -1,14 +1,15 @@
 //! Representation of parsed player information.
 
-use crate::commands::{commands_from_data, Command};
-use crate::data::ticks::Tick;
+use crate::command::Command;
 use crate::data::Player as PlayerData;
-use crate::message::{messages_from_data, Message};
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
+use crate::message::Message;
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Game-specific player representation. Includes generally immutable information alongside data
 /// specific to the replay being parsed.
@@ -112,7 +113,11 @@ impl Player {
     }
 }
 
-pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> Player {
+pub(crate) fn player_from_data(
+    player_data: &PlayerData,
+    messages: &HashMap<String, Vec<Message>>,
+    commands: &HashMap<u32, Vec<Command>>,
+) -> Player {
     let mut player = Player {
         name: player_data.name.clone(),
         human: player_data.human != 0,
@@ -120,8 +125,8 @@ pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> P
         team: Team::try_from(player_data.team).unwrap(),
         steam_id: None,
         profile_id: None,
-        messages: messages_from_data(&ticks, &player_data.name),
-        commands: commands_from_data(&ticks, player_data.id),
+        messages: messages.get(&player_data.name).cloned().unwrap_or_default(),
+        commands: commands.get(&player_data.id).cloned().unwrap_or_default(),
         battlegroup: None,
     };
 
@@ -135,7 +140,7 @@ pub(crate) fn player_from_data(player_data: &PlayerData, ticks: Vec<&Tick>) -> P
         .iter()
         .find(|&command| matches!(command, Command::SelectBattlegroup(_)))
     {
-        Some(Command::SelectBattlegroup(command)) => Some(command.pbgid()),
+        Some(Command::SelectBattlegroup(command)) => Some(command.pgbid()),
         Some(_) => panic!(),
         None => None,
     };

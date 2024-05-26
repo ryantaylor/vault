@@ -7,11 +7,12 @@ use crate::player::{player_from_data, Player};
 use crate::ParseError;
 use nom_locate::LocatedSpan;
 use nom_tracable::TracableInfo;
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use uuid::Uuid;
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// A complete representation of all information able to be parsed from a Company of Heroes 3
 /// replay. Note that parsing is not yet exhaustive, and iterative improvements will be made to
@@ -115,6 +116,9 @@ impl Replay {
 }
 
 fn replay_from_data(data: &ReplayData) -> Replay {
+    let commands = data.commands();
+    let messages = data.messages();
+
     Replay {
         version: data.header.version,
         timestamp: data.header.timestamp.clone(),
@@ -122,12 +126,12 @@ fn replay_from_data(data: &ReplayData) -> Replay {
         matchhistory_id: matchhistory_id_from_data(data),
         mod_uuid: data.game_data().mod_uuid,
         map: map_from_data(data.map_data()),
-        length: data.commands().count(),
+        length: data.command_ticks().count(),
         players: data
             .game_data()
             .players
             .iter()
-            .map(|player| player_from_data(player, data.ticks()))
+            .map(|player| player_from_data(player, &messages, &commands))
             .collect(),
     }
 }

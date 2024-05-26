@@ -1,14 +1,16 @@
+use crate::command::Command;
 use crate::data::chunks::Chunk::{DataAuto, DataData, DataSdsc};
 use crate::data::chunks::{Chunk, DataAutoChunk, DataDataChunk, DataSdscChunk};
-use crate::data::ticks::Tick::Command;
 use crate::data::ticks::{CommandTick, Tick};
 use crate::data::{Chunky, Header};
 use crate::data::{ParserResult, Span};
+use crate::Message;
 use nom::combinator::eof;
 use nom::combinator::map;
 use nom::multi::many_till;
 use nom::sequence::tuple;
 use nom_tracable::tracable_parser;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Replay {
@@ -102,14 +104,42 @@ impl Replay {
         }
     }
 
-    pub fn ticks(&self) -> Vec<&Tick> {
-        self.ticks.iter().collect()
-    }
-
-    pub fn commands(&self) -> impl Iterator<Item = &CommandTick> {
+    pub fn command_ticks(&self) -> impl Iterator<Item = &CommandTick> {
         self.ticks.iter().filter_map(|tick| match tick {
-            Command(command) => Some(command),
+            Tick::Command(command) => Some(command),
             _ => None,
         })
+    }
+
+    pub fn commands(&self) -> HashMap<u32, Vec<Command>> {
+        self.command_ticks()
+            .enumerate()
+            .fold(HashMap::new(), |mut acc, (idx, tick)| {
+                for bundle in tick.bundles.iter() {
+                    let commands = acc.entry(bundle.command.player_id as u32).or_default();
+                    commands.push(Command::from_data_command_at_tick(
+                        bundle.command,
+                        idx as u32 + 1,
+                    ));
+                }
+                acc
+            })
+    }
+
+    pub fn messages(&self) -> HashMap<String, Vec<Message>> {
+        self.ticks
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, tick)| match tick {
+                Tick::Message(message) => Some((idx + 1, message.messages.clone())),
+                _ => None,
+            })
+            .fold(HashMap::new(), |mut acc, (tick, messages)| {
+                for message in messages.iter() {
+                    let msgs = acc.entry(message.name.clone()).or_default();
+                    msgs.push(Message::new(tick as u32, message.message.clone()));
+                }
+                acc
+            })
     }
 }
