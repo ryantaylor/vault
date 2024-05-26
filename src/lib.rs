@@ -15,7 +15,9 @@
 //! }
 //! ```
 
-pub mod commands;
+mod command;
+mod command_data;
+mod command_type;
 mod data;
 mod errors;
 mod map;
@@ -23,7 +25,7 @@ mod message;
 mod player;
 mod replay;
 
-pub use crate::commands::Command;
+pub use crate::command::Command;
 pub use crate::errors::ParseError;
 pub use crate::map::Map;
 pub use crate::message::Message;

@@ -4,7 +4,7 @@ use nom::combinator::{cut, map};
 use nom::number::complete::le_u32;
 use nom::sequence::tuple;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Message {
     pub name: String,
     pub message: String,

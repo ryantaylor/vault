@@ -4,17 +4,13 @@ use nom::bytes::complete::{take, take_while};
 use nom::combinator::{map, peek, verify};
 use nom::error::ParseError;
 use nom::multi::many_till;
-use nom::number::complete::{le_u16, le_u32, le_u8};
+use nom::number::complete::{le_u16, le_u32};
 use nom::{IResult, ToUsize};
 use std::io::Cursor;
 use std::string::String;
 
 pub fn verify_zero_u16(input: Span) -> IResult<Span, u16> {
     verify(le_u16, |n: &u16| *n == 0)(input)
-}
-
-pub fn verify_le_u8<'a>(expected: u8) -> impl FnMut(Span<'a>) -> IResult<Span<'a>, u8> {
-    verify(le_u8, move |n: &u8| *n == expected)
 }
 
 pub fn verify_le_u32<'a>(expected: u32) -> impl FnMut(Span<'a>) -> IResult<Span<'a>, u32> {
