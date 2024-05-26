@@ -1,7 +1,7 @@
 //! Wrapper for Company of Heroes 3 player commands.
 
 use crate::{
-    command_data::{Pbgid, SourcedPbgid, Unknown},
+    command_data::{Pbgid, Sourced, SourcedIndex, SourcedPbgid, Unknown},
     command_type::CommandType,
     data::ticks,
 };
@@ -21,6 +21,8 @@ use serde::{Deserialize, Serialize};
 pub enum Command {
     BuildGlobalUpgrade(Pbgid),
     BuildSquad(SourcedPbgid),
+    CancelConstruction(Sourced),
+    CancelProduction(SourcedIndex),
     SelectBattlegroup(Pbgid),
     SelectBattlegroupAbility(Pbgid),
     UseAbility(SourcedPbgid),
@@ -58,6 +60,20 @@ impl Command {
                     command.action_type
                 ),
             },
+            ticks::CommandData::Sourced(source_identifier) => match command.action_type {
+                CommandType::CMD_CancelConstruction => Self::CancelConstruction(Sourced::new(tick, source_identifier)),
+                _ => panic!(
+                    "a sourced command isn't being handled here! command type {:?}",
+                    command.action_type
+                ),
+            },
+            ticks::CommandData::SourcedIndex(source_identifier, queue_index) => match command.action_type {
+                CommandType::CMD_CancelProduction => Self::CancelProduction(SourcedIndex::new(tick, source_identifier, queue_index)),
+                _ => panic!(
+                    "a sourced command isn't being handled here! command type {:?}",
+                    command.action_type
+                ),
+            }
             ticks::CommandData::Unknown => Self::Unknown(Unknown::new(tick, command.action_type)),
         }
     }

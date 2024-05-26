@@ -13,6 +13,8 @@ use nom::{
 pub enum CommandData {
     Pbgid(u32),
     SourcedPbgid(u32, u16),
+    Sourced(u16),
+    SourcedIndex(u16, u32),
     Unknown,
 }
 
@@ -30,6 +32,20 @@ impl CommandData {
         )(input)
     }
 
+    pub fn parse_sourced(input: Span) -> ParserResult<CommandData> {
+        map(
+            tuple((take(26u32), le_u16)),
+            |(_, source_identifier)| CommandData::Sourced(source_identifier),
+        )(input)
+    }
+
+    pub fn parse_sourced_index(input: Span) -> ParserResult<CommandData> {
+        map(
+            tuple((take(26u32), le_u16, take(2u32), le_u32)),
+            |(_, source_identifier, _, queue_index)| CommandData::SourcedIndex(source_identifier, queue_index),
+        )(input)
+    }
+
     pub fn parse_unknown(input: Span) -> ParserResult<CommandData> {
         map(rest, |_| CommandData::Unknown)(input)
     }
@@ -43,6 +59,8 @@ impl CommandData {
             | CommandType::PCMD_InstantUpgrade
             | CommandType::PCMD_TentativeUpgrade => Self::parse_pbgid,
             CommandType::CMD_BuildSquad | CommandType::CMD_Ability => Self::parse_sourced_pbgid,
+            CommandType::CMD_CancelConstruction => Self::parse_sourced,
+            CommandType::CMD_CancelProduction => Self::parse_sourced_index,
             _ => Self::parse_unknown,
         }
     }
