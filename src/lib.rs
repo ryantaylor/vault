@@ -15,6 +15,7 @@
 //! }
 //! ```
 
+mod command;
 pub mod commands;
 mod data;
 mod errors;

@@ -8,8 +8,8 @@ use serde::{Deserialize, Serialize};
 /// this command logically represents the enqueuing of a build command within the game engine and
 /// does not necessarily guarantee that the unit in question was actually built. If a command to
 /// cancel construction is issued before the unit is fielded, the unit cost will be refunded.
-/// Therefore, to calculate build orders, one must be aware of all unit build times for the
-/// corresponding patch version and track unit cancellation as well.
+/// Therefore, to calculate build orders, one must match source identifiers and queue indexes from
+/// build and cancellation commands in order to filter out cancelled units.
 ///
 /// Commands are collected during tick parsing and then associated with the `Player` instance that
 /// sent them. To access, see `Player::commands`. To quickly access all of a player's build
@@ -24,6 +24,7 @@ use serde::{Deserialize, Serialize};
 pub struct BuildSquad {
     tick: u32,
     pbgid: u32,
+    source_identifier: u16,
 }
 
 impl BuildSquad {
@@ -33,6 +34,12 @@ impl BuildSquad {
     /// replay began, which will tell you when this command was executed.
     pub fn tick(&self) -> u32 {
         self.tick
+    }
+    /// This value corresponds to the internal identifier given by the game engine to the building
+    /// this build command was issued at. If the unit being built is later cancelled, the
+    /// cancellation command's source identifier will match this value.
+    pub fn source_identifier(&self) -> u16 {
+        self.source_identifier
     }
     /// Internal ID that uniquely identifies the unit being built. This value can be matched to
     /// CoH3 attribute files in order to determine the unit being built. Note that, while rare, it
@@ -46,6 +53,7 @@ pub fn from_data(data: &BuildSquadData, tick: i32) -> BuildSquad {
     BuildSquad {
         tick: tick as u32,
         pbgid: data.pgbid,
+        source_identifier: data.source_identifier,
     }
 }
 
