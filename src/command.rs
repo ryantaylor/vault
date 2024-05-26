@@ -19,35 +19,11 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Command"))]
 pub enum Command {
-    #[cfg_attr(
-        feature = "magnus",
-        magnus(class = "VaultCoh::Commands::BuildGlobalUpgradeCommand")
-    )]
     BuildGlobalUpgrade(Pgbid),
-    #[cfg_attr(
-        feature = "magnus",
-        magnus(class = "VaultCoh::Commands::BuildSquadCommand")
-    )]
     BuildSquad(Pgbid),
-    #[cfg_attr(
-        feature = "magnus",
-        magnus(class = "VaultCoh::Commands::SelectBattlegroupCommand")
-    )]
     SelectBattlegroup(Pgbid),
-    #[cfg_attr(
-        feature = "magnus",
-        magnus(class = "VaultCoh::Commands::SelectBattlegroupAbilityCommand")
-    )]
     SelectBattlegroupAbility(Pgbid),
-    #[cfg_attr(
-        feature = "magnus",
-        magnus(class = "VaultCoh::Commands::UseBattlegroupAbilityCommand")
-    )]
     UseBattlegroupAbility(Pgbid),
-    #[cfg_attr(
-        feature = "magnus",
-        magnus(class = "VaultCoh::Commands::UnknownCommand")
-    )]
     Unknown(Unknown),
 }
 

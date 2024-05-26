@@ -25,6 +25,7 @@ mod message;
 mod player;
 mod replay;
 
+pub use crate::command::Command;
 pub use crate::errors::ParseError;
 pub use crate::map::Map;
 pub use crate::message::Message;
