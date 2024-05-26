@@ -1,7 +1,7 @@
 //! Wrapper for Company of Heroes 3 player commands.
 
 use crate::{
-    command_data::{Pgbid, Unknown},
+    command_data::{Pbgid, SourcedPbgid, Unknown},
     command_type::CommandType,
     data::ticks,
 };
@@ -19,29 +19,42 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Command"))]
 pub enum Command {
-    BuildGlobalUpgrade(Pgbid),
-    BuildSquad(Pgbid),
-    SelectBattlegroup(Pgbid),
-    SelectBattlegroupAbility(Pgbid),
-    UseBattlegroupAbility(Pgbid),
+    BuildGlobalUpgrade(Pbgid),
+    BuildSquad(SourcedPbgid),
+    SelectBattlegroup(Pbgid),
+    SelectBattlegroupAbility(Pbgid),
+    UseAbility(SourcedPbgid),
+    UseBattlegroupAbility(Pbgid),
     Unknown(Unknown),
 }
 
 impl Command {
     pub(crate) fn from_data_command_at_tick(command: ticks::Command, tick: u32) -> Self {
         match command.data {
-            ticks::CommandData::Pgbid(pgbid) => match command.action_type {
-                CommandType::CMD_BuildSquad => Self::BuildSquad(Pgbid::new(tick, pgbid)),
-                CommandType::CMD_Upgrade => Self::BuildGlobalUpgrade(Pgbid::new(tick, pgbid)),
-                CommandType::PCMD_Ability => Self::UseBattlegroupAbility(Pgbid::new(tick, pgbid)),
+            ticks::CommandData::Pbgid(pbgid) => match command.action_type {
+                CommandType::CMD_Upgrade => Self::BuildGlobalUpgrade(Pbgid::new(tick, pbgid)),
+                CommandType::PCMD_Ability => Self::UseBattlegroupAbility(Pbgid::new(tick, pbgid)),
                 CommandType::PCMD_InstantUpgrade => {
-                    Self::SelectBattlegroup(Pgbid::new(tick, pgbid))
+                    Self::SelectBattlegroup(Pbgid::new(tick, pbgid))
                 }
                 CommandType::PCMD_TentativeUpgrade => {
-                    Self::SelectBattlegroupAbility(Pgbid::new(tick, pgbid))
+                    Self::SelectBattlegroupAbility(Pbgid::new(tick, pbgid))
                 }
                 _ => panic!(
-                    "a pgbid command isn't being handled here! command type {:?}",
+                    "a pbgid command isn't being handled here! command type {:?}",
+                    command.action_type
+                ),
+            },
+            ticks::CommandData::SourcedPbgid(pbgid, source_identifier) => match command.action_type
+            {
+                CommandType::CMD_Ability => {
+                    Self::UseAbility(SourcedPbgid::new(tick, pbgid, source_identifier))
+                }
+                CommandType::CMD_BuildSquad => {
+                    Self::BuildSquad(SourcedPbgid::new(tick, pbgid, source_identifier))
+                }
+                _ => panic!(
+                    "a sourced pbgid command isn't being handled here! command type {:?}",
                     command.action_type
                 ),
             },

@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct Pgbid {
+pub struct Pbgid {
     tick: u32,
-    pgbid: u32,
+    pbgid: u32,
 }
 
-impl Pgbid {
-    pub(crate) fn new(tick: u32, pgbid: u32) -> Self {
-        Self { tick, pgbid }
+impl Pbgid {
+    pub(crate) fn new(tick: u32, pbgid: u32) -> Self {
+        Self { tick, pbgid }
     }
 
     /// This value is the tick at which the command was found while parsing the replay, which
@@ -23,7 +23,7 @@ impl Pgbid {
     /// Internal ID that uniquely identifies entity associated with the command. This value can be
     /// matched to CoH3 attribute files in order to determine the entity in question. Note that,
     /// while rare, it is possible that this value may change between patches for the same entity.
-    pub fn pgbid(&self) -> u32 {
-        self.pgbid
+    pub fn pbgid(&self) -> u32 {
+        self.pbgid
     }
 }

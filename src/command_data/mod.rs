@@ -1,5 +1,7 @@
-mod pgbid;
+mod pbgid;
+mod sourced_pbgid;
 mod unknown;
 
-pub use crate::command_data::pgbid::Pgbid;
+pub use crate::command_data::pbgid::Pbgid;
+pub use crate::command_data::sourced_pbgid::SourcedPbgid;
 pub use crate::command_data::unknown::Unknown;

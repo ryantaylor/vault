@@ -259,29 +259,29 @@ struct CMD_BUILDSQUAD {
     uint32 maybe_thousand;
     uint32 kinda_zero;
     char lotta_stuff[7];
-    uint32 pgbid;
+    uint32 pbgid;
     uint32 maybe_thousand_again;
     ubyte zero_byte;
 };
 
 struct CMD_USEBATTLEGROUPABILITY {
     char data[29];
-    uint32 pgbid;
+    uint32 pbgid;
 };
 
 struct CMD_SELECTBATTLEGROUP {
     char data[29];
-    uint32 pgbid;
+    uint32 pbgid;
 };
 
 struct CMD_SELECTBATTLEGROUPABILITY {
     char data[29];
-    uint32 pgbid;
+    uint32 pbgid;
 };
 
 struct CMD_GLOBALUPDGRADE {
     char data[29];
-    uint32 pgbid;
+    uint32 pbgid;
 };
 
 struct TICK_BUNDLE {
