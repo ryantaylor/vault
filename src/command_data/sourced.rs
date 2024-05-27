@@ -3,14 +3,17 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-pub struct Pgbid {
+pub struct Sourced {
     tick: u32,
-    pgbid: u32,
+    source_identifier: u16,
 }
 
-impl Pgbid {
-    pub(crate) fn new(tick: u32, pgbid: u32) -> Self {
-        Self { tick, pgbid }
+impl Sourced {
+    pub(crate) fn new(tick: u32, source_identifier: u16) -> Self {
+        Self {
+            tick,
+            source_identifier,
+        }
     }
 
     /// This value is the tick at which the command was found while parsing the replay, which
@@ -20,10 +23,10 @@ impl Pgbid {
     pub fn tick(&self) -> u32 {
         self.tick
     }
-    /// Internal ID that uniquely identifies entity associated with the command. This value can be
-    /// matched to CoH3 attribute files in order to determine the entity in question. Note that,
-    /// while rare, it is possible that this value may change between patches for the same entity.
-    pub fn pgbid(&self) -> u32 {
-        self.pgbid
+    /// This value corresponds to the internal identifier given by the game engine to the entity
+    /// that is the source of the command. If you know the identifier for a given entity, you can
+    /// use this value to link this command to that entity.
+    pub fn source_identifier(&self) -> u16 {
+        self.source_identifier
     }
 }

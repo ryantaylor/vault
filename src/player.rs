@@ -140,7 +140,7 @@ pub(crate) fn player_from_data(
         .iter()
         .find(|&command| matches!(command, Command::SelectBattlegroup(_)))
     {
-        Some(Command::SelectBattlegroup(command)) => Some(command.pgbid()),
+        Some(Command::SelectBattlegroup(command)) => Some(command.pbgid()),
         Some(_) => panic!(),
         None => None,
     };
