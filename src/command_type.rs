@@ -4,6 +4,8 @@ use nom::{combinator::map, number::complete::le_u8};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+/// Company of Heroes 3 command types.
+
 #[derive(Debug, Copy, Clone)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]

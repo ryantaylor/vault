@@ -1,3 +1,5 @@
+//! Representations of replay command data formats.
+
 mod pbgid;
 mod sourced;
 mod sourced_index;

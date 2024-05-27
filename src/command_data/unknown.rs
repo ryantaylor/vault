@@ -3,6 +3,8 @@ use crate::command_type::CommandType;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+/// A catch-all command format to cover commands that aren't currently being parsed.
+
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Unknown {
