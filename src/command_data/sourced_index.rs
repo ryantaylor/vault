@@ -31,10 +31,10 @@ impl SourcedIndex {
     pub fn source_identifier(&self) -> u16 {
         self.source_identifier
     }
-    /// The index of the position in the source entity's build queue that this command corresponds 
-    /// to. Usually used with build and cancellation commands, every time a build command is issued, 
-    /// the command is added to the source structure's build queue and given an index. These indexes 
-    /// start at 1 and increase by 1 every time a new build command is issued. This value can be used 
+    /// The index of the position in the source entity's build queue that this command corresponds
+    /// to. Usually used with build and cancellation commands, every time a build command is issued,
+    /// the command is added to the source structure's build queue and given an index. These indexes
+    /// start at 1 and increase by 1 every time a new build command is issued. This value can be used
     /// alongside source identifier to determine which specific build command is being cancelled.
     pub fn queue_index(&self) -> u32 {
         self.queue_index

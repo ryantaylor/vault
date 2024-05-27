@@ -10,7 +10,10 @@ pub struct Sourced {
 
 impl Sourced {
     pub(crate) fn new(tick: u32, source_identifier: u16) -> Self {
-        Self { tick, source_identifier }
+        Self {
+            tick,
+            source_identifier,
+        }
     }
 
     /// This value is the tick at which the command was found while parsing the replay, which

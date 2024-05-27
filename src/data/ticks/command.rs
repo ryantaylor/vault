@@ -33,16 +33,17 @@ impl CommandData {
     }
 
     pub fn parse_sourced(input: Span) -> ParserResult<CommandData> {
-        map(
-            tuple((take(26u32), le_u16)),
-            |(_, source_identifier)| CommandData::Sourced(source_identifier),
-        )(input)
+        map(tuple((take(26u32), le_u16)), |(_, source_identifier)| {
+            CommandData::Sourced(source_identifier)
+        })(input)
     }
 
     pub fn parse_sourced_index(input: Span) -> ParserResult<CommandData> {
         map(
             tuple((take(26u32), le_u16, take(2u32), le_u32)),
-            |(_, source_identifier, _, queue_index)| CommandData::SourcedIndex(source_identifier, queue_index),
+            |(_, source_identifier, _, queue_index)| {
+                CommandData::SourcedIndex(source_identifier, queue_index)
+            },
         )(input)
     }
 
