@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Command"))]
 pub enum Command {
-    BuildGlobalUpgrade(Pbgid),
+    BuildGlobalUpgrade(SourcedPbgid),
     BuildSquad(SourcedPbgid),
     CancelConstruction(Sourced),
     CancelProduction(SourcedIndex),
@@ -34,7 +34,6 @@ impl Command {
     pub(crate) fn from_data_command_at_tick(command: ticks::Command, tick: u32) -> Self {
         match command.data {
             ticks::CommandData::Pbgid(pbgid) => match command.action_type {
-                CommandType::CMD_Upgrade => Self::BuildGlobalUpgrade(Pbgid::new(tick, pbgid)),
                 CommandType::PCMD_Ability => Self::UseBattlegroupAbility(Pbgid::new(tick, pbgid)),
                 CommandType::PCMD_InstantUpgrade => {
                     Self::SelectBattlegroup(Pbgid::new(tick, pbgid))
@@ -54,6 +53,9 @@ impl Command {
                 }
                 CommandType::CMD_BuildSquad => {
                     Self::BuildSquad(SourcedPbgid::new(tick, pbgid, source_identifier))
+                }
+                CommandType::CMD_Upgrade => {
+                    Self::BuildGlobalUpgrade(SourcedPbgid::new(tick, pbgid, source_identifier))
                 }
                 _ => panic!(
                     "a sourced pbgid command isn't being handled here! command type {:?}",

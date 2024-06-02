@@ -55,11 +55,12 @@ impl CommandData {
         command_type: CommandType,
     ) -> impl FnMut(Span) -> ParserResult<CommandData> {
         match command_type {
-            CommandType::CMD_Upgrade
-            | CommandType::PCMD_Ability
+            CommandType::PCMD_Ability
             | CommandType::PCMD_InstantUpgrade
             | CommandType::PCMD_TentativeUpgrade => Self::parse_pbgid,
-            CommandType::CMD_BuildSquad | CommandType::CMD_Ability => Self::parse_sourced_pbgid,
+            CommandType::CMD_BuildSquad | CommandType::CMD_Ability | CommandType::CMD_Upgrade => {
+                Self::parse_sourced_pbgid
+            }
             CommandType::CMD_CancelConstruction => Self::parse_sourced,
             CommandType::CMD_CancelProduction => Self::parse_sourced_index,
             _ => Self::parse_unknown,
