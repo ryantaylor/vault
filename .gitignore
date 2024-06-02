@@ -1,4 +1,7 @@
 target
 Cargo.lock
 
+/replays/regression
+
 /.idea/
+.DS_Store

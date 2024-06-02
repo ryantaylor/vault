@@ -2,6 +2,11 @@
 
 extern crate vault;
 
+use std::{
+    fs::{self, File},
+    io::Read,
+    thread,
+};
 use uuid::{uuid, Uuid};
 use vault::{GameType, Replay};
 
@@ -103,4 +108,45 @@ fn parse_skirmish() {
     let replay = Replay::from_bytes(data).unwrap();
     assert_eq!(replay.game_type(), GameType::Skirmish);
     assert_eq!(replay.matchhistory_id(), None);
+}
+
+#[test]
+#[cfg_attr(not(feature = "regression"), ignore)]
+fn regression() {
+    let paths = fs::read_dir("replays/regression").unwrap();
+    let pathbufs: Vec<_> = paths
+        .into_iter()
+        .map(|path| path.unwrap().path())
+        .filter(|path| path.is_file())
+        .collect();
+    let chunks = pathbufs.chunks(100);
+    let mut results = Vec::new();
+
+    for chunk in chunks {
+        let handles: Vec<_> = chunk
+            .iter()
+            .map(|path| {
+                let cloned_path = path.clone();
+                thread::spawn(move || {
+                    let mut file = File::open(cloned_path.clone()).unwrap();
+                    let mut buffer = Vec::new();
+                    file.read_to_end(&mut buffer).unwrap();
+
+                    match Replay::from_bytes(&buffer) {
+                        Ok(replay) => Ok(replay),
+                        Err(_) => Err(format!("failed to parse {:?}", cloned_path)),
+                    }
+                })
+            })
+            .collect();
+
+        let mut parse_results: Vec<_> = handles
+            .into_iter()
+            .map(|handle| handle.join().unwrap())
+            .collect();
+        results.append(&mut parse_results);
+    }
+
+    let errs: Vec<_> = results.iter().filter(|result| result.is_err()).collect();
+    assert_eq!(errs.len(), 0);
 }

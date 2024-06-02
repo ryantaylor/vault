@@ -23,5 +23,6 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 uuid = "1"
 
 [features]
+regression = []
 serde = ["dep:serde", "uuid/serde"]
 trace = ["nom-tracable/trace"]
