@@ -92,6 +92,7 @@ impl Command {
 unsafe impl magnus::IntoValueFromNative for Command {}
 
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg(feature = "raw")]
 pub struct RawCommand {
     pub tick: u32,
