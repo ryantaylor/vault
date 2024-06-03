@@ -12,6 +12,9 @@ use nom::sequence::tuple;
 use nom_tracable::tracable_parser;
 use std::collections::HashMap;
 
+#[cfg(feature = "raw")]
+use crate::command::RawCommand;
+
 #[derive(Debug)]
 pub struct Replay {
     pub header: Header,
@@ -115,12 +118,32 @@ impl Replay {
         self.command_ticks()
             .enumerate()
             .fold(HashMap::new(), |mut acc, (idx, tick)| {
-                for bundle in tick.bundles.iter() {
-                    let commands = acc.entry(bundle.command.player_id as u32).or_default();
-                    commands.push(Command::from_data_command_at_tick(
-                        bundle.command,
-                        idx as u32 + 1,
-                    ));
+                for bundle in &tick.bundles {
+                    for command in &bundle.commands {
+                        let player_commands = acc.entry(command.player_id as u32).or_default();
+                        player_commands.push(Command::from_data_command_at_tick(
+                            command.clone(),
+                            idx as u32 + 1,
+                        ));
+                    }
+                }
+                acc
+            })
+    }
+
+    #[cfg(feature = "raw")]
+    pub fn raw_commands(&self) -> HashMap<u32, Vec<RawCommand>> {
+        self.command_ticks()
+            .enumerate()
+            .fold(HashMap::new(), |mut acc, (idx, tick)| {
+                for bundle in &tick.bundles {
+                    for command in &bundle.commands {
+                        let player_commands = acc.entry(command.player_id as u32).or_default();
+                        player_commands.push(RawCommand::from_data_command_at_tick(
+                            command.clone(),
+                            idx as u32 + 1,
+                        ));
+                    }
                 }
                 acc
             })

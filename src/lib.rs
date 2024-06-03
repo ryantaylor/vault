@@ -26,6 +26,8 @@ mod player;
 mod replay;
 
 pub use crate::command::Command;
+#[cfg(feature = "raw")]
+pub use crate::command::RawCommand;
 pub use crate::command_type::CommandType;
 pub use crate::errors::ParseError;
 pub use crate::map::Map;

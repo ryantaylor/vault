@@ -118,6 +118,8 @@ impl Replay {
 fn replay_from_data(data: &ReplayData) -> Replay {
     let commands = data.commands();
     let messages = data.messages();
+    #[cfg(feature = "raw")]
+    let raw_commands = data.raw_commands();
 
     Replay {
         version: data.header.version,
@@ -131,7 +133,7 @@ fn replay_from_data(data: &ReplayData) -> Replay {
             .game_data()
             .players
             .iter()
-            .map(|player| player_from_data(player, &messages, &commands))
+            .map(|player| player_from_data(player, &messages, &commands, #[cfg(feature = "raw")] &raw_commands))
             .collect(),
     }
 }
