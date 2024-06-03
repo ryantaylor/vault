@@ -90,3 +90,25 @@ impl Command {
 // this is safe as Command does not contain any Ruby types
 #[cfg(feature = "magnus")]
 unsafe impl magnus::IntoValueFromNative for Command {}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg(feature = "raw")]
+pub struct RawCommand {
+    pub tick: u32,
+    pub action_type: CommandType,
+    pub player_id: u8,
+    pub bytes: Vec<u8>,
+}
+
+#[cfg(feature = "raw")]
+impl RawCommand {
+    pub(crate) fn from_data_command_at_tick(command: ticks::Command, tick: u32) -> Self {
+        Self {
+            tick,
+            action_type: command.action_type,
+            player_id: command.player_id,
+            bytes: command.bytes,
+        }
+    }
+}

@@ -29,7 +29,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --features "magnus serde trace"
+          args: --features "magnus serde trace raw"
 
   test:
     name: Test Suite
@@ -53,7 +53,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --features "magnus serde trace"
+          args: --features "magnus serde trace raw"
 
   fmt:
     name: Rustfmt
@@ -107,4 +107,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --features "magnus serde trace" -- -D warnings
+          args: --features "magnus serde trace raw" -- -D warnings

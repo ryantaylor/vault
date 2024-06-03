@@ -8,6 +8,9 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
+#[cfg(feature = "raw")]
+use crate::command::RawCommand;
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -27,6 +30,8 @@ pub struct Player {
     profile_id: Option<u64>,
     messages: Vec<Message>,
     commands: Vec<Command>,
+    #[cfg(feature = "raw")]
+    raw_commands: Vec<RawCommand>,
 }
 
 impl Player {
@@ -78,6 +83,13 @@ impl Player {
         self.commands.clone()
     }
 
+    /// A list of all commands executed by the player in the match with raw bytes included, useful
+    /// for testing and development purposes. Sorted chronologically from first to last.
+    #[cfg(feature = "raw")]
+    pub fn raw_commands(&self) -> Vec<RawCommand> {
+        self.raw_commands.clone()
+    }
+
     /// A list of only build-related commands executed by the player in the match. A build command
     /// is any that enqueues the construction of a new unit or upgrade. Sorted chronologically from
     /// first to last.
@@ -117,6 +129,7 @@ pub(crate) fn player_from_data(
     player_data: &PlayerData,
     messages: &HashMap<String, Vec<Message>>,
     commands: &HashMap<u32, Vec<Command>>,
+    #[cfg(feature = "raw")] raw_commands: &HashMap<u32, Vec<RawCommand>>,
 ) -> Player {
     let mut player = Player {
         name: player_data.name.clone(),
@@ -127,6 +140,11 @@ pub(crate) fn player_from_data(
         profile_id: None,
         messages: messages.get(&player_data.name).cloned().unwrap_or_default(),
         commands: commands.get(&player_data.id).cloned().unwrap_or_default(),
+        #[cfg(feature = "raw")]
+        raw_commands: raw_commands
+            .get(&player_data.id)
+            .cloned()
+            .unwrap_or_default(),
         battlegroup: None,
     };
 
@@ -146,6 +164,12 @@ pub(crate) fn player_from_data(
     };
 
     player
+}
+
+impl Display for Player {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 // this is safe as Player does not contain any Ruby types
