@@ -75,7 +75,7 @@ pub struct Command {
     pub player_id: u8,
     pub data: CommandData,
     #[cfg(feature = "raw")]
-    pub bytes: Vec<u8>
+    pub bytes: Vec<u8>,
 }
 
 impl Command {
@@ -109,7 +109,11 @@ impl Command {
 
         move |input: Span| {
             map(
-                tuple((peek(many_till(le_u8, eof)), le_u8, CommandData::parser_for_type(action_type))),
+                tuple((
+                    peek(many_till(le_u8, eof)),
+                    le_u8,
+                    CommandData::parser_for_type(action_type),
+                )),
                 |((bytes, _), player_id, data)| Command {
                     action_type,
                     player_id,

@@ -129,7 +129,8 @@ pub(crate) fn player_from_data(
     player_data: &PlayerData,
     messages: &HashMap<String, Vec<Message>>,
     commands: &HashMap<u32, Vec<Command>>,
-    #[cfg(feature = "raw")] raw_commands: &HashMap<u32, Vec<RawCommand>>
+    #[cfg(feature = "raw")]
+    raw_commands: &HashMap<u32, Vec<RawCommand>>,
 ) -> Player {
     let mut player = Player {
         name: player_data.name.clone(),
@@ -141,7 +142,10 @@ pub(crate) fn player_from_data(
         messages: messages.get(&player_data.name).cloned().unwrap_or_default(),
         commands: commands.get(&player_data.id).cloned().unwrap_or_default(),
         #[cfg(feature = "raw")]
-        raw_commands: raw_commands.get(&player_data.id).cloned().unwrap_or_default(),
+        raw_commands: raw_commands
+            .get(&player_data.id)
+            .cloned()
+            .unwrap_or_default(),
         battlegroup: None,
     };
 

@@ -133,7 +133,15 @@ fn replay_from_data(data: &ReplayData) -> Replay {
             .game_data()
             .players
             .iter()
-            .map(|player| player_from_data(player, &messages, &commands, #[cfg(feature = "raw")] &raw_commands))
+            .map(|player| {
+                player_from_data(
+                    player,
+                    &messages,
+                    &commands,
+                    #[cfg(feature = "raw")]
+                    &raw_commands,
+                )
+            })
             .collect(),
     }
 }
