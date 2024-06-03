@@ -1,10 +1,10 @@
 # vault
 
-[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/8.0.0/vault/)
+[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/9.0.0/vault/)
 
 `vault` is a Company of Heroes replay parsing library written in [Rust](https://www.rust-lang.org/). It has been completely rewritten for Company of Heroes 3 to provide a more intuitive interface while simplifying the code and leveraging [nom](https://github.com/rust-bakery/nom)'s parser combinators to enable clean, fast parsing of Company of Heroes 3 replay files.
 
-Note that this project is still under development, and as such not all information is currently being parsed from CoH3 replay files; namely, command parsing has not yet been implemented. Core player, map, and chat information is accessible however.
+This project is still under development, so check back for updates and feel free to open an issue if a command you're interesting in isn't currently being parsed!
 
 # Usage
 
@@ -16,7 +16,7 @@ If you are writing a Rust application, you can use `vault` from [crates.io](http
 
 ```toml
 [dependencies]
-vault = "8"
+vault = "9"
 ```
 
 `src/main.rs`:
@@ -37,7 +37,7 @@ fn main() {
 
 ```toml
 [dependencies]
-vault = { version = "8", features = ["magnus"] }
+vault = { version = "9", features = ["magnus"] }
 ```
 
 `src/lib.rs`:
@@ -82,7 +82,7 @@ Note that all classes must be bound to the `VaultCoh` namespace, with class name
 
 ```toml
 [dependencies]
-vault = { version = "8", features = ["serde"] }
+vault = { version = "9", features = ["serde"] }
 ```
 
 `src/main.rs`:
@@ -112,7 +112,7 @@ Ruby bindings have some additional compatibility requirements, such as `libclang
 
 # Documentation
 
-Documentation for `vault` [can be viewed online](https://docs.rs/vault/8.0.0/vault/).
+Documentation for `vault` [can be viewed online](https://docs.rs/vault/9.0.0/vault/).
 
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
