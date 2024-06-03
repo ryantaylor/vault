@@ -96,7 +96,7 @@ impl Command {
                 tuple((le_u8, CommandData::parser_for_type(action_type))),
                 |(player_id, data)| Command {
                     action_type,
-                    player_id,
+                    player_id: player_id & 0b0111_1111, // bit mask to turn eg 0x87 into 0x7
                     data,
                 },
             )(input)
@@ -116,7 +116,7 @@ impl Command {
                 )),
                 |((bytes, _), player_id, data)| Command {
                     action_type,
-                    player_id,
+                    player_id: player_id & 0b0111_1111, // bit mask to turn eg 0x87 into 0x7,
                     data,
                     bytes,
                 },
