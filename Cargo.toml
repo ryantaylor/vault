@@ -15,7 +15,7 @@ exclude = ["replays/*", "build-doc.sh", ".travis.yml", "CoH3Rec.bt"]
 
 [dependencies]
 byteorder = "1"
-magnus = { version = "0.6", optional = true }
+magnus = { version = "0.7", optional = true }
 nom = "7"
 nom_locate = "4"
 nom-tracable = "0.9"
