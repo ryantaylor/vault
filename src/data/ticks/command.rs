@@ -21,27 +21,27 @@ pub enum CommandData {
 
 impl CommandData {
     pub fn parse_pbgid(input: Span) -> ParserResult<CommandData> {
-        map(tuple((take(31u32), le_u32)), |(_, pbgid)| {
+        map(tuple((take(27u32), le_u32)), |(_, pbgid)| {
             CommandData::Pbgid(pbgid)
         })(input)
     }
 
     pub fn parse_sourced_pbgid(input: Span) -> ParserResult<CommandData> {
         map(
-            tuple((take(26u32), le_u16, take(3u32), le_u32)),
+            tuple((take(22u32), le_u16, take(3u32), le_u32)),
             |(_, source_identifier, _, pbgid)| CommandData::SourcedPbgid(pbgid, source_identifier),
         )(input)
     }
 
     pub fn parse_sourced(input: Span) -> ParserResult<CommandData> {
-        map(tuple((take(26u32), le_u16)), |(_, source_identifier)| {
+        map(tuple((take(22u32), le_u16)), |(_, source_identifier)| {
             CommandData::Sourced(source_identifier)
         })(input)
     }
 
     pub fn parse_sourced_index(input: Span) -> ParserResult<CommandData> {
         map(
-            tuple((take(26u32), le_u16, take(2u32), le_u32)),
+            tuple((take(22u32), le_u16, take(2u32), le_u32)),
             |(_, source_identifier, _, queue_index)| {
                 CommandData::SourcedIndex(source_identifier, queue_index)
             },
@@ -73,6 +73,7 @@ impl CommandData {
 pub struct Command {
     pub action_type: CommandType,
     pub player_id: u8,
+    pub index: u32,
     pub data: CommandData,
     #[cfg(feature = "raw")]
     pub bytes: Vec<u8>,
@@ -93,10 +94,11 @@ impl Command {
     fn parse_type(action_type: CommandType) -> impl FnMut(Span) -> ParserResult<Command> {
         move |input: Span| {
             map(
-                tuple((le_u8, CommandData::parser_for_type(action_type))),
-                |(player_id, data)| Command {
+                tuple((le_u8, le_u32, CommandData::parser_for_type(action_type))),
+                |(player_id, index, data)| Command {
                     action_type,
                     player_id: player_id & 0b0111_1111, // bit mask to turn eg 0x87 into 0x7
+                    index,
                     data,
                 },
             )(input)
@@ -112,11 +114,13 @@ impl Command {
                 tuple((
                     peek(many_till(le_u8, eof)),
                     le_u8,
+                    le_u32,
                     CommandData::parser_for_type(action_type),
                 )),
-                |((bytes, _), player_id, data)| Command {
+                |((bytes, _), player_id, index, data)| Command {
                     action_type,
                     player_id: player_id & 0b0111_1111, // bit mask to turn eg 0x87 into 0x7,
+                    index,
                     data,
                     bytes,
                 },
