@@ -116,6 +116,7 @@ unsafe impl magnus::IntoValueFromNative for Command {}
 #[cfg(feature = "raw")]
 pub struct RawCommand {
     pub tick: u32,
+    pub index: u32,
     pub action_type: CommandType,
     pub player_id: u8,
     pub bytes: Vec<u8>,
@@ -126,6 +127,7 @@ impl RawCommand {
     pub(crate) fn from_data_command_at_tick(command: ticks::Command, tick: u32) -> Self {
         Self {
             tick,
+            index: command.index,
             action_type: command.action_type,
             player_id: command.player_id,
             bytes: command.bytes,
