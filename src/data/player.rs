@@ -16,10 +16,10 @@ pub struct Player {
     pub name: String,
     pub team: u32,
     pub faction: String,
-    pub ai_type: String,
+    _ai_type: String,
     pub steam_id: String,
     pub profile_id: u64,
-    pub items: Vec<Item>,
+    _items: Vec<Item>,
 }
 
 impl Player {
@@ -48,17 +48,17 @@ impl Player {
                         name,
                         team,
                         faction,
-                        ai_type,
+                        _ai_type: ai_type,
                         steam_id,
                         profile_id,
-                        items: vec![],
+                        _items: vec![],
                     }
                 },
             ))(input)?;
 
             let (input, items) = Self::parse_items(input, &player, version)?;
             let (input, _) = take(4u32)(input)?;
-            Ok((input, Player { items, ..player }))
+            Ok((input, Player { _items: items, ..player }))
         }
     }
 

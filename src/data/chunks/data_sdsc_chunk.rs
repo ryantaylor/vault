@@ -10,7 +10,7 @@ use nom_tracable::tracable_parser;
 
 #[derive(Debug)]
 pub struct DataSdscChunk {
-    pub header: Header,
+    _header: Header,
     pub map_file: String,
     pub map_name: String,
     pub map_description: String,
@@ -31,7 +31,7 @@ impl DataSdscChunk {
                 )),
                 |(_, map_file, map_name, _, map_description)| {
                     DataSdsc(DataSdscChunk {
-                        header: header.clone(),
+                        _header: header.clone(),
                         map_name,
                         map_file,
                         map_description,

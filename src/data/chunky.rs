@@ -7,10 +7,10 @@ use nom_tracable::tracable_parser;
 
 #[derive(Debug)]
 pub struct Chunky {
-    pub name: String,
-    pub signature: u32,
-    pub major_version: u32,
-    pub minor_version: u32, // maybe?
+    _name: String,
+    _signature: u32,
+    _major_version: u32,
+    _minor_version: u32, // maybe?
 }
 
 impl Chunky {
@@ -24,10 +24,10 @@ impl Chunky {
                 Self::parse_minor_version,
             )),
             |(name, signature, major_version, minor_version)| Chunky {
-                name,
-                signature,
-                major_version,
-                minor_version,
+                _name: name,
+                _signature: signature,
+                _major_version: major_version,
+                _minor_version: minor_version,
             },
         )(input)
     }

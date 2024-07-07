@@ -7,7 +7,7 @@ use nom::sequence::terminated;
 
 #[derive(Debug)]
 pub struct FoldChunk {
-    pub header: Header,
+    _header: Header,
     pub chunks: Vec<Chunk>,
 }
 
@@ -20,7 +20,7 @@ impl FoldChunk {
                     map_parser(take(header.length), many0(Chunk::parse(version))),
                     move |chunks| {
                         Fold(FoldChunk {
-                            header: header.clone(),
+                            _header: header.clone(),
                             chunks,
                         })
                     },

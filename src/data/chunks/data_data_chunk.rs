@@ -13,8 +13,8 @@ use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct Option {
-    pub name: String,
-    pub value: u32,
+    _name: String,
+    _value: u32,
 }
 
 impl Option {
@@ -22,21 +22,21 @@ impl Option {
     pub fn parse_option(input: Span) -> ParserResult<Option> {
         map(
             tuple((parse_utf8_variable(le_u32), le_u32)),
-            |((_, name), value)| Option { name, value },
+            |((_, name), value)| Option { _name: name, _value: value },
         )(input)
     }
 }
 
 #[derive(Debug)]
 pub struct DataDataChunk {
-    pub header: Header,
-    pub opponent_type: u32,
+    _header: Header,
+    _opponent_type: u32,
     pub players: Vec<Player>,
     pub skirmish: bool,
     pub matchhistory_id: u64,
-    pub options: Vec<Option>,
+    _options: Vec<Option>,
     pub mod_uuid: Uuid,
-    pub unknown_number: u32,
+    _unknown_number: u32,
 }
 
 impl DataDataChunk {
@@ -74,14 +74,14 @@ impl DataDataChunk {
                     (mod_uuid, unknown_number),
                 )| {
                     DataData(DataDataChunk {
-                        header: header.clone(),
-                        opponent_type,
+                        _header: header.clone(),
+                        _opponent_type: opponent_type,
                         players,
                         skirmish,
                         matchhistory_id,
-                        options,
+                        _options: options,
                         mod_uuid,
-                        unknown_number,
+                        _unknown_number: unknown_number,
                     })
                 },
             ),

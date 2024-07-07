@@ -13,7 +13,7 @@ pub struct Header {
     pub chunk_type: String,
     pub version: u32,
     pub length: u32,
-    pub name_length: u32,
+    _name_length: u32,
 }
 
 impl Header {
@@ -34,7 +34,7 @@ impl Header {
                 chunk_type,
                 version,
                 length,
-                name_length,
+                _name_length: name_length,
             },
         )(input)
     }

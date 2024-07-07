@@ -18,7 +18,7 @@ use crate::command::RawCommand;
 #[derive(Debug)]
 pub struct Replay {
     pub header: Header,
-    pub chunkies: Vec<Chunky>,
+    _chunkies: Vec<Chunky>,
     pub chunks: Vec<Chunk>,
     pub ticks: Vec<Tick>,
 }
@@ -47,7 +47,7 @@ impl Replay {
             )| {
                 Replay {
                     header: header.clone(),
-                    chunkies: vec![first_chunky, second_chunky],
+                    _chunkies: vec![first_chunky, second_chunky],
                     chunks: vec![foldpost_chunk, foldinfo_chunk, datasdsc_chunk],
                     ticks,
                 }

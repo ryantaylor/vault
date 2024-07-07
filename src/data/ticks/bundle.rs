@@ -9,7 +9,7 @@ use nom_tracable::tracable_parser;
 
 #[derive(Debug, Clone)]
 pub struct Bundle {
-    pub index: u32,
+    _index: u32,
     pub commands: Vec<Command>,
 }
 
@@ -22,7 +22,7 @@ impl Bundle {
                 take(4u32),
                 length_value(le_u32, many1(Command::parse)),
             )),
-            |(index, _, commands)| Bundle { index, commands },
+            |(index, _, commands)| Bundle { _index: index, commands },
         )(input)
     }
 }

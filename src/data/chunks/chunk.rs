@@ -6,7 +6,7 @@ use crate::data::{ParserResult, Span};
 #[derive(Debug)]
 pub enum Chunk {
     Fold(FoldChunk),
-    Data(TrashDataChunk),
+    Data(#[allow(unused)] TrashDataChunk),
     DataAuto(DataAutoChunk),
     DataData(DataDataChunk),
     DataSdsc(DataSdscChunk),

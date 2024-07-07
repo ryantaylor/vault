@@ -7,7 +7,7 @@ use nom::sequence::tuple;
 
 #[derive(Debug)]
 pub struct Item {
-    pub data: Vec<u8>,
+    _data: Vec<u8>,
 }
 
 impl Item {
@@ -20,7 +20,7 @@ impl Item {
                 length_data(le_u32),
             )),
             |(_, _, _, data)| Item {
-                data: data.to_vec(),
+                _data: data.to_vec(),
             },
         ))(input)
     }

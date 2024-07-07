@@ -9,8 +9,8 @@ use nom_tracable::tracable_parser;
 
 #[derive(Debug)]
 pub struct CommandTick {
-    pub id: u32,
-    pub tick_type: u32,
+    _id: u32,
+    _tick_type: u32,
     pub bundles: Vec<Bundle>,
 }
 
@@ -32,8 +32,8 @@ impl CommandTick {
             )),
             |(tick_type, (_, id, _, bundles))| {
                 Command(CommandTick {
-                    id,
-                    tick_type,
+                    _id: id,
+                    _tick_type: tick_type,
                     bundles,
                 })
             },
