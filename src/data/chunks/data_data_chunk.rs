@@ -22,7 +22,10 @@ impl Option {
     pub fn parse_option(input: Span) -> ParserResult<Option> {
         map(
             tuple((parse_utf8_variable(le_u32), le_u32)),
-            |((_, name), value)| Option { _name: name, _value: value },
+            |((_, name), value)| Option {
+                _name: name,
+                _value: value,
+            },
         )(input)
     }
 }

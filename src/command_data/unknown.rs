@@ -15,7 +15,11 @@ pub struct Unknown {
 
 impl Unknown {
     pub(crate) fn new(tick: u32, index: u32, action_type: CommandType) -> Self {
-        Self { tick, index, action_type }
+        Self {
+            tick,
+            index,
+            action_type,
+        }
     }
 
     /// This value is the tick at which the command was found while parsing the replay, which

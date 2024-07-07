@@ -22,7 +22,10 @@ impl Bundle {
                 take(4u32),
                 length_value(le_u32, many1(Command::parse)),
             )),
-            |(index, _, commands)| Bundle { _index: index, commands },
+            |(index, _, commands)| Bundle {
+                _index: index,
+                commands,
+            },
         )(input)
     }
 }

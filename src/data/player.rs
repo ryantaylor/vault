@@ -58,7 +58,13 @@ impl Player {
 
             let (input, items) = Self::parse_items(input, &player, version)?;
             let (input, _) = take(4u32)(input)?;
-            Ok((input, Player { _items: items, ..player }))
+            Ok((
+                input,
+                Player {
+                    _items: items,
+                    ..player
+                },
+            ))
         }
     }
 
