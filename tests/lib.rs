@@ -5,7 +5,6 @@ extern crate vault;
 use std::{
     collections::HashSet,
     fs::{self, File},
-    hash::RandomState,
     io::Read,
     thread,
 };
@@ -163,7 +162,7 @@ fn missing_commands() {
         .filter(|path| path.is_file())
         .collect();
     let chunks = pathbufs.chunks(100);
-    let mut results: Vec<Result<HashSet<CommandType, RandomState>, String>> = Vec::new();
+    let mut results: Vec<Result<HashSet<CommandType>, String>> = Vec::new();
 
     for chunk in chunks {
         let handles: Vec<_> = chunk
