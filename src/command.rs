@@ -23,6 +23,7 @@ pub enum Command {
     BuildSquad(SourcedPbgid),
     CancelConstruction(Sourced),
     CancelProduction(SourcedIndex),
+    ConstructEntity(Pbgid),
     SelectBattlegroup(Pbgid),
     SelectBattlegroupAbility(Pbgid),
     UseAbility(SourcedPbgid),
@@ -34,12 +35,17 @@ impl Command {
     pub(crate) fn from_data_command_at_tick(command: ticks::Command, tick: u32) -> Self {
         match command.data {
             ticks::CommandData::Pbgid(pbgid) => match command.action_type {
-                CommandType::PCMD_Ability => Self::UseBattlegroupAbility(Pbgid::new(tick, pbgid)),
+                CommandType::PCMD_Ability => {
+                    Self::UseBattlegroupAbility(Pbgid::new(tick, command.index, pbgid))
+                }
                 CommandType::PCMD_InstantUpgrade => {
-                    Self::SelectBattlegroup(Pbgid::new(tick, pbgid))
+                    Self::SelectBattlegroup(Pbgid::new(tick, command.index, pbgid))
+                }
+                CommandType::PCMD_PlaceAndConstructEntities => {
+                    Self::ConstructEntity(Pbgid::new(tick, command.index, pbgid))
                 }
                 CommandType::PCMD_TentativeUpgrade => {
-                    Self::SelectBattlegroupAbility(Pbgid::new(tick, pbgid))
+                    Self::SelectBattlegroupAbility(Pbgid::new(tick, command.index, pbgid))
                 }
                 _ => panic!(
                     "a pbgid command isn't being handled here! command type {:?}",
@@ -48,15 +54,24 @@ impl Command {
             },
             ticks::CommandData::SourcedPbgid(pbgid, source_identifier) => match command.action_type
             {
-                CommandType::CMD_Ability => {
-                    Self::UseAbility(SourcedPbgid::new(tick, pbgid, source_identifier))
-                }
-                CommandType::CMD_BuildSquad => {
-                    Self::BuildSquad(SourcedPbgid::new(tick, pbgid, source_identifier))
-                }
-                CommandType::CMD_Upgrade => {
-                    Self::BuildGlobalUpgrade(SourcedPbgid::new(tick, pbgid, source_identifier))
-                }
+                CommandType::CMD_Ability => Self::UseAbility(SourcedPbgid::new(
+                    tick,
+                    command.index,
+                    pbgid,
+                    source_identifier,
+                )),
+                CommandType::CMD_BuildSquad => Self::BuildSquad(SourcedPbgid::new(
+                    tick,
+                    command.index,
+                    pbgid,
+                    source_identifier,
+                )),
+                CommandType::CMD_Upgrade => Self::BuildGlobalUpgrade(SourcedPbgid::new(
+                    tick,
+                    command.index,
+                    pbgid,
+                    source_identifier,
+                )),
                 _ => panic!(
                     "a sourced pbgid command isn't being handled here! command type {:?}",
                     command.action_type
@@ -64,25 +79,30 @@ impl Command {
             },
             ticks::CommandData::Sourced(source_identifier) => match command.action_type {
                 CommandType::CMD_CancelConstruction => {
-                    Self::CancelConstruction(Sourced::new(tick, source_identifier))
+                    Self::CancelConstruction(Sourced::new(tick, command.index, source_identifier))
                 }
                 _ => panic!(
                     "a sourced command isn't being handled here! command type {:?}",
                     command.action_type
                 ),
             },
-            ticks::CommandData::SourcedIndex(source_identifier, queue_index) => match command
-                .action_type
-            {
-                CommandType::CMD_CancelProduction => {
-                    Self::CancelProduction(SourcedIndex::new(tick, source_identifier, queue_index))
+            ticks::CommandData::SourcedIndex(source_identifier, queue_index) => {
+                match command.action_type {
+                    CommandType::CMD_CancelProduction => Self::CancelProduction(SourcedIndex::new(
+                        tick,
+                        command.index,
+                        source_identifier,
+                        queue_index,
+                    )),
+                    _ => panic!(
+                        "a sourced command isn't being handled here! command type {:?}",
+                        command.action_type
+                    ),
                 }
-                _ => panic!(
-                    "a sourced command isn't being handled here! command type {:?}",
-                    command.action_type
-                ),
-            },
-            ticks::CommandData::Unknown => Self::Unknown(Unknown::new(tick, command.action_type)),
+            }
+            ticks::CommandData::Unknown => {
+                Self::Unknown(Unknown::new(tick, command.index, command.action_type))
+            }
         }
     }
 }
@@ -96,6 +116,7 @@ unsafe impl magnus::IntoValueFromNative for Command {}
 #[cfg(feature = "raw")]
 pub struct RawCommand {
     pub tick: u32,
+    pub index: u32,
     pub action_type: CommandType,
     pub player_id: u8,
     pub bytes: Vec<u8>,
@@ -106,6 +127,7 @@ impl RawCommand {
     pub(crate) fn from_data_command_at_tick(command: ticks::Command, tick: u32) -> Self {
         Self {
             tick,
+            index: command.index,
             action_type: command.action_type,
             player_id: command.player_id,
             bytes: command.bytes,

@@ -7,9 +7,8 @@ use nom::sequence::tuple;
 
 #[derive(Debug)]
 pub struct MessageTick {
-    pub tick_type: u32,
+    _tick_type: u32,
     pub messages: Vec<Message>,
-    pub position: isize,
 }
 
 impl MessageTick {
@@ -18,9 +17,8 @@ impl MessageTick {
             tuple((le_u32, length_value(le_u32, Self::parse_message))),
             |(tick_type, messages)| {
                 Tick::Message(MessageTick {
-                    tick_type,
+                    _tick_type: tick_type,
                     messages,
-                    position: -1,
                 })
             },
         )(input)

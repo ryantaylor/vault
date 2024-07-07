@@ -8,7 +8,7 @@ use nom_tracable::tracable_parser;
 #[derive(Debug, Clone)]
 pub struct Header {
     pub version: u16,
-    pub game_type: String,
+    _game_type: String,
     pub timestamp: String,
 }
 
@@ -24,7 +24,7 @@ impl Header {
             )),
             |(version, game_type, timestamp, _)| Header {
                 version,
-                game_type,
+                _game_type: game_type,
                 timestamp,
             },
         )(input)

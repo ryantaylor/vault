@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 /// Company of Heroes 3 command types.
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
