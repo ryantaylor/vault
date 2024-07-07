@@ -23,6 +23,7 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 uuid = "1"
 
 [features]
+missing = []
 raw = []
 regression = []
 serde = ["dep:serde", "uuid/serde"]
