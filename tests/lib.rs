@@ -104,3 +104,15 @@ fn parse_skirmish() {
     assert_eq!(replay.game_type(), GameType::Skirmish);
     assert_eq!(replay.matchhistory_id(), None);
 }
+
+#[test]
+fn parse_new_map_chunk() {
+    let data = include_bytes!("../replays/one_seven_zero.rec");
+    let replay = Replay::from_bytes(data).unwrap();
+    assert_eq!(
+        replay.map_filename(),
+        "data:scenarios\\multiplayer\\desert_airfield_6p_mkii\\desert_airfield_6p_mkii"
+    );
+    assert_eq!(replay.map_localized_name_id(), "$11233954");
+    assert_eq!(replay.map_localized_description_id(), "$11233955");
+}
