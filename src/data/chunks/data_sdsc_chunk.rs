@@ -3,7 +3,7 @@ use crate::data::parser::{parse_utf16_variable, parse_utf8_variable, verify_le_u
 use crate::data::{ParserResult, Span};
 use nom::branch::alt;
 use nom::bytes::complete::take;
-use nom::combinator::{cut, map, map_parser, success};
+use nom::combinator::{cond, cut, map, map_parser, success};
 use nom::number::complete::le_u32;
 use nom::sequence::tuple;
 use nom_tracable::tracable_parser;
@@ -24,12 +24,13 @@ impl DataSdscChunk {
             map(
                 tuple((
                     take(121u32),
+                    cond(header.version > 3026, take(8u32)),
                     Self::parse_map_file,
                     Self::parse_map_identifier,
                     alt((verify_le_u32(0u32), success(0u32))),
                     Self::parse_map_identifier,
                 )),
-                |(_, map_file, map_name, _, map_description)| {
+                |(_, _, map_file, map_name, _, map_description)| {
                     DataSdsc(DataSdscChunk {
                         _header: header.clone(),
                         map_name,
