@@ -1,7 +1,7 @@
 //! Wrapper for Company of Heroes 3 player commands.
 
 use crate::{
-    command_data::{Pbgid, Sourced, SourcedIndex, SourcedPbgid, Unknown},
+    command_data::{Coordinates, Pbgid, Sourced, SourcedIndex, SourcedPbgid, Unknown},
     command_type::CommandType,
     data::ticks,
 };
@@ -24,6 +24,7 @@ pub enum Command {
     CancelConstruction(Sourced),
     CancelProduction(SourcedIndex),
     ConstructEntity(Pbgid),
+    Move(Coordinates),
     SelectBattlegroup(Pbgid),
     SelectBattlegroupAbility(Pbgid),
     UseAbility(SourcedPbgid),
@@ -95,7 +96,22 @@ impl Command {
                         queue_index,
                     )),
                     _ => panic!(
-                        "a sourced command isn't being handled here! command type {:?}",
+                        "a sourced index command isn't being handled here! command type {:?}",
+                        command.action_type
+                    ),
+                }
+            }
+            ticks::CommandData::Coordinates(x, y, z) => {
+                match command.action_type {
+                    CommandType::SCMD_Move => Self::Move(Coordinates::new(
+                        tick,
+                        command.index,
+                        x,
+                        y,
+                        z
+                    )),
+                    _ => panic!(
+                        "a coordinates command isn't being handled here! command type {:?}",
                         command.action_type
                     ),
                 }

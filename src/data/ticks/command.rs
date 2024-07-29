@@ -6,9 +6,10 @@ use nom::{
     bytes::complete::take,
     combinator::{flat_map, map, peek, rest},
     multi::length_value,
-    number::complete::{le_u16, le_u32, le_u8},
+    number::complete::{le_f32, le_u16, le_u32, le_u8},
     sequence::tuple,
 };
+use nom_tracable::tracable_parser;
 
 #[derive(Debug, Copy, Clone)]
 pub enum CommandData {
@@ -16,16 +17,19 @@ pub enum CommandData {
     SourcedPbgid(u32, u16),
     Sourced(u16),
     SourcedIndex(u16, u32),
+    Coordinates(f32, f32, f32),
     Unknown,
 }
 
 impl CommandData {
+    #[tracable_parser]
     pub fn parse_pbgid(input: Span) -> ParserResult<CommandData> {
         map(tuple((take(27u32), le_u32)), |(_, pbgid)| {
             CommandData::Pbgid(pbgid)
         })(input)
     }
 
+    #[tracable_parser]
     pub fn parse_sourced_pbgid(input: Span) -> ParserResult<CommandData> {
         map(
             tuple((take(22u32), le_u16, take(3u32), le_u32)),
@@ -33,12 +37,14 @@ impl CommandData {
         )(input)
     }
 
+    #[tracable_parser]
     pub fn parse_sourced(input: Span) -> ParserResult<CommandData> {
         map(tuple((take(22u32), le_u16)), |(_, source_identifier)| {
             CommandData::Sourced(source_identifier)
         })(input)
     }
 
+    #[tracable_parser]
     pub fn parse_sourced_index(input: Span) -> ParserResult<CommandData> {
         map(
             tuple((take(22u32), le_u16, take(2u32), le_u32)),
@@ -48,6 +54,14 @@ impl CommandData {
         )(input)
     }
 
+    #[tracable_parser]
+    pub fn parse_coordinates(input: Span) -> ParserResult<CommandData> {
+        map(tuple((take(27u32), le_f32, le_f32, le_f32)), |(_, x, y, z)| {
+            CommandData::Coordinates(x, y, z)
+        })(input)
+    }
+
+    #[tracable_parser]
     pub fn parse_unknown(input: Span) -> ParserResult<CommandData> {
         map(rest, |_| CommandData::Unknown)(input)
     }
@@ -64,6 +78,7 @@ impl CommandData {
             }
             CommandType::CMD_CancelConstruction => Self::parse_sourced,
             CommandType::CMD_CancelProduction => Self::parse_sourced_index,
+            CommandType::SCMD_Move => Self::parse_coordinates,
             _ => Self::parse_unknown,
         }
     }
@@ -80,6 +95,7 @@ pub struct Command {
 }
 
 impl Command {
+    #[tracable_parser]
     pub fn parse(input: Span) -> ParserResult<Command> {
         map(
             length_value(
