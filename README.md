@@ -16,7 +16,7 @@ If you are writing a Rust application, you can use `vault` from [crates.io](http
 
 ```toml
 [dependencies]
-vault = "9"
+vault = "10"
 ```
 
 `src/main.rs`:
@@ -37,7 +37,7 @@ fn main() {
 
 ```toml
 [dependencies]
-vault = { version = "9", features = ["magnus"] }
+vault = { version = "10", features = ["magnus"] }
 ```
 
 `src/lib.rs`:
@@ -82,7 +82,7 @@ Note that all classes must be bound to the `VaultCoh` namespace, with class name
 
 ```toml
 [dependencies]
-vault = { version = "9", features = ["serde"] }
+vault = { version = "10", features = ["serde"] }
 ```
 
 `src/main.rs`:
