@@ -124,6 +124,13 @@ fn parse_new_map_chunk() {
 }
 
 #[test]
+fn parse_ai_takeover() {
+    let data = include_bytes!("../replays/ai_takeover.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+}
+
+#[test]
 #[cfg_attr(not(feature = "regression"), ignore)]
 fn regression() {
     let paths = fs::read_dir("replays/regression").unwrap();
