@@ -1,7 +1,7 @@
 //! Wrapper for Company of Heroes 3 player commands.
 
 use crate::{
-    command_data::{Pbgid, Sourced, SourcedIndex, SourcedPbgid, Unknown},
+    command_data::{Empty, Pbgid, Sourced, SourcedIndex, SourcedPbgid, Unknown},
     command_type::CommandType,
     data::ticks,
 };
@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Command"))]
 pub enum Command {
+    AITakeover(Empty),
     BuildGlobalUpgrade(SourcedPbgid),
     BuildSquad(SourcedPbgid),
     CancelConstruction(Sourced),
@@ -34,6 +35,13 @@ pub enum Command {
 impl Command {
     pub(crate) fn from_data_command_at_tick(command: ticks::Command, tick: u32) -> Self {
         match command.data {
+            ticks::CommandData::Empty => match command.action_type {
+                CommandType::PCMD_AIPlayer => Self::AITakeover(Empty::new(tick)),
+                _ => panic!(
+                    "an empty command isn't being handled here! command type {:?}",
+                    command.action_type
+                ),
+            },
             ticks::CommandData::Pbgid(pbgid) => match command.action_type {
                 CommandType::PCMD_Ability => {
                     Self::UseBattlegroupAbility(Pbgid::new(tick, command.index, pbgid))

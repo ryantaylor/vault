@@ -12,6 +12,7 @@ use nom::{
 
 #[derive(Debug, Copy, Clone)]
 pub enum CommandData {
+    Empty,
     Pbgid(u32),
     SourcedPbgid(u32, u16),
     Sourced(u16),
@@ -20,6 +21,10 @@ pub enum CommandData {
 }
 
 impl CommandData {
+    pub fn parse_empty(input: Span) -> ParserResult<CommandData> {
+        map(rest, |_| CommandData::Empty)(input)
+    }
+
     pub fn parse_pbgid(input: Span) -> ParserResult<CommandData> {
         map(tuple((take(27u32), le_u32)), |(_, pbgid)| {
             CommandData::Pbgid(pbgid)
@@ -56,6 +61,7 @@ impl CommandData {
         command_type: CommandType,
     ) -> impl FnMut(Span) -> ParserResult<CommandData> {
         match command_type {
+            CommandType::PCMD_AIPlayer => Self::parse_empty,
             CommandType::PCMD_Ability
             | CommandType::PCMD_InstantUpgrade
             | CommandType::PCMD_TentativeUpgrade => Self::parse_pbgid,
