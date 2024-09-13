@@ -47,7 +47,6 @@ struct CHUNKHEADER {
 };
 
 struct ITEM {
-    uint32 count;
     uint32 id_a;
     if (id_a == 0) {
         uint32 sublength_maybe;
@@ -73,28 +72,8 @@ struct ITEM {
     uint64 some_crazy_number;
     uint64 itemlocation_id;
     char rest_data[length - (FTell() - start)];
+    uint32 spacer;
 };
-
-uint32 GetItemCount(char faction[])
-{
-    if (global_version < 10000) {
-        if (faction == "british_africa")
-            return 21;
-        else if (faction == "americans")
-            return 22;
-        else
-            return 25;
-    } else {
-        if (faction == "british_africa")
-            return 21;
-        else if (faction == "americans")
-            return 22;
-        else if (faction == "germans")
-            return 25;
-        else
-            return 28;
-    }
-}
 
 struct PLAYER {
     ubyte is_human;
@@ -124,9 +103,15 @@ struct PLAYER {
     uint32 flag_b;
     uint32 flag_c;
     uint16 flag_d;
-    if (is_human == 1) ITEM items[GetItemCount(faction)] <optimize=false>;
-    else char data[44];
-    uint32 zero_six;
+    if (is_human == 1) {
+        uint32 battlegroup_count;
+        ITEM battlegroup_items[battlegroup_count] <optimize=false>;
+        uint32 spacer;
+        uint32 cosmetics_count;
+        ITEM cosmetic_items[cosmetics_count] <optimize=false>;
+    } else {
+        char data[48];
+    }
 };
 
 struct OPTIONCONFIG {

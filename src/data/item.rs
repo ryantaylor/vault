@@ -1,9 +1,10 @@
 use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
-use nom::combinator::{cut, map, peek};
+use nom::combinator::{cut, map};
 use nom::multi::length_data;
 use nom::number::complete::le_u32;
 use nom::sequence::tuple;
+use nom_tracable::tracable_parser;
 
 #[derive(Debug)]
 pub struct Item {
@@ -11,44 +12,17 @@ pub struct Item {
 }
 
 impl Item {
+    #[tracable_parser]
     pub fn parse_item(input: Span) -> ParserResult<Item> {
         cut(map(
             tuple((
-                take(4u32),
-                Self::parse_sublength,
-                take(20u32),
+                take(24u32),
                 length_data(le_u32),
+                take(4u32)
             )),
-            |(_, _, _, data)| Item {
+            |(_, data, _): (Span, Span, Span)| Item {
                 _data: data.to_vec(),
             },
         ))(input)
-    }
-
-    pub fn get_item_count(faction: &str, version: u16) -> usize {
-        if version < 10000 {
-            match faction {
-                "british_africa" => 21,
-                "americans" => 22,
-                _ => 25,
-            }
-        } else {
-            match faction {
-                "british_africa" => 21,
-                "americans" => 22,
-                "germans" => 25,
-                _ => 28,
-            }
-        }
-    }
-
-    fn parse_sublength(input: Span) -> ParserResult<Span> {
-        let (input, id) = peek(le_u32)(input)?;
-
-        if id == 0 {
-            take(12u32)(input)
-        } else {
-            take(4u32)(input)
-        }
     }
 }
