@@ -20,7 +20,7 @@ impl Chunk {
             return match &header.chunk_kind as &str {
                 "DATA" => match &header.chunk_type as &str {
                     "AUTO" => DataAutoChunk::parse(input, header),
-                    "DATA" => DataDataChunk::parse(input, header, version),
+                    "DATA" => DataDataChunk::parse(input, header),
                     "SDSC" => DataSdscChunk::parse(input, header),
                     _ => TrashDataChunk::parse(input, header),
                 },

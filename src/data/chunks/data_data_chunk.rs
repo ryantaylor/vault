@@ -44,7 +44,7 @@ pub struct DataDataChunk {
 
 impl DataDataChunk {
     #[tracable_parser]
-    pub fn parse(input: Span, header: Header, version: u16) -> ParserResult<Chunk> {
+    pub fn parse(input: Span, header: Header) -> ParserResult<Chunk> {
         if header.version == 1 {
             return TrashDataChunk::parse(input, header);
         }
@@ -55,7 +55,7 @@ impl DataDataChunk {
                 tuple((
                     Self::parse_opponent_type,
                     take(6u32),
-                    Self::parse_players(version),
+                    Self::parse_players,
                     length_data(le_u32),
                     Self::parse_skirmish_flag,
                     le_u64,
@@ -96,8 +96,8 @@ impl DataDataChunk {
         le_u32(input)
     }
 
-    fn parse_players(version: u16) -> impl FnMut(Span) -> ParserResult<Vec<Player>> {
-        move |input: Span| length_count(le_u32, Player::parse_player(version))(input)
+    fn parse_players(input: Span) -> ParserResult<Vec<Player>> {
+        length_count(le_u32, Player::parse_player)(input)
     }
 
     #[tracable_parser]
