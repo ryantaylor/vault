@@ -91,27 +91,22 @@ impl Player {
     }
 
     #[tracable_parser]
-    fn parse_items<'a>(
-        input: Span<'a>,
-        player: &Player
-    ) -> IResult<Span<'a>, Vec<Item>> {
+    fn parse_items<'a>(input: Span<'a>, player: &Player) -> IResult<Span<'a>, Vec<Item>> {
         if player.human == 0 {
             let (input, _) = take(48u32)(input)?;
             return Ok((input, vec![]));
         }
-        
-        cut(
-            map(
-                tuple((
-                    length_count(le_u32, Item::parse_item),
-                    take(4u32),
-                    length_count(le_u32, Item::parse_item)
-                )),
-                |(mut battlegroup_items, _, mut cosmetic_items)| {
-                    battlegroup_items.append(&mut cosmetic_items);
-                    battlegroup_items
-                }
-            )
-        )(input)
+
+        cut(map(
+            tuple((
+                length_count(le_u32, Item::parse_item),
+                take(4u32),
+                length_count(le_u32, Item::parse_item),
+            )),
+            |(mut battlegroup_items, _, mut cosmetic_items)| {
+                battlegroup_items.append(&mut cosmetic_items);
+                battlegroup_items
+            },
+        ))(input)
     }
 }
