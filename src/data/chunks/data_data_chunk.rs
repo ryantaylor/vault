@@ -4,8 +4,8 @@ use crate::data::{ParserResult, Player, Span};
 use byteorder::{LittleEndian, ReadBytesExt};
 use nom::bytes::complete::{tag, take, take_while};
 use nom::character::{is_digit, is_hex_digit};
-use nom::combinator::{cut, map, map_parser};
-use nom::multi::{fold_many_m_n, length_count, length_data, length_value};
+use nom::combinator::{cut, map, map_parser, peek, verify};
+use nom::multi::{length_count, length_data, length_value, many_till};
 use nom::number::complete::{le_u32, le_u64};
 use nom::sequence::{separated_pair, tuple};
 use nom_tracable::tracable_parser;
@@ -59,8 +59,8 @@ impl DataDataChunk {
                     length_data(le_u32),
                     Self::parse_skirmish_flag,
                     le_u64,
-                    take(16u32),
-                    length_count(Self::parse_options_length, Option::parse_option),
+                    take(24u32),
+                    Self::parse_options,
                     take(12u32),
                     Self::parse_mod_info,
                 )),
@@ -101,8 +101,11 @@ impl DataDataChunk {
     }
 
     #[tracable_parser]
-    fn parse_options_length(input: Span) -> ParserResult<u32> {
-        fold_many_m_n(2, 2, le_u32, || -> u32 { 1 }, |acc: u32, item| acc * item)(input)
+    fn parse_options(input: Span) -> ParserResult<Vec<Option>> {
+        map(
+            many_till(Option::parse_option, verify(peek(le_u32), |n| *n == 0)),
+            |(options, _)| options,
+        )(input)
     }
 
     #[tracable_parser]

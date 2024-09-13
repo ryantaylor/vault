@@ -90,18 +90,21 @@ impl Player {
         Ok((input, steam_id))
     }
 
+    fn item_parser_for(player: &Player) -> impl FnMut(Span) -> ParserResult<Item> {
+        if player.human == 0 {
+            Item::parse_cpu_item
+        } else {
+            Item::parse_player_item
+        }
+    }
+
     #[tracable_parser]
     fn parse_items<'a>(input: Span<'a>, player: &Player) -> IResult<Span<'a>, Vec<Item>> {
-        if player.human == 0 {
-            let (input, _) = take(48u32)(input)?;
-            return Ok((input, vec![]));
-        }
-
         cut(map(
             tuple((
-                length_count(le_u32, Item::parse_item),
+                length_count(le_u32, Self::item_parser_for(player)),
                 take(4u32),
-                length_count(le_u32, Item::parse_item),
+                length_count(le_u32, Self::item_parser_for(player)),
             )),
             |(mut battlegroup_items, _, mut cosmetic_items)| {
                 battlegroup_items.append(&mut cosmetic_items);

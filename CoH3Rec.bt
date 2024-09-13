@@ -75,6 +75,11 @@ struct ITEM {
     uint32 spacer;
 };
 
+struct CPUITEM {
+    char blob[8];
+    uint32 spacer;
+};
+
 struct PLAYER {
     ubyte is_human;
     uint32 name_length;
@@ -110,7 +115,11 @@ struct PLAYER {
         uint32 cosmetics_count;
         ITEM cosmetic_items[cosmetics_count] <optimize=false>;
     } else {
-        char data[48];
+        uint32 battlegroup_count;
+        CPUITEM battlegroup_items[battlegroup_count] <optimize=false>;
+        uint32 spacer;
+        uint32 cosmetics_count;
+        CPUITEM cosmetic_items[cosmetics_count] <optimize=false>;
     }
 };
 
@@ -141,7 +150,9 @@ struct DATADATACHUNK {
         uint32 one_or_zero;
         uint32 option_group_count;
         uint32 options_per_group;
-        OPTIONCONFIG options[option_group_count * options_per_group] <optimize=false>;
+        while (ReadUInt() != 0) {
+            OPTIONCONFIG options;
+        }
         uint32 zero_d;
         uint32 zero_e;
         uint32 zero_f;
@@ -191,6 +202,7 @@ struct DATASDSCCHUNK {
     CHUNKHEADER header;
     local uint32 start = FTell();
     char data[121];
+    if (header.version > 3026) char more_data[8];
     uint32 map_file_length;
     char map_file[map_file_length];
     uint32 map_name_length;
