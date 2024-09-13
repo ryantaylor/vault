@@ -131,6 +131,34 @@ fn parse_ai_takeover() {
 }
 
 #[test]
+fn parse_zero_item_player() {
+    let data = include_bytes!("../replays/zero_items.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+}
+
+#[test]
+fn parse_unusual_items_player() {
+    let data = include_bytes!("../replays/unusual_items.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+}
+
+#[test]
+fn parse_unusual_options() {
+    let data = include_bytes!("../replays/unusual_options.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+}
+
+#[test]
+fn parse_unusual_cpu_items() {
+    let data = include_bytes!("../replays/unusual_cpu_items.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+}
+
+#[test]
 #[cfg_attr(not(feature = "regression"), ignore)]
 fn regression() {
     let paths = fs::read_dir("replays/regression").unwrap();
