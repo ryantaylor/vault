@@ -9,7 +9,7 @@ use std::{
     thread,
 };
 use uuid::{uuid, Uuid};
-use vault::{Command, CommandType, Faction, GameType, Replay};
+use vault::{Command, CommandType, Faction, GameType, Replay, Team};
 
 #[test]
 fn parse_success() {
@@ -184,6 +184,31 @@ fn parse_unusual_brit_faction() {
             Faction::Wehrmacht,
             Faction::AfrikaKorps,
             Faction::Americans
+        ]
+    );
+}
+
+#[test]
+fn parse_unusual_team_id() {
+    let data = include_bytes!("../replays/unusual_team_id.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+    let unwrapped = replay.unwrap();
+    assert_eq!(
+        unwrapped
+            .players()
+            .iter()
+            .map(|player| { player.team() })
+            .collect::<Vec<Team>>(),
+        vec![
+            Team::First,
+            Team::Second,
+            Team::First,
+            Team::Second,
+            Team::First,
+            Team::Second,
+            Team::First,
+            Team::Second
         ]
     );
 }

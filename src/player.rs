@@ -238,6 +238,7 @@ impl TryFrom<u32> for Team {
         match input {
             0 => Ok(Team::First),
             1 => Ok(Team::Second),
+            10000 => Ok(Team::Second),
             _ => Err(format!("Invalid team ID {}!", input)),
         }
     }
