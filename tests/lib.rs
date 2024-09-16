@@ -9,7 +9,7 @@ use std::{
     thread,
 };
 use uuid::{uuid, Uuid};
-use vault::{Command, CommandType, GameType, Replay};
+use vault::{Command, CommandType, Faction, GameType, Replay};
 
 #[test]
 fn parse_success() {
@@ -152,10 +152,40 @@ fn parse_unusual_options() {
 }
 
 #[test]
+fn parse_one_delimited_options() {
+    let data = include_bytes!("../replays/one_delimited_options.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+}
+
+#[test]
 fn parse_unusual_cpu_items() {
     let data = include_bytes!("../replays/unusual_cpu_items.rec");
     let replay = Replay::from_bytes(data);
     assert!(replay.is_ok());
+}
+
+#[test]
+fn parse_unusual_brit_faction() {
+    let data = include_bytes!("../replays/unusual_brit_faction.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+    let unwrapped = replay.unwrap();
+    assert_eq!(
+        unwrapped
+            .players()
+            .iter()
+            .map(|player| { player.faction() })
+            .collect::<Vec<Faction>>(),
+        vec![
+            Faction::British,
+            Faction::Americans,
+            Faction::Wehrmacht,
+            Faction::Wehrmacht,
+            Faction::AfrikaKorps,
+            Faction::Americans
+        ]
+    );
 }
 
 #[test]

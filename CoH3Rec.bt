@@ -150,7 +150,7 @@ struct DATADATACHUNK {
         uint32 one_or_zero;
         uint32 option_group_count;
         uint32 options_per_group;
-        while (ReadUInt() != 0) {
+        while (ReadUInt() != 0 && ReadUInt() != 1) {
             OPTIONCONFIG options;
         }
         uint32 zero_d;

@@ -103,7 +103,10 @@ impl DataDataChunk {
     #[tracable_parser]
     fn parse_options(input: Span) -> ParserResult<Vec<Option>> {
         map(
-            many_till(Option::parse_option, verify(peek(le_u32), |n| *n == 0)),
+            many_till(
+                Option::parse_option,
+                verify(peek(le_u32), |n| *n == 0 || *n == 1),
+            ),
             |(options, _)| options,
         )(input)
     }

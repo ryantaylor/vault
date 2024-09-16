@@ -178,7 +178,7 @@ unsafe impl magnus::IntoValueFromNative for Player {}
 
 /// Company of Heroes 3 factions.
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Faction"))]
 pub enum Faction {
@@ -205,6 +205,7 @@ impl TryFrom<&str> for Faction {
     fn try_from(input: &str) -> Result<Faction, Self::Error> {
         match input {
             "americans" => Ok(Faction::Americans),
+            "british" => Ok(Faction::British),
             "british_africa" => Ok(Faction::British),
             "germans" => Ok(Faction::Wehrmacht),
             "afrika_korps" => Ok(Faction::AfrikaKorps),
@@ -215,7 +216,7 @@ impl TryFrom<&str> for Faction {
 
 /// Representation of a player's team membership.
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "magnus", magnus::wrap(class = "VaultCoh::Team"))]
 pub enum Team {
