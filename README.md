@@ -1,6 +1,6 @@
 # vault
 
-[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/10.1.3/vault/)
+[![crates.io](https://img.shields.io/crates/v/vault.svg)](https://crates.io/crates/vault) [![Documentation](https://img.shields.io/badge/View-Documentation-blue.svg)](https://docs.rs/vault/10.1.4/vault/)
 
 `vault` is a Company of Heroes replay parsing library written in [Rust](https://www.rust-lang.org/). It has been completely rewritten for Company of Heroes 3 to provide a more intuitive interface while simplifying the code and leveraging [nom](https://github.com/rust-bakery/nom)'s parser combinators to enable clean, fast parsing of Company of Heroes 3 replay files.
 
@@ -112,7 +112,7 @@ Ruby bindings have some additional compatibility requirements, such as `libclang
 
 # Documentation
 
-Documentation for `vault` [can be viewed online](https://docs.rs/vault/10.1.3/vault/).
+Documentation for `vault` [can be viewed online](https://docs.rs/vault/10.1.4/vault/).
 
 Alternatively, you can easily build an offline copy of the documentation for yourself with `cargo`:
 
