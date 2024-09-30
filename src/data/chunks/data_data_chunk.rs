@@ -5,7 +5,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use nom::bytes::complete::{tag, take, take_while};
 use nom::character::{is_digit, is_hex_digit};
 use nom::combinator::{cut, map, map_parser, peek, verify};
-use nom::multi::{length_count, length_data, length_value, many_till};
+use nom::multi::{length_count, length_data, length_value, many_m_n, many_till};
 use nom::number::complete::{le_u32, le_u64};
 use nom::sequence::{separated_pair, tuple};
 use nom_tracable::tracable_parser;
@@ -105,7 +105,10 @@ impl DataDataChunk {
         map(
             many_till(
                 Option::parse_option,
-                verify(peek(le_u32), |n| *n == 0 || *n == 1),
+                map_parser(
+                    peek(take(12u32)),
+                    many_m_n(3, 3, verify(le_u32, |n| *n == 0 || *n == 1)),
+                ),
             ),
             |(options, _)| options,
         )(input)

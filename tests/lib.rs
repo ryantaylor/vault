@@ -189,6 +189,13 @@ fn parse_unusual_brit_faction() {
 }
 
 #[test]
+fn parse_one_char_options() {
+    let data = include_bytes!("../replays/one_char_options.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+}
+
+#[test]
 fn parse_unusual_team_id() {
     let data = include_bytes!("../replays/unusual_team_id.rec");
     let replay = Replay::from_bytes(data);
