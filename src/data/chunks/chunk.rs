@@ -17,7 +17,7 @@ impl Chunk {
         move |input: Span| {
             let (input, header) = Header::parse(input)?;
 
-            return match &header.chunk_kind as &str {
+            match &header.chunk_kind as &str {
                 "DATA" => match &header.chunk_type as &str {
                     "AUTO" => DataAutoChunk::parse(input, header),
                     "DATA" => DataDataChunk::parse(input, header),
@@ -26,7 +26,7 @@ impl Chunk {
                 },
                 "FOLD" => FoldChunk::parse(input, header, version),
                 _ => panic!(),
-            };
+            }
         }
     }
 }
