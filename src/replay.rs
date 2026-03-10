@@ -43,7 +43,7 @@ impl Replay {
     ///     assert!(replay.is_ok())
     /// }
     /// ```
-    pub fn from_bytes(input: &[u8]) -> Result<Replay, ParseError> {
+    pub fn from_bytes(input: &[u8]) -> Result<Replay, ParseError<'_>> {
         let info = TracableInfo::new().parser_width(64).fold("term");
         let input: Span = LocatedSpan::new_extra(input, info);
         let (_, replay) = ReplayData::from_span(input)?;
