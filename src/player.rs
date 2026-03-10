@@ -66,7 +66,7 @@ impl Player {
     pub fn battlegroup_selected_at(&self) -> Option<u32> {
         self.battlegroup_selected_at
     }
-    /// The tick at which the player dropped from the game and AI took over their army, or `None` if the 
+    /// The tick at which the player dropped from the game and AI took over their army, or `None` if the
     /// player never dropped from the game.
     pub fn ai_takeover_at(&self) -> Option<u32> {
         self.ai_takeover_at
@@ -174,9 +174,9 @@ pub(crate) fn player_from_data(
         Some(Command::SelectBattlegroup(command)) => {
             player.battlegroup = Some(command.pbgid());
             player.battlegroup_selected_at = Some(command.tick());
-        },
+        }
         Some(_) => panic!(),
-        None => {},
+        None => {}
     };
 
     player.ai_takeover_at = match player
