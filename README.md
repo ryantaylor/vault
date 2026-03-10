@@ -106,7 +106,9 @@ fn main() {
 
 # Compatibility
 
-Official minimum supported Rust version is 1.65.0, because this is the version magnus requires. However, building without Ruby bindings should be fine on any compiler version that supports Rust 2021, though this isn't officially supported.
+`vault` is tested against stable Rust, and older versions aren't officially supported. However, you
+should be able to compile on older versions, you just might have to pin dependencies to supported
+versions.
 
 Ruby bindings have some additional compatibility requirements, such as `libclang` and minimum Ruby version requirements. For more information see [magnus compatibility](https://github.com/matsadler/magnus#compatibility).
 
