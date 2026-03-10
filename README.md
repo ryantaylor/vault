@@ -106,7 +106,9 @@ fn main() {
 
 # Compatibility
 
-Official minimum supported Rust version is 1.71.0, to accomodate the MSRV of dependencies.
+`vault` is tested against stable Rust, and older versions aren't officially supported. However, you
+should be able to compile on older versions, you just might have to pin dependencies to supported
+versions.
 
 Ruby bindings have some additional compatibility requirements, such as `libclang` and minimum Ruby version requirements. For more information see [magnus compatibility](https://github.com/matsadler/magnus#compatibility).
 
