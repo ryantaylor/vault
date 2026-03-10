@@ -26,6 +26,8 @@ pub struct Player {
     faction: Faction,
     team: Team,
     battlegroup: Option<u32>,
+    battlegroup_selected_at: Option<u32>,
+    ai_takeover_at: Option<u32>,
     steam_id: Option<u64>,
     profile_id: Option<u64>,
     messages: Vec<Message>,
@@ -59,6 +61,15 @@ impl Player {
     /// For details on what this ID represents please see `SelectBattlegroup::pbgid`.
     pub fn battlegroup(&self) -> Option<u32> {
         self.battlegroup
+    }
+    /// The tick at which the player selected their battlegroup, or `None` if no battlegroup was selected.
+    pub fn battlegroup_selected_at(&self) -> Option<u32> {
+        self.battlegroup_selected_at
+    }
+    /// The tick at which the player dropped from the game and AI took over their army, or `None` if the 
+    /// player never dropped from the game.
+    pub fn ai_takeover_at(&self) -> Option<u32> {
+        self.ai_takeover_at
     }
     /// The Steam ID of the player, or `None` if the player is AI. This ID can be used to uniquely
     /// identify a player between replays, and connect them to their Steam profile.
@@ -146,6 +157,8 @@ pub(crate) fn player_from_data(
             .cloned()
             .unwrap_or_default(),
         battlegroup: None,
+        battlegroup_selected_at: None,
+        ai_takeover_at: None,
     };
 
     if player.human {
@@ -153,12 +166,25 @@ pub(crate) fn player_from_data(
         player.profile_id = Some(player_data.profile_id);
     }
 
-    player.battlegroup = match player
+    match player
         .commands
         .iter()
         .find(|&command| matches!(command, Command::SelectBattlegroup(_)))
     {
-        Some(Command::SelectBattlegroup(command)) => Some(command.pbgid()),
+        Some(Command::SelectBattlegroup(command)) => {
+            player.battlegroup = Some(command.pbgid());
+            player.battlegroup_selected_at = Some(command.tick());
+        },
+        Some(_) => panic!(),
+        None => {},
+    };
+
+    player.ai_takeover_at = match player
+        .commands
+        .iter()
+        .find(|&command| matches!(command, Command::AITakeover(_)))
+    {
+        Some(Command::AITakeover(command)) => Some(command.tick()),
         Some(_) => panic!(),
         None => None,
     };
