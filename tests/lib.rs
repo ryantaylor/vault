@@ -166,6 +166,13 @@ fn parse_unusual_cpu_items() {
 }
 
 #[test]
+fn parse_230_failure() {
+    let data = include_bytes!("../replays/230.rec");
+    let replay = Replay::from_bytes(data);
+    assert!(replay.is_ok());
+}
+
+#[test]
 fn parse_unusual_brit_faction() {
     let data = include_bytes!("../replays/unusual_brit_faction.rec");
     let replay = Replay::from_bytes(data);

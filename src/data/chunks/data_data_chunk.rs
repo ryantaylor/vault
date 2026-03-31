@@ -55,7 +55,7 @@ impl DataDataChunk {
                 tuple((
                     Self::parse_opponent_type,
                     take(6u32),
-                    Self::parse_players,
+                    Self::parse_players(header.clone()),
                     length_data(le_u32),
                     Self::parse_skirmish_flag,
                     le_u64,
@@ -96,8 +96,8 @@ impl DataDataChunk {
         le_u32(input)
     }
 
-    fn parse_players(input: Span) -> ParserResult<Vec<Player>> {
-        length_count(le_u32, Player::parse_player)(input)
+    fn parse_players(header: Header) -> impl FnMut(Span) -> ParserResult<Vec<Player>> {
+        move |input: Span| length_count(le_u32, Player::parse_player(header.clone()))(input)
     }
 
     #[tracable_parser]

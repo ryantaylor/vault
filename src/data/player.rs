@@ -1,8 +1,9 @@
+use crate::data::chunks::Header;
 use crate::data::parser::{parse_utf16_variable, parse_utf8_variable};
 use crate::data::Item;
 use crate::data::{ParserResult, Span};
 use nom::bytes::complete::take;
-use nom::combinator::{cut, map};
+use nom::combinator::{cond, cut, map};
 use nom::multi::length_count;
 use nom::number::complete::{le_u32, le_u64, le_u8};
 use nom::sequence::tuple;
@@ -23,46 +24,52 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn parse_player(input: Span) -> ParserResult<Player> {
-        let (input, player) = cut(map(
-            tuple((
-                le_u8,
-                Self::parse_name,
-                Self::parse_team,
-                le_u32,
-                take(1u32),
-                Self::parse_faction,
-                take(8u32),
-                Self::parse_ai,
-                take(40u32),
-                le_u64,
-                take(1u32),
-                Self::parse_steam_id,
-                take(18u32),
-            )),
-            |(human, name, team, id, _, faction, _, ai_type, _, profile_id, _, steam_id, _)| {
-                Player {
-                    id,
-                    human,
-                    name,
-                    team,
-                    faction,
-                    _ai_type: ai_type,
-                    steam_id,
-                    profile_id,
-                    _items: vec![],
-                }
-            },
-        ))(input)?;
+    pub fn parse_player(header: Header) -> impl FnMut(Span) -> ParserResult<Player> {
+        move |input: Span| {
+            let (input, player) = cut(map(
+                tuple((
+                    le_u8,
+                    Self::parse_name,
+                    Self::parse_team,
+                    le_u32,
+                    take(1u32),
+                    Self::parse_faction,
+                    take(8u32),
+                    Self::parse_ai,
+                    take(40u32),
+                    le_u64,
+                    take(1u32),
+                    Self::parse_steam_id,
+                    take(18u32),
+                )),
+                |(human, name, team, id, _, faction, _, ai_type, _, profile_id, _, steam_id, _)| {
+                    Player {
+                        id,
+                        human,
+                        name,
+                        team,
+                        faction,
+                        _ai_type: ai_type,
+                        steam_id,
+                        profile_id,
+                        _items: vec![],
+                    }
+                },
+            ))(input)?;
 
-        let (input, items) = Self::parse_items(input, &player)?;
-        Ok((
-            input,
-            Player {
-                _items: items,
-                ..player
-            },
-        ))
+            let (input, items) = Self::parse_items(input, &player)?;
+
+            // players in this chunk version or later have an extra 4 bytes between them for some reason
+            let (input, _) = cond(header.version >= 4595383, take(4u32))(input)?;
+
+            Ok((
+                input,
+                Player {
+                    _items: items,
+                    ..player
+                },
+            ))
+        }
     }
 
     #[tracable_parser]

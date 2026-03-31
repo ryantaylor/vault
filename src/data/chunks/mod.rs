@@ -10,6 +10,6 @@ pub use crate::data::chunks::chunk::Chunk;
 pub use crate::data::chunks::data_auto_chunk::DataAutoChunk;
 pub use crate::data::chunks::data_data_chunk::DataDataChunk;
 pub use crate::data::chunks::data_sdsc_chunk::DataSdscChunk;
+pub use crate::data::chunks::header::Header;
 use crate::data::chunks::fold_chunk::FoldChunk;
-use crate::data::chunks::header::Header;
 use crate::data::chunks::trash_data_chunk::TrashDataChunk;
