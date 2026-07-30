@@ -59,8 +59,12 @@ impl Player {
 
             let (input, items) = Self::parse_items(input, &player)?;
 
-            // players in this chunk version or later have an extra 4 bytes between them for some reason
-            let (input, _) = cond(header.version >= 4595383, take(4u32))(input)?;
+            // Players in this chunk version or later carry a trailing count-prefixed list.
+            // It was empty in every replay up to game version 46673, which is why it used to
+            // read as four unexplained bytes between players; 2.5.0 (48652) began populating
+            // it — one 6-byte record (u32 pbgid, u16 slot) per entry — and reading only the
+            // count then derails the next player's parse.
+            let (input, _) = cond(header.version >= 4595383, Self::parse_slots)(input)?;
 
             Ok((
                 input,
@@ -118,5 +122,14 @@ impl Player {
                 battlegroup_items
             },
         ))(input)
+    }
+
+    /// The trailing per-player list `parse_player` describes. Each record is a pbgid and a
+    /// slot index; nothing in the public API exposes them yet, so they are read and dropped
+    /// to keep the player boundary correct.
+    #[tracable_parser]
+    fn parse_slots(input: Span) -> ParserResult<()> {
+        let (input, _) = length_count(le_u32, take(6u32))(input)?;
+        Ok((input, ()))
     }
 }
